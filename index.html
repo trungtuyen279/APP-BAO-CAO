@@ -570,7 +570,7 @@ async function boot(){
     if (cache) startApp(cache, true);
     else if (navigator.onLine) { try { startApp(await api('bootstrap')); } catch(e){ showLogin(); } }
     else showLogin();
-    if (cache && navigator.onLine) refresh();
+    if (cache && navigator.onLine) setTimeout(refresh, 1200);   // hiện ngay, tải mới chạy ngầm
   } else showLogin();
 }
 function showLogin(){ document.getElementById('login').style.display='flex'; }
@@ -773,7 +773,7 @@ $('btnReload').onclick = () => navigator.onLine ? refresh().then(()=>toast('Đã
 window.addEventListener('online', flush);
 window.addEventListener('offline', () => paintNet());
 setInterval(() => { if (S.token) flush(); }, 60000);
-setInterval(() => { if (S.token && navigator.onLine) refresh(); }, 300000);
+setInterval(() => { if (S.token && navigator.onLine) refresh(); }, 1200000);
 
 async function paintNet(msg){
   const q = await Store.all();
