@@ -164,6 +164,24 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
   font-family:var(--font);font-size:12.5px;font-weight:bold;padding:7px 13px;border-radius:20px;cursor:pointer}
 .subs button.on{border-color:var(--brand);background:var(--brand);color:#fff}
 
+/* ---------- lời cảm ơn khi báo cáo đúng giờ ---------- */
+#camon{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.55);display:flex;
+  align-items:center;justify-content:center;padding:26px;animation:hien .25s}
+#camon .the{background:#fff;border-radius:14px;max-width:340px;width:100%;text-align:center;
+  padding:30px 22px 24px;border-top:6px solid var(--brand)}
+#camon .tick{width:74px;height:74px;border-radius:50%;background:#157F4B;color:#fff;
+  font-size:42px;line-height:74px;margin:0 auto 16px;font-weight:bold}
+#camon h3{font-size:18.5px;color:var(--brand);line-height:1.45;margin-bottom:8px}
+#camon p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+@keyframes hien{from{opacity:0}to{opacity:1}}
+.tag-rieng{display:inline-block;background:#1A5C96;color:#fff;font-size:10.5px;font-weight:bold;
+  border-radius:4px;padding:2px 7px;margin-bottom:6px}
+.nhacbar{position:fixed;left:0;right:0;bottom:76px;z-index:60;margin:0 auto;max-width:454px;
+  background:#B45300;color:#fff;font-size:13px;font-weight:bold;line-height:1.5;
+  padding:11px 40px 11px 13px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.nhacbar b{color:#FFE28A}
+.nhacbar i{position:absolute;right:9px;top:8px;font-style:normal;font-size:17px;cursor:pointer;padding:4px}
+
 /* ---------- sổ tay: mục lục & trình đọc ---------- */
 .quyen{background:var(--brand);color:var(--brand-text);font-weight:bold;font-size:14px;
   padding:10px 12px;border-radius:7px;margin:16px 0 9px;line-height:1.35}
@@ -420,6 +438,8 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <div class="alist">
       <div class="arow"><b>Dự án được gán</b><span id="a-da">—</span></div>
       <div class="arow"><b>Phạm vi phụ trách</b><span id="a-pv">—</span></div>
+      <div class="arow" id="a-day" onclick="batThongBaoDay()" style="cursor:pointer">
+        <b>Thông báo đẩy (rung máy)</b><span id="a-day-tt">Chưa bật ›</span></div>
       <div class="arow"><b>Trạng thái đồng bộ</b><span id="a-db">—</span></div>
       <button class="arow" id="btnPin"><b>Đổi mã PIN</b><span class="go">›</span></button>
       <button class="arow" onclick="location.href='huong-dan-cai-dat.html'"><b>Hướng dẫn sử dụng</b><span class="go">›</span></button>
@@ -472,7 +492,14 @@ window.addEventListener('error', function(e){
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '2.8.0';   /* đổi ở đây mỗi lần phát hành — KHÔNG cần sửa config.js */
+const APP_VERSION = '3.0.0';
+const FCM = {
+  config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
+    authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
+    storageBucket:"app-bao-cao-bch.firebasestorage.app",
+    messagingSenderId:"523699300306", appId:"1:523699300306:web:2a5d6f951ac5ec002c8a0b"},
+  vapid: "BAxKCRE9-7WR1Y6ygiQUQOaa6ZFpB5j79THJT7g-_LOH8wE7_rWRbMnp56vFHp41ppeNs18UYDarHQ8q2VZ67U0"
+};   /* đổi ở đây mỗi lần phát hành — KHÔNG cần sửa config.js */
 
 /* =====================================================================
    BÁO CÁO CÔNG VIỆC BCH — LICOGI13FC
@@ -609,6 +636,7 @@ async function api(action, data = {}, giay = 60) {
     if (action === 'approve') { const l = S.logs.find(x => x.id === data.id); if (l) l.trangThai = data.trangThai; return {}; }
     if (action === 'changePin') return {};
     if (action === 'beTong' || action === 'duyetBeTong') return {};
+    if (action === 'dangKyThietBi') return {ok:true};
     if (action === 'notify') { S.notis.unshift({id:'TB'+Date.now(), ...data, loai:data.loai, tieuDe:data.tieuDe, noiDung:data.noiDung,
       nguoiGui:S.user.hoTen, thoiGian:new Date().toISOString(), daXacNhan:null, thongKe:'0/14 người'}); return {}; }
     return {};
@@ -709,6 +737,7 @@ function applyData(d){
   S.soTay = d.soTay || S.soTay; S.tienDoCS = d.tienDoCS || S.tienDoCS;
   S.keHoachDo = d.keHoachDo || S.keHoachDo; S.doBT = d.doBT || S.doBT;
   S.macBT = d.macBT || S.macBT; S.nccBT = d.nccBT || S.nccBT;
+  setTimeout(kiemTraNhac, 800);
 }
 async function refresh(){
   try { const d = await api('bootstrap'); applyData(d); await Store.set('cache', d); renderAll(); }
@@ -898,7 +927,8 @@ async function flush(){
   S.sending = true; paintNet('Đang gửi ' + q.length + ' bản ghi…');
   try {
     for (const rec of q) {
-      await api(rec._loai === 'BETONG' ? 'beTong' : 'submit', rec, 45);
+      const res = await api(rec._loai === 'BETONG' ? 'beTong' : 'submit', rec, 45);
+      if (res && res.camOn) hienCamOn();
       await Store.drop(rec.id);
       /* đưa thẳng vào danh sách tại máy, khỏi chờ tải lại từ máy chủ */
       if (rec._loai === 'BETONG')
@@ -1018,7 +1048,7 @@ function renderNotis(){
   $('notis').innerHTML = S.notis.length ? S.notis.map(n => `
     <div class="card ${n.mucDo==='Khẩn'?'urgent':''}">
       ${n.mucDo!=='Thường' ? `<div class="lv">● ${n.mucDo.toUpperCase()}</div>` : ''}
-      <h4>${n.tieuDe}</h4>
+      ${n.rieng ? '<span class="tag-rieng">GỬI RIÊNG CHO BẠN</span>' : ''}<h4>${n.tieuDe}</h4>
       <p>${n.noiDung}</p>
       <p>${n.nguoiGui} · ${new Date(n.thoiGian).toLocaleString('vi-VN')}</p>
       ${n.daXacNhan
@@ -1058,6 +1088,7 @@ async function renderAcct(){
   $('a-da').textContent   = (S.user.duAn || []).map(m => m === 'TAT_CA' ? 'Tất cả dự án'
                             : (S.duan.find(d => d.maDA === m) || {}).tenDA || m).join(', ') || '—';
   $('a-pv').textContent   = (S.user.phamVi || []).length ? S.user.phamVi.join(' · ') : 'Toàn dự án';
+  trangThaiDay();
   const q = await Store.all();
   $('a-db').textContent   = q.length ? q.length + ' bản ghi chờ gửi' : 'Đã đồng bộ';
   $('a-ver').textContent  = 'Phiên bản ' + APP_VERSION + (DEMO ? ' · CHƯA NỐI MÁY CHỦ (chạy thử)' : '');
@@ -1120,7 +1151,7 @@ function renderTinTuc(){
   $('ttList').innerHTML = thanhChonDA('renderTinTuc') + (ds.length ? ds.map(n => `
     <div class="item ${n.mucDo==='Khẩn'?'urgent':''}">
       ${n.mucDo && n.mucDo!=='Thường' ? `<div class="lv" style="color:var(--alert);font-weight:bold;font-size:11px">● ${n.mucDo.toUpperCase()}</div>` : ''}
-      <h4>${n.tieuDe}</h4>
+      ${n.rieng ? '<span class="tag-rieng">GỬI RIÊNG CHO BẠN</span>' : ''}<h4>${n.tieuDe}</h4>
       <div class="meta">${n.noiDung}</div>
       <div class="meta">${n.nguoiGui} · ${new Date(n.thoiGian).toLocaleString('vi-VN')}</div>
       ${n.daXacNhan ? `<span class="tag t-ok">Đã xác nhận</span>`
