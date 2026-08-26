@@ -162,6 +162,27 @@ nav button .n{position:absolute;top:4px;right:22%;background:var(--alert);color:
   font-family:var(--font);font-size:12.5px;font-weight:bold;padding:7px 13px;border-radius:20px;cursor:pointer}
 .subs button.on{border-color:var(--brand);background:var(--brand);color:#fff}
 
+/* ---------- sổ tay: mục lục & trình đọc ---------- */
+.stsearch{width:100%;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);
+  border-radius:7px;margin-bottom:12px;background:#F7F8F9}
+.chuong{border:1.5px solid var(--line);border-radius:7px;margin-bottom:8px;overflow:hidden}
+.chuong>button{width:100%;text-align:left;background:#fff;border:0;font-family:var(--font);
+  font-size:14.5px;font-weight:bold;color:var(--ink);padding:13px 12px;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;gap:10px}
+.chuong>button span{color:var(--brand);font-size:17px;flex:none}
+.chuong .muc{border-top:1px solid var(--line);background:#F7F8F9}
+.chuong .muc button{width:100%;text-align:left;background:0;border:0;border-bottom:1px solid var(--line);
+  font-family:var(--font);font-size:13.5px;color:var(--ink);padding:11px 12px 11px 22px;cursor:pointer;line-height:1.45}
+.chuong .muc button:last-child{border-bottom:0}
+.doc h3{font-size:17px;margin-bottom:4px;line-height:1.35}
+.doc .nguon{font-size:12px;color:var(--ink-2);margin-bottom:12px}
+.doc p{font-size:15px;line-height:1.7;margin-bottom:11px}
+.doc li{font-size:15px;line-height:1.7;margin:0 0 7px 20px}
+.doc h4{font-size:15px;font-weight:bold;margin:16px 0 7px;color:var(--brand)}
+.doc mark{background:#FFF3B0;padding:0 2px}
+.back{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:6px;
+  font-family:var(--font);font-weight:bold;font-size:13px;padding:9px 13px;cursor:pointer;margin-bottom:12px}
+
 /* ---------- thẻ danh sách ---------- */
 .item{border:1.5px solid var(--line);border-radius:7px;padding:11px;margin-bottom:9px}
 .item h4{font-size:14.5px;line-height:1.3}
@@ -434,7 +455,7 @@ nav button .n{position:absolute;top:4px;right:22%;background:var(--alert);color:
 
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '2.6.0';   /* đổi ở đây mỗi lần phát hành — KHÔNG cần sửa config.js */
+const APP_VERSION = '2.7.0';   /* đổi ở đây mỗi lần phát hành — KHÔNG cần sửa config.js */
 
 /* =====================================================================
    BÁO CÁO CÔNG VIỆC BCH — LICOGI13FC
@@ -489,7 +510,7 @@ const Store = (() => {
 
 /* ---------- 2. TRẠNG THÁI ---------- */
 const S = { user:null, token:null, duan:[], danhmuc:[], luyke:{}, logs:[], notis:[],
-            thauPhu:[], ncc:[], toDoi:[], soTay:[], tienDoCS:[], keHoachDo:[], doBT:[], macBT:[], nccBT:[], photos:[], anhBT:{matBang:[],phieuXe:[],phieuBom:[],chotKL:[],bbTru:[]},
+            thauPhu:[], ncc:[], toDoi:[], soTay:[], tienDoCS:[], keHoachDo:[], doBT:[], macBT:[], nccBT:[], mucLuc:null, chuongDaTai:{}, dangDoc:null, timST:'', photos:[], anhBT:{matBang:[],phieuXe:[],phieuBom:[],chotKL:[],bbTru:[]},
             phieuDang:null, sending:false, sub:{}, maDA:'' };
 
 /* ---------- 3a. CHẾ ĐỘ CHẠY THỬ (khi chưa dán API_URL) ---------- */
@@ -1381,43 +1402,101 @@ function renderDoiTac(){
   }
 }
 
-/* ---------- F. SỔ TAY KỸ THUẬT ---------- */
-function renderSoTay(){
+/* ---------- F. SỔ TAY KỸ THUẬT ----------
+   Mục lục và nội dung nằm ở file tĩnh trên GitHub, KHÔNG đi qua máy chủ Apps Script:
+     sotay/index.json          — mục lục 2 cấp (nhẹ, tải 1 lần)
+     sotay/<id-chuong>.json    — nội dung từng chương (chỉ tải khi bấm vào)
+   PDF có hình để nguyên file, mở đúng trang bằng #page=N                        */
+async function taiMucLuc(){
+  if (S.mucLuc) return S.mucLuc;
+  try {
+    const r = await fetch('sotay/index.json', {cache:'no-cache'});
+    S.mucLuc = r.ok ? await r.json() : {quyen:[]};
+  } catch(e){ S.mucLuc = {quyen:[]}; }
+  return S.mucLuc;
+}
+async function taiChuong(id){
+  if (S.chuongDaTai[id]) return S.chuongDaTai[id];
+  const r = await fetch('sotay/' + id + '.json', {cache:'no-cache'});
+  if (!r.ok) throw new Error('Chưa có nội dung chương này');
+  S.chuongDaTai[id] = await r.json();
+  return S.chuongDaTai[id];
+}
+function chuoiThuong(s){ return khongDau(s).toLowerCase(); }
+
+async function renderSoTay(){
+  const ml = await taiMucLuc();
   const dsST0 = cuaDA(S.soTay);
   const nganh = ['Tất cả', ...new Set(dsST0.map(x => x.chuyenNganh).filter(String))];
   const loc = S.sub.st || 'Tất cả';
   subTabs('sub-st', nganh, 'st', renderSoTay);
-  const ds = dsST0.filter(x => loc === 'Tất cả' || x.chuyenNganh === loc);
-  $('stList').innerHTML = thanhChonDA('renderSoTay') + (ds.length ? ds.map(x => `
-    <div class="item">
-      <h4>${x.tenTL}</h4>
-      <div class="meta">${x.chuyenNganh}${x.moTa ? ' · ' + x.moTa : ''}</div>
-      ${x.link ? `<div><a class="tel" href="${x.link}" target="_blank" rel="noopener">Mở tài liệu</a></div>`
-               : '<div class="meta">Chưa gắn link tài liệu.</div>'}
-    </div>`).join('') : empty('Chưa có tài liệu.<br>Khai báo trong sheet SO_TAY_KT: chuyên ngành, tên tài liệu, link Drive.'));
-}
 
-/* ---------- E. TỔ ĐỘI ---------- */
-const LOC_TD = ['Đang làm','Nghỉ','Tất cả'];
-function renderToDoi(){
-  const loc = S.sub.td || LOC_TD[0];
-  subTabs('sub-td', LOC_TD, 'td', renderToDoi);
-  const ds = cuaDA(S.toDoi).filter(x => loc === 'Tất cả' ? true
-    : loc === 'Nghỉ' ? x.trangThai === 'NGHI' : x.trangThai !== 'NGHI');
-  const tong = ds.reduce((s,x) => s + (+x.quanSo||0), 0);
-  $('tdList').innerHTML = thanhChonDA('renderToDoi') + (ds.length ? `<div class="tq-box"><h5>Tổng quân số ${loc.toLowerCase()}</h5>
-      <div class="tq-big">${tong}</div><div class="tq-sub">${ds.length} tổ đội</div></div>` : '') +
-    (ds.length ? ds.map(x => `
-    <div class="item">
-      <h4>${x.tenTo}</h4>
-      <div class="meta">${x.maTo}${x.thauPhu ? ' · ' + x.thauPhu : ''}</div>
-      <div class="meta">Công việc: ${x.congViec || '—'}</div>
-      <div class="meta">Vị trí: <b>${x.viTri || '—'}</b> · Quân số: <b>${x.quanSo || 0}</b></div>
-      <span class="tag ${x.trangThai==='NGHI'?'t-no':'t-ok'}">${x.trangThai==='NGHI'?'Nghỉ':'Đang làm'}</span>
-      ${x.dienThoai ? `<div><a class="tel" href="tel:${x.dienThoai}">Gọi ${x.doiTruong || 'đội trưởng'} · ${x.dienThoai}</a></div>` : ''}
-    </div>`).join('') : empty('Chưa có dữ liệu tổ đội.<br>Khai báo trong sheet TO_DOI.'));
-}
+  /* Đang đọc một mục */
+  if (S.dangDoc){
+    const {chuong, muc} = S.dangDoc;
+    $('stList').innerHTML = `<button class="back" onclick="dongDoc()">‹ Quay lại mục lục</button>
+      <div class="doc"><h3>${muc.tieuDe}</h3>
+        <div class="nguon">${chuong.tenChuong}${muc.trang ? ' · trang ' + muc.trang : ''}</div>
+        ${muc.noiDung || '<p>Chưa có nội dung.</p>'}</div>
+      ${chuong.pdf ? `<a class="tel" href="${chuong.pdf}${muc.trang ? '#page=' + muc.trang : ''}"
+         target="_blank" rel="noopener">Mở bản PDF gốc</a>` : ''}`;
+    return;
+  }
 
+  const tim = chuoiThuong(S.timST);
+  let out = thanhChonDA('renderSoTay') +
+    `<input class="stsearch" id="st-tim" placeholder="Tìm nhanh: trát, ốp lát, an toàn điện…"
+       value="${S.timST}" oninput="timSoTay(this.value)">`;
+
+  /* Mục lục 2 cấp từ file tĩnh */
+  (ml.quyen || []).forEach(q => {
+    const chs = (q.chuong || []).map(c => {
+      const mucs = (c.muc || []).filter(m => !tim
+        || chuoiThuong(m.tieuDe).includes(tim) || chuoiThuong(c.tenChuong).includes(tim));
+      return {c, mucs};
+    }).filter(x => !tim || x.mucs.length);
+    if (!chs.length) return;
+    out += `<div class="eyebrow" style="margin:14px 0 8px"><span>${q.ten}</span>
+      <span>${q.dang === 'pdf' ? 'PDF có hình' : 'đọc trong app'}</span></div>`;
+    chs.forEach(({c, mucs}) => {
+      const mo = tim || S.sub['ch_' + c.id];
+      out += `<div class="chuong">
+        <button onclick="moChuong('${c.id}')">${c.tenChuong}<span>${mo ? '▾' : '›'}</span></button>
+        ${mo ? `<div class="muc">${mucs.map((m, i) =>
+          `<button onclick="docMuc('${c.id}',${(c.muc || []).indexOf(m)})">${m.tieuDe}${
+            m.trang ? ` <span style="color:var(--ink-2)">· tr.${m.trang}</span>` : ''}</button>`).join('')}</div>` : ''}
+      </div>`;
+    });
+  });
+
+  /* Tài liệu rời khai báo trong sheet SO_TAY_KT */
+  const ds = dsST0.filter(x => (loc === 'Tất cả' || x.chuyenNganh === loc)
+    && (!tim || chuoiThuong(x.tenTL + ' ' + x.chuyenNganh).includes(tim)));
+  if (ds.length){
+    out += `<div class="eyebrow" style="margin:16px 0 8px"><span>Tài liệu khác</span></div>` +
+      ds.map(x => `<div class="item"><h4>${x.tenTL}</h4>
+        <div class="meta">${x.chuyenNganh}${x.moTa ? ' · ' + x.moTa : ''}</div>
+        ${x.link ? `<div><a class="tel" href="${x.link}" target="_blank" rel="noopener">Mở tài liệu</a></div>` : ''}
+      </div>`).join('');
+  }
+  if (!(ml.quyen || []).length && !ds.length)
+    out += empty('Chưa có tài liệu.<br>Khai báo trong sheet SO_TAY_KT hoặc nạp mục lục sổ tay vào thư mục <b>sotay/</b>.');
+  $('stList').innerHTML = out;
+}
+let hoTim;
+function timSoTay(v){ S.timST = v; clearTimeout(hoTim); hoTim = setTimeout(() => {
+  renderSoTay().then(() => { const o = $('st-tim'); if (o){ o.focus();
+    o.setSelectionRange(o.value.length, o.value.length); } });
+}, 350); }
+function moChuong(id){ S.sub['ch_' + id] = !S.sub['ch_' + id]; renderSoTay(); }
+async function docMuc(idChuong, i){
+  try {
+    const ct = await taiChuong(idChuong);
+    S.dangDoc = {chuong: ct, muc: ct.muc[i]};
+    renderSoTay(); document.querySelector('main').scrollTop = 0;
+  } catch(e){ toast(e.message); }
+}
+function dongDoc(){ S.dangDoc = null; renderSoTay(); }
 
 /* ---------- G. ĐỔ BÊ TÔNG ---------- */
 const MUC_BT = ['Chờ đổ','Cần báo NCC','Đã đổ'];
