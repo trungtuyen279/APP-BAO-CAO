@@ -164,6 +164,19 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
   font-family:var(--font);font-size:12.5px;font-weight:bold;padding:7px 13px;border-radius:20px;cursor:pointer}
 .subs button.on{border-color:var(--brand);background:var(--brand);color:#fff}
 
+/* ---------- nhóm khu vực trong màn tiến độ ---------- */
+.khu{border:1.5px solid var(--line);border-radius:8px;margin-bottom:9px;overflow:hidden;background:#fff}
+.khu>button{width:100%;background:0;border:0;font-family:var(--font);text-align:left;
+  padding:11px 12px;cursor:pointer}
+.khu .kh-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.khu .kh-ten{font-size:13.5px;font-weight:bold;color:var(--ink);line-height:1.35;flex:1}
+.khu .kh-pct{font-size:16px;font-weight:bold;flex:none}
+.khu .kh-sub{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2);margin-top:2px}
+.khu .track{margin-top:7px}
+.khu .kh-body{border-top:1px solid var(--line);background:#FBFBFC;padding:4px 12px 10px}
+.khu.xong{border-color:#9CD3B4}
+.khu.xong>button{background:#F0FAF4}
+
 /* ---------- lời cảm ơn khi báo cáo đúng giờ ---------- */
 #camon{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.55);display:flex;
   align-items:center;justify-content:center;padding:26px;animation:hien .25s}
@@ -363,9 +376,10 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 
   <!-- ---------- 3. TIẾN ĐỘ ---------- -->
   <section class="pane" id="p-td">
+    <div class="subs" id="sub-prog"></div>
     <div class="kpi">
-      <div><span>Hoàn thành (đã duyệt)</span><b id="k-pct">—</b></div>
-      <div><span>Bản ghi chờ duyệt</span><b id="k-wait">—</b></div>
+      <div><span id="k-pct-l">Hoàn thành (đã duyệt)</span><b id="k-pct">—</b></div>
+      <div><span id="k-wait-l">Bản ghi chờ duyệt</span><b id="k-wait">—</b></div>
     </div>
     <div id="prog"></div>
     <p class="hint">Số liệu lấy trực tiếp từ bản ghi ca đã duyệt — không nhập lại lần hai.
@@ -492,7 +506,7 @@ window.addEventListener('error', function(e){
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.0.1';
+const APP_VERSION = '3.1.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1099,26 +1113,94 @@ function capNhatLuyKe(){
   Object.keys(lk).forEach(k => { S.luyke[k] = (S.luykeGoc ? (S.luykeGoc[k] || 0) : 0) + lk[k]; });
 }
 
-function renderProgress(){
-  const ma = S.duan[0] ? ($('f-da').value || S.duan[0].maDA) : null;
-  const items = S.danhmuc.filter(x => x.maDA === ma);
-  let tong = 0, lam = 0;
-  const rows = items.map(t => {
-    const lk = S.luyke[t.maDA+'|'+t.phanKhu+'|'+t.maViec] || 0;
-    let pct = t.klHopDong ? Math.min(100, Math.round(lk/t.klHopDong*100)) : 0;
-    if (t.tinhTrang === 'HOAN_THANH') pct = 100;
-    tong += t.klHopDong || 0; lam += Math.min(lk, t.klHopDong || 0);
-    const tt = ttViec(t, pct);
-    return `<div class="prow"><div class="lb"><span>${t.maViec} · ${t.tenViec}</span><b>${pct}%</b></div>
-      <div class="track"><i class="${pct>=100?'full':''}" style="width:${pct}%"></i></div>
-      <div class="lb" style="font-size:11.5px;margin-top:3px">
-        <span>${t.ngayKT ? 'Hạn ' + dmy(t.ngayKT) : t.phanKhu}${t.nguoiPT ? ' · ' + t.nguoiPT : ''}</span>
-        <b style="color:${tt[1]}">${tt[0]}</b></div></div>`;
-  }).join('');
-  $('prog').innerHTML = rows || '<div class="empty">Chưa có danh mục khối lượng cho dự án này.</div>';
-  $('k-pct').textContent = tong ? Math.round(lam/tong*100) + '%' : '—';
-  $('k-wait').textContent = S.logs.filter(r => r.trangThai === 'CHO_DUYET').length;
+/* ---------- MÀN TIẾN ĐỘ: Tuần / Tháng / Toàn bộ ----------
+   Kế hoạch tuần  = đầu việc có hạn kết thúc trong tuần hiện tại (T2-CN)
+   Kế hoạch tháng = hạn kết thúc trong tháng hiện tại
+   QS chỉ cần điền ngay_bat_dau / ngay_ket_thuc trong sheet DANH_MUC     */
+const TAB_PROG = ['Tuần này','Tháng này','Toàn bộ'];
+function tuanNay(){
+  const d = new Date(); d.setHours(0,0,0,0);
+  const bd = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 86400000);
+  return {bd, kt: new Date(bd.getTime() + 6 * 86400000 + 86399000)};
 }
+function pctViec(t){
+  const lk = S.luyke[t.maDA + '|' + t.phanKhu + '|' + t.maViec] || 0;
+  let pct = t.klHopDong ? Math.min(100, lk / t.klHopDong * 100) : 0;
+  if (t.tinhTrang === 'HOAN_THANH') pct = 100;
+  return {pct, lk};
+}
+function renderProgress(){
+  const tab = S.sub.prog || TAB_PROG[0];
+  subTabs('sub-prog', TAB_PROG, 'prog', renderProgress);
+  const ma = daHienTai();
+  let items = S.danhmuc.filter(x => x.maDA === ma);
+  const t = tuanNay(), nay = new Date();
+  if (tab === 'Tuần này')
+    items = items.filter(x => x.ngayKT && new Date(x.ngayKT) >= t.bd && new Date(x.ngayKT) <= t.kt);
+  else if (tab === 'Tháng này')
+    items = items.filter(x => x.ngayKT && new Date(x.ngayKT).getMonth() === nay.getMonth()
+      && new Date(x.ngayKT).getFullYear() === nay.getFullYear());
+
+  let out = thanhChonDA('renderProgress');
+
+  if (!items.length){
+    $('prog').innerHTML = out + empty(tab === 'Toàn bộ'
+      ? 'Chưa có danh mục khối lượng cho dự án này.'
+      : 'Chưa có đầu việc nào đặt hạn trong ' + tab.toLowerCase()
+        + '.<br>QS điền <b>ngay_bat_dau / ngay_ket_thuc</b> trong sheet DANH_MUC cho các việc sắp làm.');
+    $('k-pct').textContent = '—'; $('k-wait').textContent = tab === 'Toàn bộ'
+      ? S.logs.filter(r => r.trangThai === 'CHO_DUYET').length : '—';
+    return;
+  }
+
+  /* tổng % theo trọng số giá trị (không có giá trị thì đếm việc) */
+  const coGia = items.some(x => x.giaTri > 0);
+  const W = items.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
+  const tongPct = items.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / W;
+  const xong = items.filter(x => pctViec(x).pct >= 99.5).length;
+  const tre  = items.filter(x => pctViec(x).pct < 99.5 && x.ngayKT && new Date(x.ngayKT) < nay).length;
+
+  $('k-pct-l').textContent = tab === 'Toàn bộ' ? 'Hoàn thành (theo giá trị)' : 'Kế hoạch ' + tab.toLowerCase();
+  $('k-pct').textContent = Math.round(tongPct) + '%';
+  $('k-wait-l').textContent = tab === 'Toàn bộ' ? 'Bản ghi chờ duyệt' : 'Việc xong / trễ hạn';
+  $('k-wait').textContent = tab === 'Toàn bộ'
+    ? S.logs.filter(r => r.trangThai === 'CHO_DUYET').length
+    : xong + '/' + items.length + (tre ? ' · ' + tre + ' trễ' : '');
+
+  /* nhóm theo khu vực (tòa / tầng / hạng mục) */
+  const nhom = {};
+  items.forEach(x => (nhom[x.phanKhu] = nhom[x.phanKhu] || []).push(x));
+  out += Object.keys(nhom).map(khu => {
+    const vs = nhom[khu];
+    const w = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
+    const p = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / w;
+    const xg = vs.filter(x => pctViec(x).pct >= 99.5).length;
+    const tr = vs.filter(x => pctViec(x).pct < 99.5 && x.ngayKT && new Date(x.ngayKT) < nay).length;
+    const mo = S.sub['khu_' + khu];
+    const mau = p >= 99.5 ? 'var(--ok)' : tr ? 'var(--alert)' : 'var(--brand)';
+    return `<div class="khu ${p >= 99.5 ? 'xong' : ''}">
+      <button onclick="moKhu('${khu.replace(/'/g, "\\'")}')">
+        <div class="kh-top"><span class="kh-ten">${khu}</span>
+          <b class="kh-pct" style="color:${mau}">${Math.round(p)}%</b><span>${mo ? '▾' : '›'}</span></div>
+        <div class="kh-sub"><span>${xg}/${vs.length} việc hoàn thành${tr ? ' · <b style="color:var(--alert)">' + tr + ' trễ hạn</b>' : ''}</span>
+          <span>${p >= 99.5 ? '🎉 Đạt kế hoạch' : ''}</span></div>
+        <div class="track"><i class="${p >= 99.5 ? 'full' : ''}" style="width:${Math.round(p)}%"></i></div>
+      </button>
+      ${mo ? `<div class="kh-body">${vs.map(x => {
+        const {pct, lk} = pctViec(x);
+        const treV = pct < 99.5 && x.ngayKT && new Date(x.ngayKT) < nay;
+        return `<div class="prow"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
+          <div class="track"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.round(pct)}%"></i></div>
+          <div class="lb" style="font-size:11.5px;margin-top:3px">
+            <span>${x.zone ? x.zone + ' · ' : ''}${num(Math.min(lk, x.klHopDong))}/${num(x.klHopDong)} ${x.donVi || ''}${x.nguoiPT ? ' · ' + x.nguoiPT : ''}</span>
+            <b style="color:${pct >= 99.5 ? 'var(--ok)' : treV ? 'var(--alert)' : 'var(--ink-2)'}">${
+              pct >= 99.5 ? 'Xong' : x.ngayKT ? (treV ? 'TRỄ · hạn ' : 'Hạn ') + dmy(x.ngayKT) : ''}</b></div></div>`;
+      }).join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+  $('prog').innerHTML = out;
+}
+function moKhu(k){ S.sub['khu_' + k] = !S.sub['khu_' + k]; renderProgress(); }
 
 function renderNotis(){
   const chuaDoc = S.notis.filter(n => !n.daXacNhan).length;
