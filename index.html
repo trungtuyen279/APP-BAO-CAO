@@ -492,7 +492,7 @@ window.addEventListener('error', function(e){
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -920,6 +920,85 @@ $('btnSave').onclick = async () => {
 };
 
 /* ---------- 7. HÀNG CHỜ & ĐỒNG BỘ ---------- */
+/* ---------- THÔNG BÁO ĐẨY: rung máy cả khi app đã đóng ---------- */
+function napJS(src){
+  return new Promise((ok, loi) => {
+    if (document.querySelector('script[src="' + src + '"]')) return ok();
+    const s = document.createElement('script');
+    s.src = src; s.onload = ok; s.onerror = () => loi(new Error('Không tải được thư viện Firebase'));
+    document.head.appendChild(s);
+  });
+}
+function trangThaiDay(){
+  const e = $('a-day-tt'); if (!e) return;
+  if (!('Notification' in window)) { e.textContent = 'Máy không hỗ trợ'; return; }
+  if (Notification.permission === 'granted')
+    e.innerHTML = localStorage.getItem('fcm_ok') ? '<b style="color:var(--ok)">Đã bật</b>' : 'Bấm để bật ›';
+  else if (Notification.permission === 'denied') e.textContent = 'Đã chặn — mở Cài đặt máy';
+  else e.textContent = 'Chưa bật ›';
+}
+async function batThongBaoDay(){
+  if (!('Notification' in window) || !('serviceWorker' in navigator))
+    return toast('Máy hoặc trình duyệt này chưa hỗ trợ thông báo đẩy.');
+  if (Notification.permission === 'denied')
+    return toast('Bạn đã chặn thông báo. Vào Cài đặt điện thoại > Ứng dụng > Chrome > Thông báo để mở lại.');
+  try {
+    toast('Đang bật thông báo…');
+    const q = await Notification.requestPermission();
+    if (q !== 'granted') { trangThaiDay(); return toast('Bạn chưa đồng ý nhận thông báo.'); }
+    await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+    await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+    if (!firebase.apps.length) firebase.initializeApp(FCM.config);
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const ms = firebase.messaging();
+    const token = await ms.getToken({vapidKey: FCM.vapid, serviceWorkerRegistration: reg});
+    if (!token) throw new Error('Không lấy được mã thiết bị');
+    await api('dangKyThietBi', {token,
+      thietBi: (navigator.userAgent.match(/\((.*?)\)/) || [,''])[1].slice(0,60)}, 30);
+    localStorage.setItem('fcm_ok', '1');
+    trangThaiDay();
+    toast('Đã bật — máy sẽ rung khi có thông báo khẩn');
+    ms.onMessage(p => { const d = p.data || {};
+      toast((d.tieuDe || '') + ' — ' + (d.noiDung || '')); });
+  } catch(e){ toast('Chưa bật được: ' + e.message); }
+}
+
+/* ---------- lời cảm ơn khi báo cáo đúng giờ (mỗi ngày 1 lần) ---------- */
+function hienCamOn(){
+  const k = 'camon_' + new Date().toISOString().slice(0,10);
+  try { if (localStorage.getItem(k)) return; localStorage.setItem(k, '1'); } catch(e){}
+  const d = document.createElement('div');
+  d.id = 'camon';
+  d.innerHTML = '<div class="the"><div class="tick">✓</div>' +
+    '<h3>CẢM ƠN BẠN ĐÃ HOÀN THÀNH<br>BÁO CÁO NGÀY HÔM NAY</h3>' +
+    '<p>Số liệu đã gửi về Ban chỉ huy trước 18h.<br>Giữ vững nhịp này nhé!</p></div>';
+  d.onclick = () => d.remove();
+  document.body.appendChild(d);
+  setTimeout(() => { if (d.parentNode) d.remove(); }, 5000);
+}
+
+/* ---------- dải nhắc trước giờ chốt báo cáo ---------- */
+async function kiemTraNhac(){
+  const cu = document.querySelector('.nhacbar'); if (cu) cu.remove();
+  if (!S.user || S.user.vaiTro !== 'KT_NHAP') return;
+  const gio = new Date().getHours();
+  if (gio < 17) return;
+  const homNay = new Date().toLocaleDateString('vi-VN');
+  let cho = [];
+  try { cho = await Store.all(); } catch(e){}
+  const daGui = S.logs.some(r => r.nguoiNhap === S.user.email && r.ngay === homNay)
+    || cho.some(r => r._loai !== 'BETONG' && new Date(r.ngay).toLocaleDateString('vi-VN') === homNay);
+  if (daGui) return;
+  const d = document.createElement('div');
+  d.className = 'nhacbar';
+  d.innerHTML = (gio < 18
+    ? 'Còn <b>' + (60 - new Date().getMinutes()) + ' phút</b> để gửi báo cáo trước 18h. Vào <b>Nhập số</b> gửi ngay.'
+    : '<b>Đã quá 18h</b> — bạn chưa gửi báo cáo hôm nay. Gửi ngay để Ban chỉ huy nắm số liệu.')
+    + '<i onclick="this.parentNode.remove()">✕</i>';
+  document.body.appendChild(d);
+}
+setInterval(kiemTraNhac, 300000);
+
 async function flush(){
   if (S.sending || !navigator.onLine || !S.token) return;
   const q = await Store.all();
