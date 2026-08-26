@@ -472,7 +472,7 @@ window.addEventListener('error', function(e){
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '2.7.5';   /* đổi ở đây mỗi lần phát hành — KHÔNG cần sửa config.js */
+const APP_VERSION = '2.8.0';   /* đổi ở đây mỗi lần phát hành — KHÔNG cần sửa config.js */
 
 /* =====================================================================
    BÁO CÁO CÔNG VIỆC BCH — LICOGI13FC
@@ -695,6 +695,16 @@ function startApp(d, cached){
 function applyData(d){
   S.duan = d.duan || S.duan; S.danhmuc = d.danhmuc || S.danhmuc;
   S.luyke = d.luyke || S.luyke; S.logs = d.logs || S.logs; S.notis = d.notis || S.notis;
+  if (d.luyke){
+    /* tách phần lũy kế KHÔNG đến từ 14 ngày gần đây, để tính lại nhanh khi duyệt */
+    const trong = {};
+    (d.logs || []).filter(r => r.trangThai === 'DA_DUYET').forEach(r => {
+      const k = r.maDA + '|' + r.phanKhu + '|' + r.maViec;
+      trong[k] = (trong[k] || 0) + (+r.khoiLuong || 0);
+    });
+    S.luykeGoc = {};
+    Object.keys(d.luyke).forEach(k => S.luykeGoc[k] = d.luyke[k] - (trong[k] || 0));
+  }
   S.thauPhu = d.thauPhu || S.thauPhu; S.ncc = d.ncc || S.ncc; S.toDoi = d.toDoi || S.toDoi;
   S.soTay = d.soTay || S.soTay; S.tienDoCS = d.tienDoCS || S.tienDoCS;
   S.keHoachDo = d.keHoachDo || S.keHoachDo; S.doBT = d.doBT || S.doBT;
@@ -888,10 +898,23 @@ async function flush(){
   S.sending = true; paintNet('Đang gửi ' + q.length + ' bản ghi…');
   try {
     for (const rec of q) {
-      await api(rec._loai === 'BETONG' ? 'beTong' : 'submit', rec);
+      await api(rec._loai === 'BETONG' ? 'beTong' : 'submit', rec, 45);
       await Store.drop(rec.id);
+      /* đưa thẳng vào danh sách tại máy, khỏi chờ tải lại từ máy chủ */
+      if (rec._loai === 'BETONG')
+        S.doBT.unshift({id:rec.id, maPhieu:rec.maPhieu, maDA:rec.maDA, ngayDo:rec.ngayDo,
+          khoi:rec.khoi, cauKien:rec.cauKien, macBT:rec.macBT, klKH:rec.klKH, klTT:rec.klTT,
+          lech:rec.klTT - rec.klKH, pctLech: rec.klKH ? Math.round((rec.klTT-rec.klKH)/rec.klKH*1000)/10 : 0,
+          soXe:rec.soXe, caBom:rec.caBom, klBom:rec.klBom, ncc:rec.ncc,
+          nguyenNhan:rec.nguyenNhan, lyDo:rec.lyDo, hoTen:S.user.hoTen,
+          trangThai:'CHO_DUYET', hanBao:'', daBao:'', anh:{}});
+      else
+        S.logs.unshift({id:rec.id, ngay:new Date(rec.ngay).toLocaleDateString('vi-VN'),
+          maDA:rec.maDA, phanKhu:rec.phanKhu, zone:rec.zone, maViec:rec.maViec, tenViec:rec.tenViec,
+          khoiLuong:rec.khoiLuong, donVi:rec.donVi, nhanCong:rec.nhanCong, vuongMac:rec.vuongMac,
+          hoTen:S.user.hoTen, trangThai:'CHO_DUYET'});
     }
-    await refresh(); toast('Đã gửi lên bảng dữ liệu');
+    toast('Đã gửi lên bảng dữ liệu');
   } catch(e){ toast('Chưa gửi được — sẽ tự thử lại'); }
   S.sending = false; renderAll();
 }
@@ -944,8 +967,27 @@ async function renderLogs(){
   }).join('') : '<div class="empty">Chưa có bản ghi nào trong kỳ.<br>Vào tab <b>Nhập số</b> để ghi khối lượng ca.</div>';
 }
 async function duyet(id, tt){
-  try { await api('approve', {id, trangThai: tt}); await refresh(); toast(tt==='DA_DUYET' ? 'Đã duyệt' : 'Đã trả lại'); }
-  catch(e){ toast('Không gửi được — kiểm tra mạng.'); }
+  const l = S.logs.find(x => x.id === id);
+  const cu = l ? l.trangThai : null;
+  if (l) { l.trangThai = tt; renderLogs(); }              // đổi ngay trên màn hình
+  toast(tt === 'DA_DUYET' ? 'Đã duyệt' : 'Đã trả lại');
+  try {
+    await api('approve', {id, trangThai: tt}, 30);
+    capNhatLuyKe();                                       // tính lại % ngay tại máy
+  } catch(e){
+    if (l) { l.trangThai = cu; renderLogs(); }            // gửi lỗi thì trả về như cũ
+    toast('Chưa gửi được: ' + e.message);
+  }
+}
+/* Tính lại lũy kế tại máy sau khi duyệt, khỏi phải tải lại toàn bộ dữ liệu */
+function capNhatLuyKe(){
+  const lk = {};
+  S.logs.filter(r => r.trangThai === 'DA_DUYET').forEach(r => {
+    const k = r.maDA + '|' + r.phanKhu + '|' + r.maViec;
+    lk[k] = (lk[k] || 0) + (+r.khoiLuong || 0);
+  });
+  S.luyke = Object.assign({}, S.luykeGoc || S.luyke, {});
+  Object.keys(lk).forEach(k => { S.luyke[k] = (S.luykeGoc ? (S.luykeGoc[k] || 0) : 0) + lk[k]; });
 }
 
 function renderProgress(){
@@ -986,8 +1028,11 @@ function renderNotis(){
     </div>`).join('') : '<div class="empty">Chưa có thông báo nào.</div>';
 }
 async function xacNhan(id){
-  try { await api('ack', {id}); await refresh(); toast('Đã ghi nhận xác nhận của bạn'); }
-  catch(e){ toast('Cần có mạng để xác nhận.'); }
+  const n = S.notis.find(x => x.id === id);
+  if (n) { n.daXacNhan = new Date().toISOString(); renderNotis(); if (S.sub.tt) renderTinTuc(); }
+  toast('Đã ghi nhận xác nhận của bạn');
+  try { await api('ack', {id}, 30); }
+  catch(e){ if (n) { n.daXacNhan = null; renderNotis(); } toast('Chưa gửi được: ' + e.message); }
 }
 $('btnNewNoti').onclick = () => {
   const f = $('notiForm');
@@ -1594,17 +1639,21 @@ function theBaoNCC(x){
 async function ghiBao(id, hinhThuc){
   const nd = prompt('Nội dung đã thông báo nhà cung cấp (người nhận, tóm tắt):', '');
   if (nd === null) return;
-  try { await api('baoNCC', {id, hinhThuc, noiDung:nd}); await refresh(); renderBeTong();
-        toast('Đã ghi nhận thông báo NCC'); }
-  catch(e){ toast(e.message); }
+  const x = S.doBT.find(v => v.id === id);
+  if (x) { x.daBao = new Date().toISOString(); x.hinhThuc = hinhThuc; renderBeTong(); }
+  toast('Đã ghi nhận thông báo NCC');
+  try { await api('baoNCC', {id, hinhThuc, noiDung:nd}, 30); }
+  catch(e){ if (x) { x.daBao = ''; renderBeTong(); } toast('Chưa gửi được: ' + e.message); }
 }
 async function ghiKetQua(id){
   const kq = prompt('Kết quả làm việc với NCC (VD: NCC thừa nhận thiếu 1,5 m³, trừ vào đợt sau):', '');
   if (!kq) return;
   const kl = prompt('Khối lượng chốt lại (m³) — bỏ trống nếu giữ nguyên:', '');
-  try { await api('baoNCC', {id, ketQua:kq, klChot:kl}); await refresh(); renderBeTong();
-        toast('Đã ghi kết quả giải trình'); }
-  catch(e){ toast(e.message); }
+  const x = S.doBT.find(v => v.id === id);
+  if (x) { x.ketQua = kq; x.klChot = +kl || 0; renderBeTong(); }
+  toast('Đã ghi kết quả giải trình');
+  try { await api('baoNCC', {id, ketQua:kq, klChot:kl}, 30); }
+  catch(e){ toast('Chưa gửi được: ' + e.message); }
 }
 
 function renderBeTong(){
@@ -1847,9 +1896,11 @@ async function luuBeTong(){
   flush();
 }
 async function duyetBT(id, tt){
-  try { await api('duyetBeTong', {id, trangThai:tt}); await refresh(); renderBeTong();
-        toast(tt === 'DA_DUYET' ? 'Đã duyệt' : 'Đã trả lại'); }
-  catch(e){ toast('Không gửi được — kiểm tra mạng.'); }
+  const x = S.doBT.find(v => v.id === id); const cu = x ? x.trangThai : null;
+  if (x) { x.trangThai = tt; renderBeTong(); }
+  toast(tt === 'DA_DUYET' ? 'Đã duyệt' : 'Đã trả lại');
+  try { await api('duyetBeTong', {id, trangThai:tt}, 30); }
+  catch(e){ if (x) { x.trangThai = cu; renderBeTong(); } toast('Chưa gửi được: ' + e.message); }
 }
 
 /* ---------- điều hướng dải ngang ---------- */
