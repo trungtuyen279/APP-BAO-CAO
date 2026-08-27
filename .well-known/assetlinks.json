@@ -1,1 +1,8 @@
-[{"ghi_chu": "Thay bang noi dung assetlinks.json tu goi PWABuilder"}]
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "vn.com.licogi13fc.baocaobch",
+    "sha256_cert_fingerprints": ["C3:F9:21:29:C1:56:15:3D:76:12:1A:27:DE:18:CB:74:34:3B:09:88:CE:BC:47:D2:43:4B:69:6B:83:6A:20:93"]
+  }
+}]
