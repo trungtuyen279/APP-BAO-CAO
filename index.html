@@ -266,7 +266,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 /* ---------- đăng nhập ---------- */
 #login{position:fixed;inset:0;background:var(--surface);z-index:60;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:26px;max-width:480px;margin:0 auto}
-#login img{width:auto;height:96px;max-width:80%;object-fit:contain;margin-bottom:16px}
+#login img{width:auto;height:150px;max-width:88%;object-fit:contain;margin-bottom:14px}
 #login h1{font-size:19px;text-align:center;line-height:1.3}
 #login h1 em{display:block;font-style:normal;font-size:12px;color:var(--ink-2);font-weight:normal;margin-top:4px}
 #login .box{width:100%;margin-top:22px}
@@ -284,7 +284,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 
 <!-- ============================ ĐĂNG NHẬP ============================ -->
 <div id="login">
-  <img src="icons/logo.png" alt="LICOGI13FC">
+  <img src="icons/logo-login.png" alt="LICOGI13FC — Xây Uy tín, Dựng Thành công">
   <h1>BÁO CÁO CÔNG VIỆC BCH<em>Theo dõi tiến độ – khối lượng hiện trường · LICOGI13FC</em></h1>
   <div class="box">
     <div class="err" id="loginErr"></div>
@@ -506,7 +506,7 @@ window.addEventListener('error', function(e){
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.1.0';
+const APP_VERSION = '3.2.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -568,7 +568,7 @@ const Store = (() => {
 
 /* ---------- 2. TRẠNG THÁI ---------- */
 const S = { user:null, token:null, duan:[], danhmuc:[], luyke:{}, logs:[], notis:[],
-            thauPhu:[], ncc:[], toDoi:[], soTay:[], tienDoCS:[], keHoachDo:[], doBT:[], macBT:[], nccBT:[], mucLuc:null, chuongDaTai:{}, dangDoc:null, timST:'', photos:[], anhBT:{matBang:[],phieuXe:[],phieuBom:[],chotKL:[],bbTru:[]},
+            thauPhu:[], ncc:[], toDoi:[], soTay:[], tienDoCS:[], keHoachDo:[], doBT:[], macBT:[], nccBT:[], mucLuc:null, chuongDaTai:{}, dangDoc:null, tomTatKhu:[], dmLon:false, khuDaTai:{}, timST:'', photos:[], anhBT:{matBang:[],phieuXe:[],phieuBom:[],chotKL:[],bbTru:[]},
             phieuDang:null, sending:false, sub:{}, maDA:'' };
 
 /* ---------- 3a. CHẾ ĐỘ CHẠY THỬ (khi chưa dán API_URL) ---------- */
@@ -751,6 +751,7 @@ function applyData(d){
   S.soTay = d.soTay || S.soTay; S.tienDoCS = d.tienDoCS || S.tienDoCS;
   S.keHoachDo = d.keHoachDo || S.keHoachDo; S.doBT = d.doBT || S.doBT;
   S.macBT = d.macBT || S.macBT; S.nccBT = d.nccBT || S.nccBT;
+  S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
   setTimeout(kiemTraNhac, 800);
 }
 async function refresh(){
@@ -787,11 +788,38 @@ function conNhap(x){
   return trongPhamVi(x.phanKhu);
 }
 
+/* Danh mục lớn: tải đầu việc của MỘT khu khi bấm tới, lưu vào máy dùng lại */
+async function napKhu(ma, khu){
+  const k = ma + '|' + khu;
+  if (S.khuDaTai[k]) return true;
+  if (S.danhmuc.some(x => x.maDA === ma && x.phanKhu === khu)) { S.khuDaTai[k] = 1; return true; }
+  let d = null;
+  try { d = await Store.get('khu:' + k); } catch(e){}
+  if (!d){
+    try {
+      toast('Đang tải đầu việc khu này…');
+      d = await api('taiKhu', {maDA: ma, phanKhu: khu}, 45);
+      try { await Store.set('khu:' + k, d); } catch(e){}
+    } catch(e){ toast('Cần có mạng lần đầu mở khu này. ' + e.message); return false; }
+  }
+  const daCo = new Set(S.danhmuc.map(x => x.maDA + '|' + x.phanKhu + '|' + x.maViec));
+  (d.items || []).forEach(x => { if (!daCo.has(x.maDA + '|' + x.phanKhu + '|' + x.maViec)) S.danhmuc.push(x); });
+  Object.keys(d.luyke || {}).forEach(kk => {
+    if (S.luyke[kk] === undefined) S.luyke[kk] = d.luyke[kk];
+    if (S.luykeGoc && S.luykeGoc[kk] === undefined) S.luykeGoc[kk] = d.luyke[kk];
+  });
+  S.khuDaTai[k] = 1;
+  return true;
+}
+
 function onProject(){
   const ma = $('f-da').value;
   S.maDA = ma;
   const items = S.danhmuc.filter(x => x.maDA === ma && conNhap(x));
-  const pks = [...new Set(items.map(x => x.phanKhu))];
+  /* danh mục lớn: danh sách khu lấy từ bảng tóm tắt (đủ 100%), khu chưa tải sẽ tải khi chọn */
+  const pks = S.dmLon
+    ? [...new Set(S.tomTatKhu.filter(t => t.maDA === ma && trongPhamVi(t.khu)).map(t => t.khu))]
+    : [...new Set(items.map(x => x.phanKhu))];
   $('f-pk').innerHTML = pks.map(p => `<option>${p}</option>`).join('') || '<option value="">— không có phân khu nào —</option>';
   const tong = S.danhmuc.filter(x => x.maDA === ma).length;
   const an = tong - items.length;
@@ -804,8 +832,13 @@ function onProject(){
           ? `<br>Phạm vi được giao: <b>${S.user.phamVi.join(' · ')}</b>` : ''));
   onZone();
 }
-function onZone(){
+async function onZone(){
   const ma = $('f-da').value, pk = $('f-pk').value;
+  if (S.dmLon && pk && !S.danhmuc.some(x => x.maDA === ma && x.phanKhu === pk)){
+    $('f-mv').innerHTML = '<option value="">Đang tải…</option>';
+    const ok = await napKhu(ma, pk);
+    if (!ok){ $('f-mv').innerHTML = '<option value="">— chưa tải được khu này —</option>'; return; }
+  }
   const items = S.danhmuc.filter(x => x.maDA === ma && x.phanKhu === pk && conNhap(x));
   $('f-mv').innerHTML = items.map(x => `<option value="${x.maViec}">${x.maViec} · ${x.tenViec}</option>`).join('')
     || '<option value="">— không có đầu việc —</option>';
@@ -1135,6 +1168,46 @@ function renderProgress(){
   const ma = daHienTai();
   let items = S.danhmuc.filter(x => x.maDA === ma);
   const t = tuanNay(), nay = new Date();
+
+  /* Danh mục lớn + tab Toàn bộ: hiện bảng tóm tắt khu do máy chủ tính sẵn */
+  if (S.dmLon && tab === 'Toàn bộ'){
+    const ts = S.tomTatKhu.filter(x => x.maDA === ma);
+    if (ts.length){
+      const gia = ts.reduce((s,x) => s + x.giaTri, 0);
+      const tong = gia > 0
+        ? ts.reduce((s,x) => s + x.giaTriXong, 0) / gia * 100
+        : (ts.reduce((s,x) => s + x.klTong, 0)
+           ? ts.reduce((s,x) => s + x.klXong, 0) / ts.reduce((s,x) => s + x.klTong, 0) * 100 : 0);
+      $('k-pct-l').textContent = 'Hoàn thành (theo giá trị)';
+      $('k-pct').textContent = Math.round(tong) + '%';
+      $('k-wait-l').textContent = 'Bản ghi chờ duyệt';
+      $('k-wait').textContent = S.logs.filter(r => r.trangThai === 'CHO_DUYET').length;
+      $('prog').innerHTML = thanhChonDA('renderProgress') + ts.map(x => {
+        const p = x.giaTri > 0 ? x.giaTriXong / x.giaTri * 100 : (x.klTong ? x.klXong / x.klTong * 100 : 0);
+        const mo = S.sub['khu_' + x.khu];
+        const chiTiet = mo ? S.danhmuc.filter(v => v.maDA === ma && v.phanKhu === x.khu) : [];
+        return `<div class="khu ${p >= 99.5 ? 'xong' : ''}">
+          <button onclick="moKhuLon('${x.khu.replace(/'/g, "\\'")}')">
+            <div class="kh-top"><span class="kh-ten">${x.khu}</span>
+              <b class="kh-pct" style="color:${p >= 99.5 ? 'var(--ok)' : 'var(--brand)'}">${Math.round(p)}%</b>
+              <span>${mo ? '▾' : '›'}</span></div>
+            <div class="kh-sub"><span>${x.xong || 0}/${x.soViec} việc hoàn thành</span>
+              <span>${p >= 99.5 ? '🎉 Hoàn thành' : ''}</span></div>
+            <div class="track"><i class="${p >= 99.5 ? 'full' : ''}" style="width:${Math.round(p)}%"></i></div>
+          </button>
+          ${mo ? `<div class="kh-body">${chiTiet.length ? chiTiet.map(v => {
+            const {pct, lk} = pctViec(v);
+            return `<div class="prow"><div class="lb"><span>${v.maViec} · ${v.tenViec}</span><b>${Math.round(pct)}%</b></div>
+              <div class="track"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.round(pct)}%"></i></div>
+              <div class="lb" style="font-size:11.5px;margin-top:3px">
+                <span>${num(Math.min(lk, v.klHopDong))}/${num(v.klHopDong)} ${v.donVi || ''}</span>
+                <b>${v.ngayKT ? 'Hạn ' + dmy(v.ngayKT) : ''}</b></div></div>`;
+          }).join('') : '<div class="empty" style="padding:14px">Đang tải chi tiết khu…</div>'}</div>` : ''}
+        </div>`;
+      }).join('');
+      return;
+    }
+  }
   if (tab === 'Tuần này')
     items = items.filter(x => x.ngayKT && new Date(x.ngayKT) >= t.bd && new Date(x.ngayKT) <= t.kt);
   else if (tab === 'Tháng này')
@@ -1201,6 +1274,11 @@ function renderProgress(){
   $('prog').innerHTML = out;
 }
 function moKhu(k){ S.sub['khu_' + k] = !S.sub['khu_' + k]; renderProgress(); }
+async function moKhuLon(k){
+  S.sub['khu_' + k] = !S.sub['khu_' + k];
+  renderProgress();
+  if (S.sub['khu_' + k]){ await napKhu(daHienTai(), k); renderProgress(); }
+}
 
 function renderNotis(){
   const chuaDoc = S.notis.filter(n => !n.daXacNhan).length;
