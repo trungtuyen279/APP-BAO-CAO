@@ -531,7 +531,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.2.3';
+const APP_VERSION = '3.2.4';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -815,10 +815,15 @@ function conNhap(x){
 }
 
 /* Danh mục lớn: tải đầu việc của MỘT khu khi bấm tới, lưu vào máy dùng lại */
+const chuanKhu = s => String(s == null ? '' : s).trim().replace(/\s+/g, ' ');
 async function napKhu(ma, khu){
+  khu = chuanKhu(khu);
   const k = ma + '|' + khu;
   if (S.khuDaTai[k]) return true;
-  if (S.danhmuc.some(x => x.maDA === ma && x.phanKhu === khu)) { S.khuDaTai[k] = 1; return true; }
+  const co = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === khu).length;
+  const tt = S.tomTatKhu.find(x => x.maDA === ma && chuanKhu(x.khu) === khu);
+  /* đã có ĐỦ số việc của khu (không chỉ vài dòng gửi sẵn) thì mới khỏi tải */
+  if (co && (!tt || co >= tt.soViec)) { S.khuDaTai[k] = 1; return true; }
   let d = null;
   try { d = await Store.get('khu:' + k); } catch(e){}
   if (!d){
@@ -859,13 +864,16 @@ function onProject(){
   onZone();
 }
 async function onZone(){
-  const ma = $('f-da').value, pk = $('f-pk').value;
-  if (S.dmLon && pk && !S.danhmuc.some(x => x.maDA === ma && x.phanKhu === pk)){
-    $('f-mv').innerHTML = '<option value="">Đang tải…</option>';
+  const ma = $('f-da').value, pk = chuanKhu($('f-pk').value);
+  if (S.dmLon && pk){
+    const dangDu = S.khuDaTai[ma + '|' + pk];
+    if (!dangDu) $('f-mv').innerHTML = '<option value="">Đang tải…</option>';
     const ok = await napKhu(ma, pk);
-    if (!ok){ $('f-mv').innerHTML = '<option value="">— chưa tải được khu này —</option>'; return; }
+    if (!ok && !S.danhmuc.some(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk)){
+      $('f-mv').innerHTML = '<option value="">— chưa tải được khu này —</option>'; return;
+    }
   }
-  const items = S.danhmuc.filter(x => x.maDA === ma && x.phanKhu === pk && conNhap(x));
+  const items = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk && conNhap(x));
   $('f-mv').innerHTML = items.map(x => `<option value="${x.maViec}">${x.maViec} · ${x.tenViec}</option>`).join('')
     || '<option value="">— không có đầu việc —</option>';
   $('btnSave').disabled = !items.length;
@@ -1211,7 +1219,7 @@ function renderProgress(){
       $('prog').innerHTML = thanhChonDA('renderProgress') + ts.map(x => {
         const p = x.giaTri > 0 ? x.giaTriXong / x.giaTri * 100 : (x.klTong ? x.klXong / x.klTong * 100 : 0);
         const mo = S.sub['khu_' + x.khu];
-        const chiTiet = mo ? S.danhmuc.filter(v => v.maDA === ma && v.phanKhu === x.khu) : [];
+        const chiTiet = mo ? S.danhmuc.filter(v => v.maDA === ma && chuanKhu(v.phanKhu) === chuanKhu(x.khu)) : [];
         return `<div class="khu ${p >= 99.5 ? 'xong' : ''}">
           <button onclick="moKhuLon('${x.khu.replace(/'/g, "\\'")}')">
             <div class="kh-top"><span class="kh-ten">${x.khu}</span>
