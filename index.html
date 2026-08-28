@@ -531,7 +531,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.2.4';
+const APP_VERSION = '3.2.5';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -807,10 +807,21 @@ function trongPhamVi(pk){
   return pv.some(v => { const t = khongDau(v); return !t || t === 'TAT CA' || k.indexOf(t) > -1; });
 }
 /* Đầu việc còn được phép nhập: chưa hoàn thành + trong phạm vi được giao */
+/* Việc "đang cần" — đúng nguyên tắc tải: đang thi công, hoặc có ngày trong ±60 ngày */
+function dangCan(x){
+  if (x.tinhTrang === 'DANG_THI_CONG') return true;
+  const G = 60 * 86400000, t = Date.now();
+  const bd = x.ngayBD ? new Date(x.ngayBD).getTime() : 0;
+  const kt = x.ngayKT ? new Date(x.ngayKT).getTime() : 0;
+  return (bd && Math.abs(bd - t) < G) || (kt && Math.abs(kt - t) < G);
+}
 function conNhap(x){
   if (x.tinhTrang === 'HOAN_THANH') return false;
   const lk = S.luyke[x.maDA+'|'+x.phanKhu+'|'+x.maViec] || 0;
   if (x.klHopDong && lk >= x.klHopDong) return false;
+  /* Danh mục lớn: màn Nhập số CHỈ hiện việc đang cần —
+     việc chưa có kế hoạch (trống ngày, chưa thi công) không đưa ra khai báo */
+  if (S.dmLon && !dangCan(x)) return false;
   return trongPhamVi(x.phanKhu);
 }
 
