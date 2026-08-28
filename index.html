@@ -339,12 +339,14 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <div id="phamvi" class="meta" style="font-size:12px;color:var(--ink-2);background:#F7F8F9;
       border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:12px;line-height:1.5"></div>
 
-    <div class="field"><label for="f-pk">Hạng mục</label><select id="f-pk"></select></div>
-    <div class="field"><label for="f-mv">Đầu việc (mã theo tiến độ)</label><select id="f-mv"></select></div>
-
-    <div class="field"><label for="f-zone">Zone / Vị trí</label>
-      <input id="f-zone" list="dsZone" placeholder="VD: Zone A · Trục 1÷5 · Tầng 12" autocomplete="off">
+    <div class="row field" style="grid-template-columns:1.2fr 1fr;gap:10px">
+      <div><label for="f-pk">Hạng mục</label><select id="f-pk"></select></div>
+      <div><label for="f-zsel">Zone</label><select id="f-zsel"></select></div>
+    </div>
+    <div class="field"><label for="f-zone">Vị trí</label>
+      <input id="f-zone" list="dsZone" placeholder="VD: Trục 1÷5 · Tầng 12" autocomplete="off">
       <datalist id="dsZone"></datalist></div>
+    <div class="field"><label for="f-mv">Đầu việc (mã theo tiến độ)</label><select id="f-mv"></select></div>
 
     <div id="kehoach" class="meta" style="margin:-6px 0 12px;font-size:12.5px;color:var(--ink-2)"></div>
 
@@ -531,7 +533,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.2.7';
+const APP_VERSION = '3.3.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -817,7 +819,8 @@ function dangCan(x){
 function conNhap(x){
   if (x.tinhTrang === 'HOAN_THANH') return false;
   const lk = S.luyke[x.maDA+'|'+x.phanKhu+'|'+x.maViec] || 0;
-  if (x.klHopDong && lk >= x.klHopDong) return false;
+  /* ĐANG THI CÔNG do QS khai luôn được nhập — kể cả khi khai báo đầu kỳ lỡ ghi đủ 100% */
+  if (x.klHopDong && lk >= x.klHopDong && x.tinhTrang !== 'DANG_THI_CONG') return false;
   /* Danh mục lớn: màn Nhập số CHỈ hiện việc đang cần —
      việc chưa có kế hoạch (trống ngày, chưa thi công) không đưa ra khai báo */
   if (S.dmLon && !dangCan(x)) return false;
@@ -887,6 +890,14 @@ function onProject(){
           ? `<br>Phạm vi được giao: <b>${S.user.phamVi.join(' · ')}</b>` : ''));
   onZone();
 }
+function napZoneSel(ma, pk){
+  const zs = [...new Set(S.danhmuc
+    .filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk && x.zone)
+    .flatMap(x => String(x.zone).split(/[;,]/).map(z => chuanKhu(z))).filter(Boolean))];
+  const cu = $('f-zsel').value;
+  $('f-zsel').innerHTML = '<option value="">Tất cả zone</option>'
+    + zs.map(z => `<option ${z === cu ? 'selected' : ''}>${z}</option>`).join('');
+}
 async function onZone(){
   const ma = $('f-da').value, pk = chuanKhu($('f-pk').value);
   if (S.dmLon && pk){
@@ -897,7 +908,10 @@ async function onZone(){
       $('f-mv').innerHTML = '<option value="">— chưa tải được khu này —</option>'; return;
     }
   }
-  const items = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk && conNhap(x));
+  napZoneSel(ma, pk);
+  const zSel = chuanKhu($('f-zsel').value);
+  const items = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk && conNhap(x)
+    && (!zSel || String(x.zone).split(/[;,]/).some(z => chuanKhu(z) === zSel)));
   let rong = '— không có đầu việc —';
   if (!items.length){
     const cuaKhu = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk);
@@ -905,7 +919,9 @@ async function onZone(){
     else if (S.dmLon){
       const dtc = cuaKhu.filter(x => x.tinhTrang === 'DANG_THI_CONG').length;
       const coNgay = cuaKhu.filter(x => docNgay(x.ngayBD) || docNgay(x.ngayKT)).length;
-      rong = `— khu ${cuaKhu.length} việc · ${dtc} đang thi công · ${coNgay} có ngày hợp lệ · 0 trong cửa sổ ±60 ngày —`;
+      const duKL = cuaKhu.filter(x => { const lk = S.luyke[x.maDA+'|'+x.phanKhu+'|'+x.maViec] || 0;
+        return x.klHopDong && lk >= x.klHopDong; }).length;
+      rong = `— khu ${cuaKhu.length} việc · ${dtc} thi công · ${coNgay} có ngày · ${duKL} đã đủ KL(đầu kỳ) · 0 khai được —`;
     }
   }
   $('f-mv').innerHTML = items.map(x => `<option value="${x.maViec}">${x.maViec} · ${x.tenViec}</option>`).join('')
@@ -958,9 +974,9 @@ function calc(){
     (t.nguoiPT ? `Phụ trách: <b>${t.nguoiPT}</b> · ` : '') +
     `<b style="color:${tt[1]}">${tt[0]}</b>`;
 }
-['f-da','f-pk','f-mv','f-kl'].forEach(id => {
+['f-da','f-pk','f-zsel','f-mv','f-kl'].forEach(id => {
   const el = $(id);
-  el.addEventListener('change', id==='f-da' ? onProject : id==='f-pk' ? onZone
+  el.addEventListener('change', id==='f-da' ? onProject : (id==='f-pk' || id==='f-zsel') ? onZone
     : (id==='f-mv' ? () => { calc(); goiYZone(); } : calc));
   if (id==='f-kl') el.addEventListener('input', calc);
 });
