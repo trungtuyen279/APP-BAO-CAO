@@ -340,7 +340,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
       border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:12px;line-height:1.5"></div>
 
     <div class="row field" style="grid-template-columns:1.2fr 1fr;gap:10px">
-      <div><label for="f-pk">Hạng mục</label><select id="f-pk"></select></div>
+      <div><label for="f-pk">Phân khu / Hạng mục</label><select id="f-pk"></select></div>
       <div><label for="f-zsel">Zone</label><select id="f-zsel"></select></div>
     </div>
     <div class="field"><label for="f-zone">Vị trí</label>
@@ -533,7 +533,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.3.0';
+const APP_VERSION = '3.3.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -769,7 +769,7 @@ function applyData(d){
     /* tách phần lũy kế KHÔNG đến từ 14 ngày gần đây, để tính lại nhanh khi duyệt */
     const trong = {};
     (d.logs || []).filter(r => r.trangThai === 'DA_DUYET').forEach(r => {
-      const k = r.maDA + '|' + r.phanKhu + '|' + r.maViec;
+      const k = kViec(r.maDA, r.phanKhu, r.zone, r.maViec);
       trong[k] = (trong[k] || 0) + (+r.khoiLuong || 0);
     });
     S.luykeGoc = {};
@@ -818,7 +818,7 @@ function dangCan(x){
 }
 function conNhap(x){
   if (x.tinhTrang === 'HOAN_THANH') return false;
-  const lk = S.luyke[x.maDA+'|'+x.phanKhu+'|'+x.maViec] || 0;
+  const lk = S.luyke[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)] || 0;
   /* ĐANG THI CÔNG do QS khai luôn được nhập — kể cả khi khai báo đầu kỳ lỡ ghi đủ 100% */
   if (x.klHopDong && lk >= x.klHopDong && x.tinhTrang !== 'DANG_THI_CONG') return false;
   /* Danh mục lớn: màn Nhập số CHỈ hiện việc đang cần —
@@ -829,6 +829,9 @@ function conNhap(x){
 
 /* Danh mục lớn: tải đầu việc của MỘT khu khi bấm tới, lưu vào máy dùng lại */
 const chuanKhu = s => String(s == null ? '' : s).trim().replace(/\s+/g, ' ');
+function kViec(maDA, phanKhu, zone, maViec){
+  return String(maDA) + '|' + chuanKhu(phanKhu) + '|' + chuanKhu(zone) + '|' + String(maViec);
+}
 function docNgay(v){
   if (!v) return null;
   if (v instanceof Date) return isNaN(v) ? null : v;
@@ -919,7 +922,7 @@ async function onZone(){
     else if (S.dmLon){
       const dtc = cuaKhu.filter(x => x.tinhTrang === 'DANG_THI_CONG').length;
       const coNgay = cuaKhu.filter(x => docNgay(x.ngayBD) || docNgay(x.ngayKT)).length;
-      const duKL = cuaKhu.filter(x => { const lk = S.luyke[x.maDA+'|'+x.phanKhu+'|'+x.maViec] || 0;
+      const duKL = cuaKhu.filter(x => { const lk = S.luyke[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)] || 0;
         return x.klHopDong && lk >= x.klHopDong; }).length;
       rong = `— khu ${cuaKhu.length} việc · ${dtc} thi công · ${coNgay} có ngày · ${duKL} đã đủ KL(đầu kỳ) · 0 khai được —`;
     }
@@ -1036,7 +1039,8 @@ $('btnSave').onclick = async () => {
     id: 'BG' + Date.now() + Math.random().toString(36).slice(2,6),
     ngay: new Date().toISOString().slice(0,10),
     maDA: t.maDA, tenDA: $('f-da').selectedOptions[0].textContent,
-    phanKhu: t.phanKhu, zone: $('f-zone').value.trim(), maViec: t.maViec, tenViec: t.tenViec,
+    phanKhu: t.phanKhu, zone: t.zone || '', viTri: $('f-zone').value.trim(),
+    maViec: t.maViec, tenViec: t.tenViec,
     khoiLuong: kl, donVi: t.donVi,
     nhanCong: +$('f-nc').value || 0, thietBi: $('f-tb').value.trim(),
     vuongMac: $('f-vm').value.trim(), anh: S.photos.map(x => x.data),
@@ -1150,7 +1154,7 @@ async function flush(){
           trangThai:'CHO_DUYET', hanBao:'', daBao:'', anh:{}});
       else
         S.logs.unshift({id:rec.id, ngay:new Date(rec.ngay).toLocaleDateString('vi-VN'),
-          maDA:rec.maDA, phanKhu:rec.phanKhu, zone:rec.zone, maViec:rec.maViec, tenViec:rec.tenViec,
+          maDA:rec.maDA, phanKhu:rec.phanKhu, zone:rec.zone, viTri:rec.viTri, maViec:rec.maViec, tenViec:rec.tenViec,
           khoiLuong:rec.khoiLuong, donVi:rec.donVi, nhanCong:rec.nhanCong, vuongMac:rec.vuongMac,
           hoTen:S.user.hoTen, trangThai:'CHO_DUYET'});
     }
@@ -1223,7 +1227,7 @@ async function duyet(id, tt){
 function capNhatLuyKe(){
   const lk = {};
   S.logs.filter(r => r.trangThai === 'DA_DUYET').forEach(r => {
-    const k = r.maDA + '|' + r.phanKhu + '|' + r.maViec;
+    const k = kViec(r.maDA, r.phanKhu, r.zone, r.maViec);
     lk[k] = (lk[k] || 0) + (+r.khoiLuong || 0);
   });
   S.luyke = Object.assign({}, S.luykeGoc || S.luyke, {});
@@ -1241,7 +1245,7 @@ function tuanNay(){
   return {bd, kt: new Date(bd.getTime() + 6 * 86400000 + 86399000)};
 }
 function pctViec(t){
-  const lk = S.luyke[t.maDA + '|' + t.phanKhu + '|' + t.maViec] || 0;
+  const lk = S.luyke[kViec(t.maDA, t.phanKhu, t.zone, t.maViec)] || 0;
   let pct = t.klHopDong ? Math.min(100, lk / t.klHopDong * 100) : 0;
   if (t.tinhTrang === 'HOAN_THANH') pct = 100;
   return {pct, lk};
