@@ -177,6 +177,17 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .khu.xong{border-color:#9CD3B4}
 .khu.xong>button{background:#F0FAF4}
 
+/* ---------- màn chào thương hiệu ---------- */
+#splash{position:fixed;inset:0;z-index:200;background:#fff;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;transition:opacity .45s}
+#splash img{width:auto;height:200px;max-width:86%;object-fit:contain}
+#splash .sp-app{font-size:17px;font-weight:bold;color:var(--ink);letter-spacing:.3px}
+#splash .sp-bar{width:150px;height:4px;background:#F0D9D9;border-radius:3px;overflow:hidden}
+#splash .sp-bar i{display:block;height:100%;width:40%;background:var(--brand);border-radius:3px;
+  animation:spchay 1s ease-in-out infinite}
+@keyframes spchay{0%{margin-left:-40%}100%{margin-left:100%}}
+#splash.tat{opacity:0;pointer-events:none}
+
 /* ---------- lời cảm ơn khi báo cáo đúng giờ ---------- */
 #camon{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.55);display:flex;
   align-items:center;justify-content:center;padding:26px;animation:hien .25s}
@@ -283,6 +294,11 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 <body>
 
 <!-- ============================ ĐĂNG NHẬP ============================ -->
+<div id="splash">
+  <img src="icons/logo-login.png" alt="LICOGI13FC">
+  <div class="sp-app">BÁO CÁO CÔNG VIỆC BCH</div>
+  <div class="sp-bar"><i></i></div>
+</div>
 <div id="login">
   <img src="icons/logo-login.png" alt="LICOGI13FC — Xây Uy tín, Dựng Thành công">
   <h1>BÁO CÁO CÔNG VIỆC BCH<em>Theo dõi tiến độ – khối lượng hiện trường · LICOGI13FC</em></h1>
@@ -504,9 +520,18 @@ window.addEventListener('error', function(e){
   (document.body || document.documentElement).appendChild(d);
 });
 </script>
+<script>
+window.__spT = Date.now();
+window.tatSplash = function(){
+  const s = document.getElementById('splash'); if (!s) return;
+  const con = Math.max(0, 1200 - (Date.now() - window.__spT));
+  setTimeout(() => { s.classList.add('tat'); setTimeout(() => s.remove(), 500); }, con);
+};
+setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 giây */
+</script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.2.2';
+const APP_VERSION = '3.2.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -723,7 +748,8 @@ async function boot(){
     if (cache && navigator.onLine) setTimeout(refresh, 1200);   // hiện ngay, tải mới chạy ngầm
   } else showLogin();
 }
-function showLogin(){ document.getElementById('login').style.display='flex'; }
+function showLogin(){ document.getElementById('login').style.display='flex';
+  if (window.tatSplash) window.tatSplash(); }
 
 function startApp(d, cached){
   document.getElementById('login').style.display='none';
@@ -1094,7 +1120,7 @@ async function paintNet(msg){
 }
 
 /* ---------- 8. HIỂN THỊ ---------- */
-function renderAll(){ paintNet(); renderLogs(); renderProgress(); renderNotis(); renderAcct(); if (S.duan.length && !$('f-da').options.length) fillSelects(); }
+function renderAll(){ if (window.tatSplash) window.tatSplash(); paintNet(); renderLogs(); renderProgress(); renderNotis(); renderAcct(); if (S.duan.length && !$('f-da').options.length) fillSelects(); }
 
 async function renderLogs(){
   const q = await Store.all();
