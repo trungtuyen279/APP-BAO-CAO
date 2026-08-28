@@ -531,7 +531,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.2.6';
+const APP_VERSION = '3.2.7';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -811,9 +811,8 @@ function trongPhamVi(pk){
 function dangCan(x){
   if (x.tinhTrang === 'DANG_THI_CONG') return true;
   const G = 60 * 86400000, t = Date.now();
-  const bd = x.ngayBD ? new Date(x.ngayBD).getTime() : 0;
-  const kt = x.ngayKT ? new Date(x.ngayKT).getTime() : 0;
-  return (bd && Math.abs(bd - t) < G) || (kt && Math.abs(kt - t) < G);
+  const bdD = docNgay(x.ngayBD), ktD = docNgay(x.ngayKT);
+  return (bdD && Math.abs(bdD.getTime() - t) < G) || (ktD && Math.abs(ktD.getTime() - t) < G);
 }
 function conNhap(x){
   if (x.tinhTrang === 'HOAN_THANH') return false;
@@ -827,6 +826,17 @@ function conNhap(x){
 
 /* Danh mục lớn: tải đầu việc của MỘT khu khi bấm tới, lưu vào máy dùng lại */
 const chuanKhu = s => String(s == null ? '' : s).trim().replace(/\s+/g, ' ');
+function docNgay(v){
+  if (!v) return null;
+  if (v instanceof Date) return isNaN(v) ? null : v;
+  const s = String(v).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
 async function napKhu(ma, khu){
   khu = chuanKhu(khu);
   const k = ma + '|' + khu;
@@ -892,7 +902,11 @@ async function onZone(){
   if (!items.length){
     const cuaKhu = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk);
     if (!cuaKhu.length) rong = '— chưa tải được dữ liệu khu này (kiểm tra mạng / backend) —';
-    else if (S.dmLon) rong = `— khu có ${cuaKhu.length} việc nhưng chưa việc nào ĐANG THI CÔNG hoặc có ngày trong ±60 ngày —`;
+    else if (S.dmLon){
+      const dtc = cuaKhu.filter(x => x.tinhTrang === 'DANG_THI_CONG').length;
+      const coNgay = cuaKhu.filter(x => docNgay(x.ngayBD) || docNgay(x.ngayKT)).length;
+      rong = `— khu ${cuaKhu.length} việc · ${dtc} đang thi công · ${coNgay} có ngày hợp lệ · 0 trong cửa sổ ±60 ngày —`;
+    }
   }
   $('f-mv').innerHTML = items.map(x => `<option value="${x.maViec}">${x.maViec} · ${x.tenViec}</option>`).join('')
     || `<option value="">${rong}</option>`;
@@ -1263,10 +1277,10 @@ function renderProgress(){
     }
   }
   if (tab === 'Tuần này')
-    items = items.filter(x => x.ngayKT && new Date(x.ngayKT) >= t.bd && new Date(x.ngayKT) <= t.kt);
+    items = items.filter(x => { const d = docNgay(x.ngayKT); return d && d >= t.bd && d <= t.kt; });
   else if (tab === 'Tháng này')
-    items = items.filter(x => x.ngayKT && new Date(x.ngayKT).getMonth() === nay.getMonth()
-      && new Date(x.ngayKT).getFullYear() === nay.getFullYear());
+    items = items.filter(x => { const d = docNgay(x.ngayKT);
+      return d && d.getMonth() === nay.getMonth() && d.getFullYear() === nay.getFullYear(); });
 
   let out = thanhChonDA('renderProgress');
 
@@ -1285,7 +1299,7 @@ function renderProgress(){
   const W = items.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
   const tongPct = items.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / W;
   const xong = items.filter(x => pctViec(x).pct >= 99.5).length;
-  const tre  = items.filter(x => pctViec(x).pct < 99.5 && x.ngayKT && new Date(x.ngayKT) < nay).length;
+  const tre  = items.filter(x => { const d = docNgay(x.ngayKT); return pctViec(x).pct < 99.5 && d && d < nay; }).length;
 
   $('k-pct-l').textContent = tab === 'Toàn bộ' ? 'Hoàn thành (theo giá trị)' : 'Kế hoạch ' + tab.toLowerCase();
   $('k-pct').textContent = Math.round(tongPct) + '%';
@@ -1302,7 +1316,7 @@ function renderProgress(){
     const w = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
     const p = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / w;
     const xg = vs.filter(x => pctViec(x).pct >= 99.5).length;
-    const tr = vs.filter(x => pctViec(x).pct < 99.5 && x.ngayKT && new Date(x.ngayKT) < nay).length;
+    const tr = vs.filter(x => { const d = docNgay(x.ngayKT); return pctViec(x).pct < 99.5 && d && d < nay; }).length;
     const mo = S.sub['khu_' + khu];
     const mau = p >= 99.5 ? 'var(--ok)' : tr ? 'var(--alert)' : 'var(--brand)';
     return `<div class="khu ${p >= 99.5 ? 'xong' : ''}">
@@ -1315,7 +1329,7 @@ function renderProgress(){
       </button>
       ${mo ? `<div class="kh-body">${vs.map(x => {
         const {pct, lk} = pctViec(x);
-        const treV = pct < 99.5 && x.ngayKT && new Date(x.ngayKT) < nay;
+        const treV = pct < 99.5 && docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
         return `<div class="prow"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
           <div class="track"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.round(pct)}%"></i></div>
           <div class="lb" style="font-size:11.5px;margin-top:3px">
