@@ -531,7 +531,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.2.5';
+const APP_VERSION = '3.2.6';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -835,14 +835,17 @@ async function napKhu(ma, khu){
   const tt = S.tomTatKhu.find(x => x.maDA === ma && chuanKhu(x.khu) === khu);
   /* đã có ĐỦ số việc của khu (không chỉ vài dòng gửi sẵn) thì mới khỏi tải */
   if (co && (!tt || co >= tt.soViec)) { S.khuDaTai[k] = 1; return true; }
+  const tongKhu = tt ? tt.soViec : 0;
   let d = null;
-  try { d = await Store.get('khu:' + k); } catch(e){}
+  try { d = await Store.get('khu2:' + k); } catch(e){}
+  if (d && (!(d.items || []).length || (tongKhu && d.items.length < tongKhu * 0.5)))
+    d = null;                                  /* đệm rỗng/thiếu -> bỏ, hỏi lại máy chủ */
   if (!d){
     try {
       toast('Đang tải đầu việc khu này…');
       d = await api('taiKhu', {maDA: ma, phanKhu: khu}, 45);
-      try { await Store.set('khu:' + k, d); } catch(e){}
-    } catch(e){ toast('Cần có mạng lần đầu mở khu này. ' + e.message); return false; }
+      if ((d.items || []).length) { try { await Store.set('khu2:' + k, d); } catch(e){} }
+    } catch(e){ toast('Chưa tải được khu: ' + e.message); return false; }
   }
   const daCo = new Set(S.danhmuc.map(x => x.maDA + '|' + x.phanKhu + '|' + x.maViec));
   (d.items || []).forEach(x => { if (!daCo.has(x.maDA + '|' + x.phanKhu + '|' + x.maViec)) S.danhmuc.push(x); });
@@ -885,8 +888,14 @@ async function onZone(){
     }
   }
   const items = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk && conNhap(x));
+  let rong = '— không có đầu việc —';
+  if (!items.length){
+    const cuaKhu = S.danhmuc.filter(x => x.maDA === ma && chuanKhu(x.phanKhu) === pk);
+    if (!cuaKhu.length) rong = '— chưa tải được dữ liệu khu này (kiểm tra mạng / backend) —';
+    else if (S.dmLon) rong = `— khu có ${cuaKhu.length} việc nhưng chưa việc nào ĐANG THI CÔNG hoặc có ngày trong ±60 ngày —`;
+  }
   $('f-mv').innerHTML = items.map(x => `<option value="${x.maViec}">${x.maViec} · ${x.tenViec}</option>`).join('')
-    || '<option value="">— không có đầu việc —</option>';
+    || `<option value="">${rong}</option>`;
   $('btnSave').disabled = !items.length;
   calc(); goiYZone();
 }
