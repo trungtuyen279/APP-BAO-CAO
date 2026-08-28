@@ -534,7 +534,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.3.2';
+const APP_VERSION = '3.3.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -781,6 +781,7 @@ function applyData(d){
   S.keHoachDo = d.keHoachDo || S.keHoachDo; S.doBT = d.doBT || S.doBT;
   S.macBT = d.macBT || S.macBT; S.nccBT = d.nccBT || S.nccBT;
   S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
+  S.svVer = d.svVer || S.svVer || '';
   setTimeout(kiemTraNhac, 800);
 }
 async function refresh(){
@@ -1419,7 +1420,11 @@ async function renderAcct(){
   trangThaiDay();
   const q = await Store.all();
   $('a-db').textContent   = q.length ? q.length + ' bản ghi chờ gửi' : 'Đã đồng bộ';
-  $('a-ver').textContent  = 'Phiên bản ' + APP_VERSION + (DEMO ? ' · CHƯA NỐI MÁY CHỦ (chạy thử)' : '');
+  const lech = S.svVer && S.svVer.split('.').slice(0,2).join('.') !== APP_VERSION.split('.').slice(0,2).join('.');
+  $('a-ver').innerHTML = 'Phiên bản ' + APP_VERSION
+    + (DEMO ? ' · CHƯA NỐI MÁY CHỦ (chạy thử)'
+       : ' · máy chủ ' + (S.svVer || '<b style="color:var(--alert)">chưa rõ — Code.gs cũ</b>'))
+    + (lech ? ' <b style="color:var(--alert)">— LỆCH PHIÊN BẢN: Triển khai lại Code.gs!</b>' : '');
 }
 
 $('btnPin').onclick = () => {
