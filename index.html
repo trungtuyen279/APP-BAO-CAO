@@ -532,7 +532,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.3.5';
+const APP_VERSION = '3.3.6';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -853,14 +853,14 @@ async function napKhu(ma, khu){
   if (co && (!tt || co >= tt.soViec)) { S.khuDaTai[k] = 1; return true; }
   const tongKhu = tt ? tt.soViec : 0;
   let d = null;
-  try { d = await Store.get('khu2:' + k); } catch(e){}
+  try { d = await Store.get('khu3:' + k); } catch(e){}
   if (d && (!(d.items || []).length || (tongKhu && d.items.length < tongKhu * 0.5)))
     d = null;                                  /* đệm rỗng/thiếu -> bỏ, hỏi lại máy chủ */
   if (!d){
     try {
       toast('Đang tải đầu việc khu này…');
       d = await api('taiKhu', {maDA: ma, phanKhu: khu}, 45);
-      if ((d.items || []).length) { try { await Store.set('khu2:' + k, d); } catch(e){} }
+      if ((d.items || []).length) { try { await Store.set('khu3:' + k, d); } catch(e){} }
     } catch(e){ toast('Chưa tải được khu: ' + e.message); return false; }
   }
   const daCo = new Set(S.danhmuc.map(x => x.maDA + '|' + x.phanKhu + '|' + x.maViec));
