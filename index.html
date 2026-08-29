@@ -532,7 +532,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.3.6';
+const APP_VERSION = '3.3.7';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -927,7 +927,7 @@ async function onZone(){
       rong = `— khu ${cuaKhu.length} việc · ${dtc} thi công · ${coNgay} có ngày · ${duKL} đã đủ KL(đầu kỳ) · 0 khai được —`;
     }
   }
-  $('f-mv').innerHTML = items.map(x => `<option value="${x.maViec}">${x.maViec} · ${x.tenViec}</option>`).join('')
+  $('f-mv').innerHTML = items.map(x => `<option value="${kViec(x.maDA, x.phanKhu, x.zone, x.maViec).replace(/"/g,'&quot;')}">${x.maViec} · ${x.tenViec}</option>`).join('')
     || `<option value="">${rong}</option>`;
   $('btnSave').disabled = !items.length;
   calc(); goiYZone();
@@ -944,7 +944,9 @@ function goiYZone(){
   }
 }
 function currentTask(){
-  return S.danhmuc.find(x => x.maDA === $('f-da').value && x.phanKhu === $('f-pk').value && x.maViec === $('f-mv').value);
+  const v = $('f-mv').value;
+  if (!v) return null;
+  return S.danhmuc.find(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec) === v);
 }
 function ttViec(t, pct){
   const hnay = new Date(); hnay.setHours(0,0,0,0);

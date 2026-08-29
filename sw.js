@@ -1,6 +1,6 @@
 /* Service worker — cho phép mở app khi không có mạng.
    Đổi CACHE mỗi lần phát hành bản mới để máy anh em tự nạp bản mới. */
-const CACHE = 'l13fc-ht-v3.3.6';
+const CACHE = 'l13fc-ht-v3.3.7';
 const FILES = ['./', './index.html', './config.js', './huong-dan-cai-dat.html', './manifest.webmanifest',
   './icons/logo.png', './icons/logo-login.png', './icons/icon-192.png', './icons/icon-512.png'];
 
