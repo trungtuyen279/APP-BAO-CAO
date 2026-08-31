@@ -198,6 +198,9 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 #camon h3{font-size:18.5px;color:var(--brand);line-height:1.45;margin-bottom:8px}
 #camon p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
 @keyframes hien{from{opacity:0}to{opacity:1}}
+.anh-nk{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
+.anh-nk a{width:64px;height:64px;border-radius:8px;overflow:hidden;background:#eee;flex:0 0 auto}
+.anh-nk img{width:100%;height:100%;object-fit:cover;display:block}
 .tag-rieng{display:inline-block;background:#1A5C96;color:#fff;font-size:10.5px;font-weight:bold;
   border-radius:4px;padding:2px 7px;margin-bottom:6px}
 .nhacbar{position:fixed;left:0;right:0;bottom:76px;z-index:60;margin:0 auto;max-width:454px;
@@ -540,7 +543,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.4.0';
+const APP_VERSION = '3.4.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1216,6 +1219,9 @@ async function renderLogs(){
       <p>${r.phanKhu}${r.zone ? ' · ' + r.zone : ''} · ${r.ngay}</p>
       <p class="v">${num(r.khoiLuong)} ${r.donVi}${r.nhanCong ? ' · ' + r.nhanCong + ' công' : ''}</p>
       ${r.vuongMac ? `<p>⚠ ${r.vuongMac}</p>` : ''}
+      ${(r.anh || []).length ? `<div class="anh-nk">${r.anh.map(id =>
+        `<a href="https://drive.google.com/file/d/${id}/view" target="_blank" rel="noopener">
+           <img loading="lazy" src="https://drive.google.com/thumbnail?id=${id}&sz=w240" alt="ảnh" onerror="this.parentNode.style.display='none'"></a>`).join('')}</div>` : ''}
       <p>${r.hoTen || ''}</p>
       <span class="badge ${st[0]}">${st[1]}</span>${act}</div></div></div>`;
   }).join('') : '<div class="empty">Chưa có bản ghi nào trong kỳ.<br>Vào tab <b>Nhập số</b> để ghi khối lượng ca.</div>';
