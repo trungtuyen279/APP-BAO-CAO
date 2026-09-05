@@ -543,7 +543,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.5.0';
+const APP_VERSION = '3.5.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1093,7 +1093,12 @@ async function batThongBaoDay(){
   try {
     toast('Đang bật thông báo…');
     const q = await Notification.requestPermission();
-    if (q !== 'granted') { trangThaiDay(); return toast('Bạn chưa đồng ý nhận thông báo.'); }
+    if (q !== 'granted') {
+      trangThaiDay();
+      return toast(q === 'denied'
+        ? 'Máy đang CHẶN thông báo của app. Mở Cài đặt điện thoại → Ứng dụng → BÁO CÁO BCH → Thông báo → Cho phép, rồi quay lại bật.'
+        : 'Bạn chưa đồng ý nhận thông báo.', 6000);
+    }
     await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
     await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
     if (!firebase.apps.length) firebase.initializeApp(FCM.config);
@@ -2349,7 +2354,7 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
 });
 
 let tt;
-function toast(m){ const e=$('toast'); e.textContent=m; e.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('show'),2200); }
+function toast(m, ms){ const e=$('toast'); e.textContent=m; e.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('show'), ms || 2200); }
 
 /* ---------- 10. SERVICE WORKER (chạy offline) ---------- */
 if ('serviceWorker' in navigator) {
