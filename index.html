@@ -331,6 +331,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <button class="sitem" data-s="s-dt"><i><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5"/></svg></i>Thầu phụ·NCC</button>
     <button class="sitem" data-s="s-td"><i><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M17 11a2.5 2.5 0 100-5M18 20a5.5 5.5 0 00-2-4"/></svg></i>Tổ đội</button>
     <button class="sitem" data-s="s-st"><i><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3zM5 17V4M9 8h6M9 12h4"/></svg></i>Sổ tay KT</button>
+    <button class="sitem" data-s="s-ai"><i><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7zM19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7z"/></svg></i>AI hỏi đáp</button>
   </div>
   <div class="netbar" id="netbar"><i class="dot"></i><span id="nettext">Đang kiểm tra kết nối…</span></div>
 </header>
@@ -457,6 +458,17 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
   </section>
 
   <!-- ---------- F. SỔ TAY KỸ THUẬT ---------- -->
+  <section class="pane" id="s-ai">
+    <div class="card" style="padding:12px 14px;margin:10px 0">
+      <label>Câu hỏi kỹ thuật xây dựng</label>
+      <textarea id="ai-q" rows="3" placeholder="VD: Thời gian bảo dưỡng bê tông móng tối thiểu? Độ sụt bê tông cột nên bao nhiêu? Cách xử lý mạch ngừng thi công?"></textarea>
+      <button class="btn" id="ai-gui" onclick="hoiAI()" style="margin-top:8px">Hỏi AI</button>
+      <p class="hint">AI trả lời để THAM KHẢO NHANH — trước khi áp dụng phải đối chiếu bản vẽ,
+      chỉ dẫn kỹ thuật của dự án và TCVN hiện hành. Không nhập thông tin mật của công ty.</p>
+    </div>
+    <div id="ai-kq"></div>
+  </section>
+
   <section class="pane" id="s-st">
     <div class="subs" id="sub-st"></div>
     <div id="stList"></div>
@@ -543,7 +555,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.5.1';
+const APP_VERSION = '3.6.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2327,9 +2339,33 @@ async function duyetBT(id, tt){
 
 /* ---------- điều hướng dải ngang ---------- */
 const TIEU_DE = {'s-tt':'A. TIN TỨC DỰ ÁN','s-tq':'B. TỔNG QUAN DỰ ÁN','s-dt':'C. THẦU PHỤ · NHÀ CUNG CẤP',
-                 's-td':'D. TỔ ĐỘI THI CÔNG','s-bt':'E. ĐỔ BÊ TÔNG','s-st':'F. SỔ TAY KỸ THUẬT'};
+                 's-td':'D. TỔ ĐỘI THI CÔNG','s-bt':'E. ĐỔ BÊ TÔNG','s-st':'F. SỔ TAY KỸ THUẬT',
+                 's-ai':'G. AI HỎI ĐÁP KỸ THUẬT'};
 const VE = {'s-tt':renderTinTuc,'s-tq':renderTongQuan,'s-dt':renderDoiTac,'s-td':renderToDoi,
-            's-bt':renderBeTong,'s-st':renderSoTay};
+            's-bt':renderBeTong,'s-st':renderSoTay,'s-ai':veAI};
+S.aiHist = S.aiHist || [];
+function veAI(){
+  $('ai-kq').innerHTML = S.aiHist.map(x => `
+    <div class="card" style="padding:12px 14px;margin:10px 0">
+      <p style="font-weight:700;color:var(--brand)">❓ ${x.q}</p>
+      <p style="white-space:pre-wrap;margin-top:6px">${x.a}</p>
+    </div>`).join('');
+}
+async function hoiAI(){
+  const q = $('ai-q').value.trim();
+  if (!q) return toast('Nhập câu hỏi trước đã');
+  if (!navigator.onLine) return toast('Cần có mạng để hỏi AI');
+  const nut = $('ai-gui');
+  nut.disabled = true; nut.textContent = 'AI đang trả lời…';
+  try {
+    const d = await api('hoiAI', {cauHoi: q}, 90);
+    S.aiHist.unshift({q, a: d.traLoi || 'Không có câu trả lời.'});
+    if (S.aiHist.length > 20) S.aiHist.pop();
+    $('ai-q').value = '';
+    veAI();
+  } catch(e){ toast('Không hỏi được: ' + e.message, 5000); }
+  nut.disabled = false; nut.textContent = 'Hỏi AI';
+}
 document.querySelectorAll('.sitem').forEach(b => b.onclick = () => {
   document.querySelectorAll('.sitem').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
