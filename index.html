@@ -224,6 +224,9 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .ai-msg.u{background:#C8102E;color:#fff;margin-left:auto;border-bottom-right-radius:4px}
 .ai-msg.a{background:#fff;color:#222;border:1px solid #F1E0E3;border-bottom-left-radius:4px}
 .ai-msg.a .src{display:block;font-size:11px;color:#999;margin-top:6px}
+.ai-src{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
+.ai-src button{font:inherit;font-size:12px;line-height:1.3;text-align:left;padding:6px 10px;border-radius:12px;border:1px solid #F1C6CD;background:#FFF5F6;color:#8A0B20;max-width:100%}
+.ai-src button:active{background:#F9DEE2}
 .ai-typing span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C8102E;margin-right:4px;animation:aiB 1s infinite}
 .ai-typing span:nth-child(2){animation-delay:.2s}.ai-typing span:nth-child(3){animation-delay:.4s}
 @keyframes aiB{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
@@ -589,7 +592,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.6.1';
+const APP_VERSION = '3.6.2';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2453,11 +2456,41 @@ function veAI(){
           `<button onclick="guiAI(this.textContent)">${q}</button>`).join('')}</div>`).join('')
       + `<p class="hint" style="margin-top:18px">AI trả lời để tham khảo nhanh — đối chiếu bản vẽ, chỉ dẫn kỹ thuật và TCVN trước khi áp dụng.</p>`;
   } else {
-    b.innerHTML = S.aiMsgs.map(m => `<div class="ai-msg ${m.r}">${m.t.replace(/</g,'&lt;')}${m.r === 'a' ? '<span class="src">Trợ lý BCH · tham khảo</span>' : ''}</div>`).join('')
+    b.innerHTML = S.aiMsgs.map((m, i) => `<div class="ai-msg ${m.r}">${m.t.replace(/</g,'&lt;')}${veNguonAI(m, i)}${m.r === 'a' ? '<span class="src">Trợ lý BCH · tham khảo</span>' : ''}</div>`).join('')
       + (S.aiDang ? '<div class="ai-msg a ai-typing"><span></span><span></span><span></span></div>' : '')
       + `<div style="text-align:center;margin-top:10px"><button class="btn sm ghost" onclick="S.aiMsgs=[];veAI()">Câu hỏi mới</button></div>`;
   }
   b.scrollTop = b.scrollHeight;
+}
+/* 3.6.2: nút nguồn sổ tay dưới câu trả lời (backend 3.6.8 trả nguon[] có id 'qlcl-02#1' / 'hse-02#21') */
+function veNguonAI(m, i){
+  if (m.r !== 'a' || !Array.isArray(m.n) || !m.n.length) return '';
+  const esc = t => String(t || '').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const daCo = {};
+  return '<div class="ai-src">' + m.n.filter(n => { const k = n.id || (n.chuong + '|' + n.muc); if (daCo[k]) return false; daCo[k] = 1; return true; })
+    .map((n, j) => `<button onclick="moNguonAI(${i},${j})">📖 Sổ tay ${esc(n.quyen)} · ${esc(n.muc || n.chuong)}${n.trang ? ' · tr.' + esc(n.trang) : ''}</button>`).join('') + '</div>';
+}
+async function moNguonAI(i, j){
+  const m = S.aiMsgs[i]; if (!m || !m.n) return;
+  const daCo = {}; const ds = m.n.filter(n => { const k = n.id || (n.chuong + '|' + n.muc); if (daCo[k]) return false; daCo[k] = 1; return true; });
+  const n = ds[j]; if (!n) return;
+  await taiMucLuc();
+  let idCh = '', viTri = -1;
+  if (n.id && n.id.indexOf('#') > 0){ idCh = n.id.split('#')[0]; viTri = +n.id.split('#')[1]; }
+  if (!idCh || !timChuong(idCh).c){                       // dự phòng: dò theo tên chương + tên mục
+    for (const q of ((S.mucLuc || {}).quyen || [])) for (const c of (q.chuong || [])){
+      if (chuoiThuong(c.tenChuong) === chuoiThuong(n.chuong)){ idCh = c.id;
+        viTri = (c.muc || []).findIndex(x => chuoiThuong(x.tieuDe) === chuoiThuong(n.muc)); break; }
+    }
+  }
+  if (!idCh){ if (n.pdf) window.open(n.pdf, '_blank', 'noopener'); else toast('Không tìm thấy mục trong sổ tay'); return; }
+  const {c, q} = timChuong(idCh);
+  const laPDF = c && (c.dang === 'pdf' || (q && q.dang === 'pdf'));
+  if (laPDF){ docMuc(idCh, Math.max(0, viTri)); return; }   // ATLĐ: mở trích đoạn PDF, giữ nguyên khung chat
+  dongAI();                                                  // QLCL: sang màn Sổ tay KT, đọc ngay mục đó
+  const nutST = document.querySelector('.sitem[data-s="s-st"]'); if (nutST) nutST.click();
+  S.sub['ch_' + idCh] = true;
+  docMuc(idCh, Math.max(0, viTri));
 }
 function moAI(){ $('ai-chat').classList.add('show'); $('ai-tip').classList.remove('show'); Store.set('ai-tip-da-xem', 1).catch(()=>{}); veAI(); }
 function dongAI(){ $('ai-chat').classList.remove('show'); }
@@ -2470,7 +2503,7 @@ async function guiAI(cauHoi){
   try {
     const lichSu = S.aiMsgs.slice(-7, -1).map(m => ({vai: m.r === 'u' ? 'user' : 'model', noiDung: m.t}));
     const d = await api('hoiAI', {cauHoi: q, boiCanh: boiCanhAI(), lichSu}, 90);
-    S.aiMsgs.push({r:'a', t: d.traLoi || 'Không có câu trả lời.'});
+    S.aiMsgs.push({r:'a', t: d.traLoi || 'Không có câu trả lời.', n: Array.isArray(d.nguon) ? d.nguon : []});
   } catch(e){ S.aiMsgs.push({r:'a', t:'Không hỏi được: ' + e.message}); }
   S.aiDang = false; veAI();
 }
