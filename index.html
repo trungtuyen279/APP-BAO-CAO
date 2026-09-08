@@ -198,6 +198,38 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 #camon h3{font-size:18.5px;color:var(--brand);line-height:1.45;margin-bottom:8px}
 #camon p{font-size:13.5px;color:var(--ink-2);line-height:1.55}
 @keyframes hien{from{opacity:0}to{opacity:1}}
+/* ---- Trợ lý AI: bong bóng nổi + khung chat ---- */
+#ai-fab{position:fixed;right:14px;bottom:92px;width:54px;height:54px;border-radius:50%;z-index:60;
+  background:linear-gradient(135deg,#C8102E,#7B0A1E);box-shadow:0 6px 18px rgba(200,16,46,.45);
+  display:none;align-items:center;justify-content:center;touch-action:none;user-select:none;cursor:grab}
+#ai-fab.show{display:flex}
+#ai-fab svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#ai-tip{position:fixed;right:76px;bottom:100px;z-index:60;background:#fff;color:#333;font-size:12px;
+  padding:8px 10px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);max-width:150px;display:none}
+#ai-tip.show{display:block}
+#ai-chat{position:fixed;inset:0;z-index:70;background:#fff;display:none;flex-direction:column}
+#ai-chat.show{display:flex}
+.ai-head{background:linear-gradient(135deg,#C8102E,#8E0F27);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.ai-head .av{width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.ai-head .av svg{width:22px;height:22px;stroke:#C8102E;fill:none;stroke-width:2}
+.ai-head b{display:block;font-size:15px}.ai-head small{opacity:.85;font-size:11.5px}
+.ai-head button{margin-left:auto;background:0;border:0;color:#fff;font-size:24px;line-height:1}
+.ai-body{flex:1;overflow:auto;padding:14px;background:#FFF7F4}
+.ai-hello{text-align:center;margin:26px 0 18px}
+.ai-hello b{display:block;font-size:19px;color:#333}.ai-hello span{color:#666;font-size:13.5px}
+.ai-grp{font-size:11.5px;font-weight:800;color:#C8102E;letter-spacing:.5px;margin:14px 0 6px}
+.ai-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ai-chips button{background:#fff;border:1px solid #F1C9CF;border-radius:20px;padding:8px 12px;font-size:13px;color:#333;font-family:var(--font);text-align:left}
+.ai-msg{max-width:88%;padding:10px 13px;border-radius:16px;margin:8px 0;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.ai-msg.u{background:#C8102E;color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.ai-msg.a{background:#fff;color:#222;border:1px solid #F1E0E3;border-bottom-left-radius:4px}
+.ai-msg.a .src{display:block;font-size:11px;color:#999;margin-top:6px}
+.ai-typing span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C8102E;margin-right:4px;animation:aiB 1s infinite}
+.ai-typing span:nth-child(2){animation-delay:.2s}.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes aiB{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+.ai-foot{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #eee;background:#fff;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.ai-foot input{flex:1;border:1px solid #ddd;border-radius:24px;padding:11px 14px;font-size:14px;font-family:var(--font)}
+.ai-foot button{width:46px;height:46px;border-radius:50%;border:0;background:#C8102E;color:#fff;font-size:20px}
 .anh-nk{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
 .anh-nk a{width:64px;height:64px;border-radius:8px;overflow:hidden;background:#eee;flex:0 0 auto}
 .anh-nk img{width:100%;height:100%;object-fit:cover;display:block}
@@ -331,7 +363,6 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <button class="sitem" data-s="s-dt"><i><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5"/></svg></i>Thầu phụ·NCC</button>
     <button class="sitem" data-s="s-td"><i><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M17 11a2.5 2.5 0 100-5M18 20a5.5 5.5 0 00-2-4"/></svg></i>Tổ đội</button>
     <button class="sitem" data-s="s-st"><i><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3zM5 17V4M9 8h6M9 12h4"/></svg></i>Sổ tay KT</button>
-    <button class="sitem" data-s="s-ai"><i><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7zM19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7z"/></svg></i>AI hỏi đáp</button>
   </div>
   <div class="netbar" id="netbar"><i class="dot"></i><span id="nettext">Đang kiểm tra kết nối…</span></div>
 </header>
@@ -458,17 +489,6 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
   </section>
 
   <!-- ---------- F. SỔ TAY KỸ THUẬT ---------- -->
-  <section class="pane" id="s-ai">
-    <div class="card" style="padding:12px 14px;margin:10px 0">
-      <label>Câu hỏi kỹ thuật xây dựng</label>
-      <textarea id="ai-q" rows="3" placeholder="VD: Thời gian bảo dưỡng bê tông móng tối thiểu? Độ sụt bê tông cột nên bao nhiêu? Cách xử lý mạch ngừng thi công?"></textarea>
-      <button class="btn" id="ai-gui" onclick="hoiAI()" style="margin-top:8px">Hỏi AI</button>
-      <p class="hint">AI trả lời để THAM KHẢO NHANH — trước khi áp dụng phải đối chiếu bản vẽ,
-      chỉ dẫn kỹ thuật của dự án và TCVN hiện hành. Không nhập thông tin mật của công ty.</p>
-    </div>
-    <div id="ai-kq"></div>
-  </section>
-
   <section class="pane" id="s-st">
     <div class="subs" id="sub-st"></div>
     <div id="stList"></div>
@@ -533,6 +553,20 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="ai-tip">Thắc mắc gì về dự án, app hay kỹ thuật? Hỏi trợ lý BCH ✦</div>
+<div id="ai-fab" title="Trợ lý AI"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7zM19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></div>
+<div id="ai-chat">
+  <div class="ai-head">
+    <div class="av"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/></svg></div>
+    <div><b>Trợ lý BCH</b><small>AI kỹ thuật · LICOGI13FC</small></div>
+    <button onclick="dongAI()" aria-label="Đóng">×</button>
+  </div>
+  <div class="ai-body" id="ai-body"></div>
+  <div class="ai-foot">
+    <input id="ai-in" placeholder="Hỏi trợ lý BCH…" autocomplete="off" onkeydown="if(event.key==='Enter')guiAI()">
+    <button onclick="guiAI()" aria-label="Gửi">➤</button>
+  </div>
+</div>
 
 <script>
 window.addEventListener('error', function(e){
@@ -555,7 +589,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.6.0';
+const APP_VERSION = '3.6.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -781,6 +815,7 @@ function startApp(d, cached){
   applyData(d);
   if (!cached) Store.set('cache', d);
   document.getElementById('whoami').textContent = `${S.user.hoTen} · ${vaiTro(S.user.vaiTro)}`;
+  hienFabAI();
   if (['CHT_DUYET','ADMIN'].includes(S.user.vaiTro)) document.getElementById('btnNewNoti').style.display='block';
   renderAll(); flush();
 }
@@ -1524,7 +1559,8 @@ $('btnLogout').onclick = async () => {
   if (!confirm('Đăng xuất khỏi thiết bị này?')) return;
   for (const r of q) await Store.drop(r.id);
   await Store.del('auth'); await Store.del('cache');
-  S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = [];
+  S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = [];
+  $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
   $('lgEmail').value = ''; $('lgPin').value = '';
@@ -2339,32 +2375,109 @@ async function duyetBT(id, tt){
 
 /* ---------- điều hướng dải ngang ---------- */
 const TIEU_DE = {'s-tt':'A. TIN TỨC DỰ ÁN','s-tq':'B. TỔNG QUAN DỰ ÁN','s-dt':'C. THẦU PHỤ · NHÀ CUNG CẤP',
-                 's-td':'D. TỔ ĐỘI THI CÔNG','s-bt':'E. ĐỔ BÊ TÔNG','s-st':'F. SỔ TAY KỸ THUẬT',
-                 's-ai':'G. AI HỎI ĐÁP KỸ THUẬT'};
+                 's-td':'D. TỔ ĐỘI THI CÔNG','s-bt':'E. ĐỔ BÊ TÔNG','s-st':'F. SỔ TAY KỸ THUẬT'};
 const VE = {'s-tt':renderTinTuc,'s-tq':renderTongQuan,'s-dt':renderDoiTac,'s-td':renderToDoi,
-            's-bt':renderBeTong,'s-st':renderSoTay,'s-ai':veAI};
-S.aiHist = S.aiHist || [];
-function veAI(){
-  $('ai-kq').innerHTML = S.aiHist.map(x => `
-    <div class="card" style="padding:12px 14px;margin:10px 0">
-      <p style="font-weight:700;color:var(--brand)">❓ ${x.q}</p>
-      <p style="white-space:pre-wrap;margin-top:6px">${x.a}</p>
-    </div>`).join('');
+            's-bt':renderBeTong,'s-st':renderSoTay};
+/* ---------- TRỢ LÝ AI (bong bóng nổi) ---------- */
+S.aiMsgs = S.aiMsgs || [];
+(function(){
+  const fab = $('ai-fab'); let keo = false, dx = 0, dy = 0, dich = false;
+  Store.get('ai-fab-pos').then(p => { if (p && p.top != null){ fab.style.top = p.top + 'px'; fab.style.bottom = 'auto';
+    fab.style.left = p.left != null ? p.left + 'px' : 'auto'; fab.style.right = p.left != null ? 'auto' : '14px'; } }).catch(()=>{});
+  fab.addEventListener('pointerdown', e => { keo = true; dich = false; fab.setPointerCapture(e.pointerId);
+    const r = fab.getBoundingClientRect(); dx = e.clientX - r.left; dy = e.clientY - r.top; $('ai-tip').classList.remove('show'); });
+  fab.addEventListener('pointermove', e => { if (!keo) return; dich = true;
+    const x = Math.max(4, Math.min(innerWidth - 58, e.clientX - dx)), y = Math.max(60, Math.min(innerHeight - 140, e.clientY - dy));
+    fab.style.left = x + 'px'; fab.style.top = y + 'px'; fab.style.right = 'auto'; fab.style.bottom = 'auto'; });
+  fab.addEventListener('pointerup', e => { keo = false;
+    if (dich){ /* hít vào mép gần nhất */
+      const r = fab.getBoundingClientRect(); const trai = r.left < innerWidth / 2;
+      fab.style.left = trai ? '14px' : (innerWidth - 68) + 'px';
+      Store.set('ai-fab-pos', {top: r.top, left: trai ? 14 : innerWidth - 68}).catch(()=>{});
+    } else moAI(); });
+})();
+function goiYAI(){
+  const da = S.duan.find(d => d.maDA === daHienTai()) || {};
+  const ten = da.tenDA || da.maDA || 'dự án';
+  return [
+    ['VỀ DỰ ÁN ' + String(da.maDA || '').toUpperCase(), [
+      'Dự án đang chậm những đầu việc nào?',
+      'Tuần này tôi cần tập trung việc gì?',
+      'Tiến độ tổng thể ' + ten + ' đang ở đâu?',
+      'Có bao nhiêu bản ghi đang chờ duyệt?']],
+    ['VỀ APP & BCH', [
+      'Cách nhập khối lượng và chụp ảnh minh chứng?',
+      'Tại sao tôi không nhận được thông báo rung?',
+      'Quy tắc khai khối lượng đầu kỳ và đánh Hoàn thành?',
+      'Báo cáo tuần tự động lấy số liệu từ đâu?']],
+    ['KỸ THUẬT XÂY DỰNG', [
+      'Thời gian tháo ván khuôn đáy dầm theo TCVN?',
+      'Độ sụt bê tông cột, dầm, sàn nên bao nhiêu?',
+      'Xử lý mạch ngừng thi công bê tông thế nào?',
+      'Kiểm tra giàn giáo trước khi cho công nhân lên?',
+      'Sai số cho phép khi nghiệm thu cốt thép?']]
+  ];
 }
-async function hoiAI(){
-  const q = $('ai-q').value.trim();
-  if (!q) return toast('Nhập câu hỏi trước đã');
-  if (!navigator.onLine) return toast('Cần có mạng để hỏi AI');
-  const nut = $('ai-gui');
-  nut.disabled = true; nut.textContent = 'AI đang trả lời…';
+/* Bối cảnh số liệu thật của dự án gửi kèm câu hỏi */
+function boiCanhAI(){
   try {
-    const d = await api('hoiAI', {cauHoi: q}, 90);
-    S.aiHist.unshift({q, a: d.traLoi || 'Không có câu trả lời.'});
-    if (S.aiHist.length > 20) S.aiHist.pop();
-    $('ai-q').value = '';
-    veAI();
-  } catch(e){ toast('Không hỏi được: ' + e.message, 5000); }
-  nut.disabled = false; nut.textContent = 'Hỏi AI';
+    const maDA = daHienTai(); const da = S.duan.find(d => d.maDA === maDA) || {};
+    const ds = S.danhmuc.filter(x => x.maDA === maDA);
+    const hn = new Date(); hn.setHours(0,0,0,0);
+    let cham = [], dang = 0, xong = 0, gtTong = 0, gtXong = 0;
+    ds.forEach(t => { const {pct} = pctViec(t);
+      gtTong += t.giaTri || 0; gtXong += (t.giaTri || 0) * pct / 100;
+      if (pct >= 100) xong++; else if (pct > 0) dang++;
+      const kt = t.ngayKT ? new Date(t.ngayKT) : null;
+      if (pct < 100 && kt && hn > kt) cham.push({t, pct, tre: Math.round((hn - kt) / 86400000)}); });
+    cham.sort((a, b) => b.tre - a.tre);
+    const choDuyet = S.logs.filter(l => l.maDA === maDA && l.trangThai === 'CHO_DUYET').length;
+    const tuan = tuanNay();
+    const viecTuan = ds.filter(t => { const b = docNgay(t.ngayBD), k = docNgay(t.ngayKT);
+      return (b || k) && (b || k) <= tuan.kt && (k || b) >= tuan.bd && pctViec(t).pct < 100; }).length;
+    return ['Dự án: ' + (da.tenDA || maDA) + ' (' + maDA + '). Hôm nay ' + hn.toLocaleDateString('vi-VN') + '.',
+      'Người hỏi: ' + S.user.hoTen + ' (' + vaiTro(S.user.vaiTro) + ').',
+      'Số đầu việc đang theo dõi trong app: ' + ds.length + ' (xong ' + xong + ', đang thi công ' + dang + ', chậm ' + cham.length + ').',
+      gtTong ? 'Tiến độ theo giá trị: ' + Math.round(gtXong / gtTong * 100) + '%.' : '',
+      'Việc có kế hoạch trong tuần này chưa xong: ' + viecTuan + '. Bản ghi chờ duyệt: ' + choDuyet + '.',
+      cham.length ? 'Việc chậm nhất: ' + cham.slice(0, 8).map(c => c.t.maViec + ' ' + String(c.t.tenViec).slice(0, 40)
+        + ' (' + c.t.zone + ', ' + Math.round(c.pct) + '%, trễ ' + c.tre + ' ngày, PT ' + (c.t.nguoiPT || '?') + ')').join('; ') + '.' : ''
+    ].filter(Boolean).join('\n');
+  } catch(e){ return ''; }
+}
+function veAI(){
+  const b = $('ai-body');
+  if (!S.aiMsgs.length){
+    b.innerHTML = `<div class="ai-hello"><b>${S.user ? S.user.hoTen : 'Bạn'} ơi,</b><span>hôm nay cần tra cứu điều gì?</span></div>`
+      + goiYAI().map(g => `<div class="ai-grp">${g[0]}</div><div class="ai-chips">${g[1].map(q =>
+          `<button onclick="guiAI(this.textContent)">${q}</button>`).join('')}</div>`).join('')
+      + `<p class="hint" style="margin-top:18px">AI trả lời để tham khảo nhanh — đối chiếu bản vẽ, chỉ dẫn kỹ thuật và TCVN trước khi áp dụng.</p>`;
+  } else {
+    b.innerHTML = S.aiMsgs.map(m => `<div class="ai-msg ${m.r}">${m.t.replace(/</g,'&lt;')}${m.r === 'a' ? '<span class="src">Trợ lý BCH · tham khảo</span>' : ''}</div>`).join('')
+      + (S.aiDang ? '<div class="ai-msg a ai-typing"><span></span><span></span><span></span></div>' : '')
+      + `<div style="text-align:center;margin-top:10px"><button class="btn sm ghost" onclick="S.aiMsgs=[];veAI()">Câu hỏi mới</button></div>`;
+  }
+  b.scrollTop = b.scrollHeight;
+}
+function moAI(){ $('ai-chat').classList.add('show'); $('ai-tip').classList.remove('show'); Store.set('ai-tip-da-xem', 1).catch(()=>{}); veAI(); }
+function dongAI(){ $('ai-chat').classList.remove('show'); }
+async function guiAI(cauHoi){
+  const q = (cauHoi || $('ai-in').value).trim();
+  if (!q) return;
+  if (!navigator.onLine) return toast('Cần có mạng để hỏi AI');
+  $('ai-in').value = '';
+  S.aiMsgs.push({r:'u', t:q}); S.aiDang = true; veAI();
+  try {
+    const lichSu = S.aiMsgs.slice(-7, -1).map(m => ({vai: m.r === 'u' ? 'user' : 'model', noiDung: m.t}));
+    const d = await api('hoiAI', {cauHoi: q, boiCanh: boiCanhAI(), lichSu}, 90);
+    S.aiMsgs.push({r:'a', t: d.traLoi || 'Không có câu trả lời.'});
+  } catch(e){ S.aiMsgs.push({r:'a', t:'Không hỏi được: ' + e.message}); }
+  S.aiDang = false; veAI();
+}
+function hienFabAI(){
+  $('ai-fab').classList.add('show');
+  Store.get('ai-tip-da-xem').then(v => { if (!v){ $('ai-tip').classList.add('show');
+    setTimeout(() => $('ai-tip').classList.remove('show'), 8000); } }).catch(()=>{});
 }
 document.querySelectorAll('.sitem').forEach(b => b.onclick = () => {
   document.querySelectorAll('.sitem').forEach(x => x.classList.remove('on'));
