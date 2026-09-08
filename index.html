@@ -224,6 +224,35 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .ai-msg.u{background:#C8102E;color:#fff;margin-left:auto;border-bottom-right-radius:4px}
 .ai-msg.a{background:#fff;color:#222;border:1px solid #F1E0E3;border-bottom-left-radius:4px}
 .ai-msg.a .src{display:block;font-size:11px;color:#999;margin-top:6px}
+.kpi-thang{display:flex;align-items:center;justify-content:center;gap:14px;margin:2px 0 10px}
+.kpi-thang button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:20px;line-height:1;color:var(--brand)}
+.kpi-thang b{font-size:15px}
+.kpi-head{display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff}
+.kpi-vt{font-weight:bold;font-size:14px;margin-bottom:4px}
+.kpi-so{font-family:var(--mono);font-size:34px;font-weight:bold;line-height:1}
+.kpi-so small{font-size:13px;color:var(--ink-2);font-weight:normal}
+.kpi-kl{font-size:12.5px;color:var(--ink-2);margin:6px 2px 0;line-height:1.45}
+.kpi-tag{display:inline-block;color:#fff;font-size:10.5px;font-weight:bold;padding:2px 7px;border-radius:3px;margin-top:4px}
+.kpi-svg{width:100%;height:auto;border:1.5px solid var(--line);border-radius:8px;background:#fff}
+.kpi-bar{margin-bottom:7px}.kpi-bar .lb{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}.kpi-bar .lb b{font-family:var(--mono)}
+.kpi-bar .tr{height:8px;background:#EEE;border-radius:4px;overflow:hidden}.kpi-bar .tr i{display:block;height:100%;border-radius:4px}
+.kpi-nhom{font-weight:bold;font-size:12.5px;color:var(--brand);margin:12px 0 6px;text-transform:uppercase}
+.kpi-tc{border:1.5px solid var(--line);border-radius:7px;padding:9px 10px;margin-bottom:8px;background:#fff}
+.kpi-tc .tt{font-size:13.5px;line-height:1.35}.kpi-tc .tt .ma{font-family:var(--mono);font-size:11px;color:var(--ink-2)}.kpi-tc .tt .mx{float:right;font-family:var(--mono);color:var(--ink-2)}
+.kpi-tc .ct{font-size:12px;color:var(--ink-2);margin-top:4px;line-height:1.4}
+.kpi-tc .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.kpi-chip{font-size:11px;padding:2px 8px;border-radius:10px;background:#FFF5F6;border:1px solid #F1C6CD;color:#8A0B20}
+.kpi-chip.nv{background:#EEF4FB;border-color:#B9D0EA;color:#1A5C96}.kpi-chip.ok{background:#EAF6EC;border-color:#B7DFC0;color:#1E7B34}
+.kpi-tc .sl{display:flex;align-items:center;gap:10px;margin-top:8px}.kpi-tc .sl input[type=range]{flex:1;width:auto;padding:0;accent-color:var(--brand)}
+.kpi-tc .sl output{font-family:var(--mono);font-size:12px;min-width:92px;text-align:right}
+.kpi-tc textarea{margin-top:6px;font-size:13px}
+.kpi-tc .dg{font-size:12px;margin-top:5px;line-height:1.4}.kpi-tc .gc{font-size:11px;color:#8A6D1E;margin-top:5px;line-height:1.35}
+.kpi-vp{font-size:12.5px;border-left:3px solid var(--brand);padding:6px 9px;margin-bottom:6px;background:#FFF8F8;line-height:1.45}
+.kpi-btns{display:flex;gap:8px;margin-top:12px}.kpi-btns .btn{flex:1}
+.kpi-nv .hd{display:flex;justify-content:space-between;align-items:center}.kpi-nv .hd b{font-family:var(--mono);font-size:18px}
+.kpi-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.kpi-stats div{border:1.5px solid var(--line);border-radius:6px;padding:7px 4px;text-align:center;background:#fff}.kpi-stats b{display:block;font-family:var(--mono);font-size:18px}.kpi-stats span{font-size:10.5px;color:var(--ink-2)}
+.kpi-tb{width:100%;border-collapse:collapse;font-size:12px}.kpi-tb th,.kpi-tb td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left;vertical-align:top}.kpi-tb th{font-size:11px;color:var(--ink-2)}
 .ai-src{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
 .ai-src button{font:inherit;font-size:12px;line-height:1.3;text-align:left;padding:6px 10px;border-radius:12px;border:1px solid #F1C6CD;background:#FFF5F6;color:#8A0B20;max-width:100%}
 .ai-src button:active{background:#F9DEE2}
@@ -365,6 +394,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <button class="sitem" data-s="s-tq"><i><svg viewBox="0 0 24 24"><path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/></svg></i>Tổng quan</button>
     <button class="sitem" data-s="s-dt"><i><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5"/></svg></i>Thầu phụ·NCC</button>
     <button class="sitem" data-s="s-td"><i><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M17 11a2.5 2.5 0 100-5M18 20a5.5 5.5 0 00-2-4"/></svg></i>Tổ đội</button>
+    <button class="sitem" data-s="s-kpi"><i><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5-4.9-2.6L7.1 18.2l.9-5.5-4-3.9L9.5 8z"/></svg></i>KPI</button>
     <button class="sitem" data-s="s-st"><i><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3zM5 17V4M9 8h6M9 12h4"/></svg></i>Sổ tay KT</button>
   </div>
   <div class="netbar" id="netbar"><i class="dot"></i><span id="nettext">Đang kiểm tra kết nối…</span></div>
@@ -491,6 +521,12 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <div id="btBody"></div>
   </section>
 
+  <!-- ---------- H. KPI HÀNG THÁNG (3.7.0) ---------- -->
+  <section class="pane" id="s-kpi">
+    <div class="subs" id="sub-kpi"></div>
+    <div id="kpiBody"></div>
+  </section>
+
   <!-- ---------- F. SỔ TAY KỸ THUẬT ---------- -->
   <section class="pane" id="s-st">
     <div class="subs" id="sub-st"></div>
@@ -592,7 +628,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.6.2';
+const APP_VERSION = '3.7.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1562,7 +1598,7 @@ $('btnLogout').onclick = async () => {
   if (!confirm('Đăng xuất khỏi thiết bị này?')) return;
   for (const r of q) await Store.drop(r.id);
   await Store.del('auth'); await Store.del('cache');
-  S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = [];
+  S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = []; S.kpi = null;
   $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
@@ -2378,9 +2414,235 @@ async function duyetBT(id, tt){
 
 /* ---------- điều hướng dải ngang ---------- */
 const TIEU_DE = {'s-tt':'A. TIN TỨC DỰ ÁN','s-tq':'B. TỔNG QUAN DỰ ÁN','s-dt':'C. THẦU PHỤ · NHÀ CUNG CẤP',
-                 's-td':'D. TỔ ĐỘI THI CÔNG','s-bt':'E. ĐỔ BÊ TÔNG','s-st':'F. SỔ TAY KỸ THUẬT'};
+                 's-td':'D. TỔ ĐỘI THI CÔNG','s-bt':'E. ĐỔ BÊ TÔNG','s-st':'F. SỔ TAY KỸ THUẬT','s-kpi':'H. KPI HÀNG THÁNG'};
 const VE = {'s-tt':renderTinTuc,'s-tq':renderTongQuan,'s-dt':renderDoiTac,'s-td':renderToDoi,
-            's-bt':renderBeTong,'s-st':renderSoTay};
+            's-bt':renderBeTong,'s-st':renderSoTay,'s-kpi':renderKPI};
+/* ---------- H. KPI HÀNG THÁNG (3.7.0) ---------- */
+const thangLocal = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+const ngayLocal = d => thangLocal(d) + '-' + String(d.getDate()).padStart(2, '0');
+function kpiKhoiTao(){ if (!S.kpi) S.kpi = {thang: thangLocal(new Date()), cuaToi:null, ds:{}, phieu:null, vp:null, th:null, dang:false}; }
+kpiKhoiTao();
+const KPI_TT = {CHUA_TAO:'Chưa tạo', NHAP:'Chưa chấm', TU_CHAM:'Đã tự chấm', CHO_DUYET:'Chờ duyệt', DA_DUYET:'Đã duyệt', TRA_LAI:'Trả lại'};
+const KPI_MAU = {CHUA_TAO:'#888', NHAP:'#888', TU_CHAM:'#1A5C96', CHO_DUYET:'#B8860B', DA_DUYET:'#1E7B34', TRA_LAI:'#C00000'};
+const escK = t => String(t ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const thangNhan = t => t ? 'Tháng ' + t.slice(5,7) + '/' + t.slice(0,4) : '';
+function kpiDoiThang(n){ const [y,m] = S.kpi.thang.split('-').map(Number); const d = new Date(y, m - 1 + n, 1);
+  S.kpi.thang = thangLocal(d); S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; S.kpi.vp = null; S.kpi.th = null; renderKPI(); }
+function kpiThanhThang(){ return `<div class="kpi-thang"><button onclick="kpiDoiThang(-1)">‹</button><b>${thangNhan(S.kpi.thang)}</b><button onclick="kpiDoiThang(1)">›</button></div>`; }
+function kpiTag(tt){ return `<span class="kpi-tag" style="background:${KPI_MAU[tt] || '#888'}">${KPI_TT[tt] || tt}</span>`; }
+function kpiDiemMau(d){ return d == null ? '#888' : d >= 85 ? '#1E7B34' : d >= 70 ? '#B8860B' : '#C00000'; }
+
+async function renderKPI(){
+  kpiKhoiTao();
+  if (!S.kpi.cuaToi){
+    $('kpiBody').innerHTML = kpiThanhThang() + '<div class="empty">Đang tải KPI…</div>';
+    try { S.kpi.cuaToi = await api('kpiCuaToi', {thang:S.kpi.thang}, 60); }
+    catch(e){ $('kpiBody').innerHTML = kpiThanhThang() + empty('Không tải được KPI: ' + escK(e.message)); return; }
+  }
+  const q = S.kpi.cuaToi.quyen || {};
+  const tabs = ['Của tôi'].concat(q.cham ? ['Chấm'] : [], q.duyet ? ['Duyệt'] : [], q.viPham ? ['Vi phạm'] : [], q.tongHop ? ['Tổng hợp'] : []);
+  if (!tabs.includes(S.sub.kpi)) S.sub.kpi = tabs[0];
+  subTabs('sub-kpi', tabs, 'kpi', renderKPI);
+  const tab = S.sub.kpi;
+  if (tab === 'Của tôi') return renderKpiCuaToi();
+  if (tab === 'Chấm') return renderKpiDanhSach('CHAM');
+  if (tab === 'Duyệt') return renderKpiDanhSach('DUYET');
+  if (tab === 'Vi phạm') return renderKpiViPham();
+  if (tab === 'Tổng hợp') return renderKpiTongHop();
+}
+
+/* ---- biểu đồ SVG thuần ---- */
+function veKpiLine(ls){
+  const pts = (ls || []).filter(x => x.tongDiem != null);
+  if (pts.length < 2) return `<div class="hint">Biểu đồ 12 tháng sẽ hiện khi có từ 2 tháng được chấm.</div>`;
+  const W = 320, H = 130, L = 28, R = 8, T = 12, B = 26;
+  const x = i => L + (W - L - R) * i / (pts.length - 1), y = v => T + (H - T - B) * (1 - v / 100);
+  const path = pts.map((p, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p.tongDiem).toFixed(1)).join(' ');
+  const grid = [50, 70, 85, 100].map(v => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 70 || v === 85 ? '#E3B341' : '#E5E7EB'}" stroke-dasharray="${v === 70 || v === 85 ? '4 3' : '0'}"/><text x="${L - 4}" y="${y(v) + 4}" font-size="9" text-anchor="end" fill="#5A6875">${v}</text>`).join('');
+  const dots = pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.tongDiem)}" r="3.5" fill="${kpiDiemMau(p.tongDiem)}"/><text x="${x(i)}" y="${y(p.tongDiem) - 7}" font-size="9" text-anchor="middle" fill="#1F2A37" font-weight="bold">${p.tongDiem}</text><text x="${x(i)}" y="${H - 8}" font-size="9" text-anchor="middle" fill="#5A6875">${p.thang.slice(5,7)}/${p.thang.slice(2,4)}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="kpi-svg">${grid}<path d="${path}" fill="none" stroke="#C00000" stroke-width="2"/>${dots}</svg>`;
+}
+function veKpiNhom(tcs){
+  const nh = {}; const thu = [];
+  tcs.forEach(t => { if (!nh[t.nhom]){ nh[t.nhom] = {ten:t.tenNhom, max:0, dat:0, co:false}; thu.push(t.nhom); }
+    nh[t.nhom].max += t.diemMax || 0; if (t.diem != null){ nh[t.nhom].dat += t.diem; nh[t.nhom].co = true; } });
+  return thu.map(k => { const g = nh[k]; const pct = g.max ? Math.round(g.dat / g.max * 100) : 0;
+    return `<div class="kpi-bar"><div class="lb"><span>${k}. ${escK(g.ten)}</span><b>${g.co ? g.dat.toFixed(1).replace('.0','') + '/' + g.max : '—/' + g.max}</b></div>
+      <div class="tr"><i style="width:${g.co ? pct : 0}%;background:${kpiDiemMau(g.co ? pct : null)}"></i></div></div>`; }).join('');
+}
+
+/* ---- Của tôi ---- */
+function renderKpiCuaToi(){
+  const c = S.kpi.cuaToi; let out = kpiThanhThang();
+  if (!c.viTri) out += empty('Tài khoản chưa được gán vị trí KPI.<br>Quản trị điền cột <b>vi_tri_kpi</b> trong sheet NHAN_SU.');
+  else if (!c.goi || c.goi.loi) out += empty('Chưa mở được phiếu KPI: ' + escK((c.goi || {}).loi || 'chưa có tiêu chí cho vị trí ' + c.viTri));
+  else {
+    const p = c.goi.phieu;
+    out += `<div class="kpi-head"><div><div class="kpi-vt">${escK(c.tenViTri || c.viTri)}</div>${kpiTag(p.trangThai)}</div>
+      <div class="kpi-so" style="color:${kpiDiemMau(p.tongDiem)}">${p.tongDiem != null ? p.tongDiem : '—'}<small>/100</small></div></div>`;
+    if (p.ketLuan) out += `<div class="kpi-kl">${escK(p.ketLuan)}</div>`;
+    if (p.trangThai === 'TRA_LAI' && p.lyDoTra) out += `<div class="kpi-kl" style="color:#C00000">Trả lại: ${escK(p.lyDoTra)}</div>`;
+    out += `<div class="eyebrow" style="margin:12px 0 6px"><span>Điểm 12 tháng</span></div>` + veKpiLine(c.lichSu);
+    out += `<div class="eyebrow" style="margin:12px 0 6px"><span>Theo nhóm tiêu chí</span></div>` + veKpiNhom(c.goi.tieuChi);
+    out += `<div class="eyebrow" style="margin:14px 0 6px"><span>${c.goi.quyen.tuCham ? 'Tự chấm (kéo thanh %, ghi diễn giải)' : 'Chi tiết tiêu chí'}</span></div>`;
+    out += veKpiPhieu(c.goi, c.goi.quyen.tuCham ? 'TU_CHAM' : 'XEM');
+  }
+  $('kpiBody').innerHTML = out;
+}
+
+/* ---- phiếu (dùng chung 4 chế độ) ---- */
+function veKpiPhieu(goi, che){
+  const p = goi.phieu; let out = ''; let nhom = '';
+  goi.tieuChi.forEach(t => {
+    if (t.nhom !== nhom){ nhom = t.nhom; out += `<div class="kpi-nhom">${t.nhom}. ${escK(t.tenNhom)}</div>`; }
+    const pctHT = che === 'TU_CHAM' ? (t.pctTuCham != null ? t.pctTuCham : (t.pctGoiY != null ? t.pctGoiY : 1))
+                : (t.pct != null ? t.pct : (t.pctTuCham != null ? t.pctTuCham : (t.pctGoiY != null ? t.pctGoiY : 1)));
+    const v = Math.round(pctHT * 100);
+    const chips = [t.pctGoiY != null ? `<span class="kpi-chip" title="Gợi ý từ số liệu app">App gợi ý ${Math.round(t.pctGoiY * 100)}%</span>` : '',
+                   t.pctTuCham != null && che !== 'TU_CHAM' ? `<span class="kpi-chip nv">Tự chấm ${Math.round(t.pctTuCham * 100)}%</span>` : '',
+                   t.pct != null && che !== 'CHAM' ? `<span class="kpi-chip ok">Chấm ${Math.round(t.pct * 100)}% → ${t.diem} đ</span>` : ''].join('');
+    const sua = che === 'TU_CHAM' || che === 'CHAM';
+    out += `<div class="kpi-tc" data-tc="${escK(t.maTC)}">
+      <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${t.diemMax} đ</b></div>
+      <div class="ct">${escK(t.chiTieu)}</div>${chips ? `<div class="chips">${chips}</div>` : ''}
+      ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="5" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+(Math.round(this.value*${t.diemMax})/100)+' đ'"><output>${v}% · ${Math.round(v * t.diemMax) / 100} đ</output></div>
+             <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới 100%)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
+           : `${t.dienGiai ? `<div class="dg"><b>Người chấm:</b> ${escK(t.dienGiai)}</div>` : ''}${t.dienGiaiNV ? `<div class="dg"><b>Tự nhận xét:</b> ${escK(t.dienGiaiNV)}</div>` : ''}`}
+      ${t.ghiChu ? `<div class="gc">${escK(t.ghiChu)}</div>` : ''}
+    </div>`;
+  });
+  if (goi.viPham && goi.viPham.length)
+    out += `<div class="kpi-nhom" style="color:#C00000">Vi phạm A7.15 trong tháng (${goi.viPham.length})</div>` +
+      goi.viPham.map(v => `<div class="kpi-vp">${escK(v.ngay)} · <b>trừ ${v.mucTru}%</b> · ${escK(v.tenVP)}${v.ghiChu ? ' — ' + escK(v.ghiChu) : ''} <i>(${escK(v.nguoiGhi)})</i></div>`).join('');
+  const em = escK(p.email), th = escK(p.thang);
+  if (che === 'TU_CHAM') out += `<button class="btn" style="margin-top:12px" onclick="kpiGui('TU_CHAM','${em}','${th}')">Gửi tự chấm cho người quản lý</button>`;
+  if (che === 'CHAM') out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiGui('CHAM','${em}','${th}')">Lưu nháp</button><button class="btn" onclick="kpiGui('GUI_DUYET','${em}','${th}')">Gửi duyệt</button></div>`;
+  if (che === 'DUYET') out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiDuyet('TRA_LAI','${em}','${th}')">Trả lại</button><button class="btn" onclick="kpiDuyet('DUYET','${em}','${th}')">Duyệt & khoá</button></div>`;
+  if (che === 'XEM' && goi.quyen && goi.quyen.yKien)
+    out += `<div class="field" style="margin-top:12px"><label>Ý kiến của tôi về kết quả</label><textarea id="kpi-yk" rows="2">${escK(p.yKienNV)}</textarea></div><button class="btn ghost" onclick="kpiGuiYKien('${em}','${th}')">Gửi ý kiến</button>`;
+  else if (p.yKienNV) out += `<div class="dg" style="margin-top:8px"><b>Ý kiến nhân viên:</b> ${escK(p.yKienNV)}</div>`;
+  if (p.nguoiCham || p.nguoiDuyet) out += `<div class="hint">${p.nguoiCham ? 'Người chấm: ' + escK(p.nguoiCham) + (p.thoiGianCham ? ' · ' + escK(p.thoiGianCham).slice(0,16) : '') : ''}${p.nguoiDuyet ? '<br>Người duyệt: ' + escK(p.nguoiDuyet) + (p.thoiGianDuyet ? ' · ' + escK(p.thoiGianDuyet).slice(0,16) : '') : ''}</div>`;
+  return out;
+}
+function kpiThuDiem(){
+  return [...$('kpiBody').querySelectorAll('.kpi-tc')].map(el => ({maTC: el.dataset.tc,
+    pct: el.querySelector('input[type=range]') ? +el.querySelector('input[type=range]').value : null,
+    dienGiai: el.querySelector('textarea') ? el.querySelector('textarea').value.trim() : ''}));
+}
+async function kpiGui(che, email, thang){
+  if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
+  const diem = kpiThuDiem();
+  if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct < 100 && !x.dienGiai);
+    if (thieu.length) return toast('Tiêu chí dưới 100% phải có diễn giải: ' + thieu.map(x => x.maTC).join(', '), 4000);
+    if (!confirm('Gửi duyệt phiếu KPI ' + thangNhan(thang) + '? Sau khi gửi không sửa được.')) return; }
+  S.kpi.dang = true; toast('Đang lưu…');
+  try { const r = await api('kpiLuu', {cheDo:che, email, thang, diem}, 60);
+    toast(che === 'TU_CHAM' ? 'Đã gửi tự chấm' : che === 'CHAM' ? 'Đã lưu nháp' : 'Đã gửi duyệt · ' + r.tongDiem + ' điểm');
+    S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; renderKPI();
+  } catch(e){ toast('Chưa lưu được: ' + e.message, 4000); }
+  S.kpi.dang = false;
+}
+async function kpiGuiYKien(email, thang){
+  try { await api('kpiLuu', {cheDo:'Y_KIEN', email, thang, yKien: $('kpi-yk').value}, 30); toast('Đã gửi ý kiến'); S.kpi.cuaToi = null; renderKPI(); }
+  catch(e){ toast(e.message, 4000); }
+}
+async function kpiDuyet(kq, email, thang){
+  let lyDo = '';
+  if (kq === 'TRA_LAI'){ lyDo = (prompt('Lý do trả lại phiếu:') || '').trim(); if (!lyDo) return; }
+  else if (!confirm('Duyệt và khoá phiếu KPI ' + thangNhan(thang) + '?')) return;
+  try { await api('kpiDuyet', {email, thang, ketQua:kq, lyDo}, 60); toast(kq === 'DUYET' ? 'Đã duyệt' : 'Đã trả lại');
+    S.kpi.ds = {}; S.kpi.phieu = null; S.kpi.th = null; renderKPI(); }
+  catch(e){ toast(e.message, 4000); }
+}
+
+/* ---- Chấm / Duyệt: danh sách → phiếu ---- */
+async function renderKpiDanhSach(che){
+  if (S.kpi.phieu && S.kpi.phieu.che === che) return renderKpiPhieuNguoi(che);
+  let out = kpiThanhThang();
+  if (!S.kpi.ds[che]){
+    $('kpiBody').innerHTML = out + '<div class="empty">Đang tải danh sách…</div>';
+    try { S.kpi.ds[che] = (await api('kpiDanhSach', {thang:S.kpi.thang, cheDo:che}, 60)).ds; }
+    catch(e){ $('kpiBody').innerHTML = out + empty(escK(e.message)); return; }
+  }
+  const ds = S.kpi.ds[che];
+  if (!ds.length) out += empty(che === 'CHAM' ? 'Không có nhân sự nào do bạn chấm.<br>Quản trị kiểm tra cột <b>quan_ly_truc_tiep</b> / <b>vi_tri_kpi</b> trong NHAN_SU.' : 'Không có phiếu nào trong phạm vi duyệt của bạn.');
+  else {
+    const uu = che === 'DUYET' ? ['CHO_DUYET'] : ['TU_CHAM','TRA_LAI','NHAP','CHUA_TAO'];
+    const sap = ds.slice().sort((a, b) => (uu.indexOf(b.trangThai) > -1) - (uu.indexOf(a.trangThai) > -1));
+    out += `<div class="hint" style="margin-bottom:8px">${che === 'CHAM' ? 'Bấm vào người để chấm. ' : 'Bấm vào phiếu chờ duyệt để xem và duyệt. '}${ds.filter(x => uu.indexOf(x.trangThai) > -1).length}/${ds.length} cần xử lý.</div>`;
+    out += sap.map(x => `<div class="item kpi-nv" onclick="kpiMoPhieu('${che}','${escK(x.email)}')">
+      <div class="hd"><h4>${escK(x.hoTen)}</h4><b style="color:${kpiDiemMau(x.tongDiem)}">${x.tongDiem != null ? x.tongDiem : '—'}</b></div>
+      <div class="meta">${escK(x.viTri)} · ${escK(x.maDA)}${x.tuChamLuc ? ' · tự chấm ' + escK(x.tuChamLuc).slice(0,10) : ''}</div>${kpiTag(x.trangThai)}</div>`).join('');
+  }
+  $('kpiBody').innerHTML = out;
+}
+async function kpiMoPhieu(che, email){
+  $('kpiBody').innerHTML = kpiThanhThang() + '<div class="empty">Đang mở phiếu…</div>';
+  try { const g = await api('kpiPhieu', {email, thang:S.kpi.thang}, 60); S.kpi.phieu = {che, goi:g}; renderKpiPhieuNguoi(che); }
+  catch(e){ toast(e.message, 4000); S.kpi.phieu = null; renderKPI(); }
+}
+function kpiDongPhieu(){ S.kpi.phieu = null; renderKPI(); }
+function renderKpiPhieuNguoi(che){
+  const g = S.kpi.phieu.goi, p = g.phieu;
+  const cheVe = che === 'CHAM' ? (g.quyen.cham ? 'CHAM' : 'XEM') : (g.quyen.duyet ? 'DUYET' : 'XEM');
+  let out = `<button class="back" onclick="kpiDongPhieu()">‹ Danh sách</button>
+    <div class="kpi-head"><div><div class="kpi-vt">${escK(p.hoTen)} · ${escK(p.viTri)}</div>${thangNhan(p.thang)} ${kpiTag(p.trangThai)}</div>
+      <div class="kpi-so" style="color:${kpiDiemMau(p.tongDiem)}">${p.tongDiem != null ? p.tongDiem : '—'}<small>/100</small></div></div>`;
+  if (p.ketLuan) out += `<div class="kpi-kl">${escK(p.ketLuan)}</div>`;
+  if (p.lyDoTra) out += `<div class="kpi-kl" style="color:#C00000">Lý do trả lại: ${escK(p.lyDoTra)}</div>`;
+  if (cheVe === 'XEM' && che === 'CHAM' && ['CHO_DUYET','DA_DUYET'].includes(p.trangThai)) out += `<div class="hint">Phiếu đã ${KPI_TT[p.trangThai].toLowerCase()} — chỉ xem.</div>`;
+  out += veKpiNhom(g.tieuChi) + `<div class="eyebrow" style="margin:12px 0 6px"><span>${cheVe === 'CHAM' ? 'Chấm điểm' : cheVe === 'DUYET' ? 'Kiểm tra & duyệt' : 'Chi tiết'}</span></div>` + veKpiPhieu(g, cheVe);
+  $('kpiBody').innerHTML = out; document.querySelector('main').scrollTop = 0;
+}
+
+/* ---- Vi phạm A7.15 ---- */
+async function renderKpiViPham(){
+  let out = kpiThanhThang();
+  if (!S.kpi.vp){
+    $('kpiBody').innerHTML = out + '<div class="empty">Đang tải…</div>';
+    try { const [vp, ds] = await Promise.all([api('kpiViPhamDS', {thang:S.kpi.thang}, 60), S.kpi.ds.CHAM ? Promise.resolve({ds:S.kpi.ds.CHAM}) : api('kpiDanhSach', {thang:S.kpi.thang, cheDo:'CHAM'}, 60)]);
+      S.kpi.vp = vp.ds; S.kpi.ds.CHAM = ds.ds; }
+    catch(e){ $('kpiBody').innerHTML = out + empty(escK(e.message)); return; }
+  }
+  const dm = S.kpi.cuaToi.dmViPham || []; let nhom = '';
+  out += `<div class="card"><h4>Ghi nhận vi phạm (phụ lục A7.15)</h4>
+    <div class="field" style="margin-top:8px"><label>Nhân sự</label><select id="vp-email">${(S.kpi.ds.CHAM || []).map(x => `<option value="${escK(x.email)}">${escK(x.hoTen)} · ${escK(x.viTri)}</option>`).join('')}</select></div>
+    <div class="field"><label>Tiêu chí vi phạm</label><select id="vp-ma">${dm.map(v => { let o = ''; if (v.nhom !== nhom){ nhom = v.nhom; o += `<option disabled>── ${escK(v.nhom)}</option>`; } return o + `<option value="${escK(v.maVP)}">[trừ ${v.mucTru}%] ${escK(v.tenVP)}</option>`; }).join('')}</select></div>
+    <div class="row"><div class="field"><label>Ghi chú / minh chứng</label><input id="vp-gc" placeholder="Sự việc, thời điểm, người chứng kiến"></div><div class="field"><label>Ngày</label><input id="vp-ngay" type="date" value="${ngayLocal(new Date())}"></div></div>
+    <button class="btn" onclick="kpiGhiVP()">Ghi vi phạm</button>
+    <div class="hint">Nhân viên nhận thông báo ngay và có 3 ngày để ý kiến. Điểm nhóm Thái độ của tháng tự trừ theo mức.</div></div>`;
+  out += `<div class="eyebrow" style="margin:12px 0 6px"><span>Vi phạm ${thangNhan(S.kpi.thang)} (${S.kpi.vp.length})</span></div>`;
+  out += S.kpi.vp.length ? S.kpi.vp.map(v => `<div class="kpi-vp"><b>${escK(v.hoTen)}</b> · ${escK(v.ngay)} · trừ ${v.mucTru}% · ${escK(v.tenVP)}${v.ghiChu ? ' — ' + escK(v.ghiChu) : ''} <i>(${escK(v.nguoiGhi)})</i></div>`).join('') : empty('Chưa có vi phạm nào trong tháng.');
+  $('kpiBody').innerHTML = out;
+}
+async function kpiGhiVP(){
+  const email = $('vp-email').value, maVP = $('vp-ma').value; if (!email || !maVP) return toast('Chọn nhân sự và tiêu chí');
+  if (!confirm('Ghi vi phạm cho ' + $('vp-email').selectedOptions[0].textContent + '?')) return;
+  try { await api('kpiViPham', {email, maVP, ngay:$('vp-ngay').value, ghiChu:$('vp-gc').value.trim()}, 60); toast('Đã ghi vi phạm'); S.kpi.vp = null; S.kpi.ds = {}; renderKPI(); }
+  catch(e){ toast(e.message, 4000); }
+}
+
+/* ---- Tổng hợp ---- */
+async function renderKpiTongHop(){
+  let out = kpiThanhThang();
+  if (!S.kpi.th){
+    $('kpiBody').innerHTML = out + '<div class="empty">Đang tổng hợp…</div>';
+    try { S.kpi.th = await api('kpiTongHop', {thang:S.kpi.thang}, 60); } catch(e){ $('kpiBody').innerHTML = out + empty(escK(e.message)); return; }
+  }
+  const t = S.kpi.th; const dem = t.dem || {};
+  out += `<div class="kpi-stats">${[['Nhân sự', t.ds.length], ['Đã duyệt', dem.DA_DUYET || 0], ['Chờ duyệt', dem.CHO_DUYET || 0], ['Chưa chấm', (dem.NHAP || 0) + (dem.CHUA_TAO || 0) + (dem.TU_CHAM || 0) + (dem.TRA_LAI || 0)], ['TB đã duyệt', t.trungBinh != null ? t.trungBinh : '—'], ['Vi phạm', t.soVP || 0]]
+    .map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('')}</div>`;
+  const ds = t.ds.slice().sort((a, b) => (b.tongDiem ?? -1) - (a.tongDiem ?? -1));
+  out += `<table class="kpi-tb"><tr><th>Họ tên</th><th>Vị trí</th><th>DA</th><th>Điểm</th><th>Trạng thái</th></tr>` +
+    ds.map(x => `<tr><td>${escK(x.hoTen)}</td><td>${escK(x.viTri)}</td><td>${escK(x.maDA)}</td><td style="color:${kpiDiemMau(x.tongDiem)};font-weight:bold">${x.tongDiem != null ? x.tongDiem : '—'}</td><td>${kpiTag(x.trangThai)}</td></tr>`).join('') + '</table>';
+  out += `<button class="btn ghost sm" style="margin-top:10px" onclick="kpiSaoChep()">Sao chép bảng</button>`;
+  $('kpiBody').innerHTML = out;
+}
+function kpiSaoChep(){
+  const t = S.kpi.th; const txt = ['KPI ' + thangNhan(S.kpi.thang)].concat(t.ds.map(x => `${x.hoTen}\t${x.viTri}\t${x.maDA}\t${x.tongDiem ?? ''}\t${KPI_TT[x.trangThai] || x.trangThai}`)).join('\n');
+  navigator.clipboard.writeText(txt).then(() => toast('Đã sao chép')).catch(() => toast('Không sao chép được'));
+}
+
 /* ---------- TRỢ LÝ AI (bong bóng nổi) ---------- */
 S.aiMsgs = S.aiMsgs || [];
 (function(){
