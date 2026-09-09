@@ -248,6 +248,13 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .kpi-tc textarea{margin-top:6px;font-size:13px}
 .kpi-tc .dg{font-size:12px;margin-top:5px;line-height:1.4}.kpi-tc .gc{font-size:11px;color:#8A6D1E;margin-top:5px;line-height:1.35}
 .kpi-vp{font-size:12.5px;border-left:3px solid var(--brand);padding:6px 9px;margin-bottom:6px;background:#FFF8F8;line-height:1.45}
+.kpi-tc.kpi-ban{border-color:#B9D0EA;background:#F6F9FD}
+.kb-nhom{display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:12.5px;color:var(--brand);margin:12px 0 6px;text-transform:uppercase}.kb-nhom b{font-family:var(--mono);color:var(--ink)}
+.kb-tc{border:1.5px solid var(--line);border-radius:7px;padding:9px 10px;margin-bottom:8px;background:#fff}.kb-tc .tt{font-size:13.5px;line-height:1.35}.kb-tc .tt .ma{font-family:var(--mono);font-size:11px;color:var(--ink-2)}.kb-tc .tt .ts{float:right;font-family:var(--mono);color:var(--ink-2);font-size:11px}
+.kb-tc .ct{font-size:12px;color:var(--ink-2);margin-top:4px;line-height:1.4}.kb-tc .pp{font-size:11px;color:#8A6D1E;margin-top:3px}
+.kb-in{display:grid;grid-template-columns:1fr 1fr 82px;gap:6px;margin-top:7px;align-items:end}.kb-in label{font-size:10.5px;color:var(--ink-2);display:block;margin-bottom:2px}.kb-in input{font-size:14px;padding:6px 8px}.kb-in .ht{font-family:var(--mono);font-size:15px;font-weight:bold;text-align:center;padding:6px 0;border-radius:6px;background:#F3F4F6}
+.kb-tc textarea{margin-top:6px;font-size:13px}.kb-tc .dg{font-size:12px;margin-top:5px;line-height:1.4}
+.kb-tong{display:flex;justify-content:space-between;align-items:center;border:2px solid var(--brand);border-radius:8px;padding:10px 12px;margin:8px 0;background:#fff}.kb-tong .so{font-family:var(--mono);font-size:26px;font-weight:bold}
 .kpi-btns{display:flex;gap:8px;margin-top:12px}.kpi-btns .btn{flex:1}
 .kpi-nv .hd{display:flex;justify-content:space-between;align-items:center}.kpi-nv .hd b{font-family:var(--mono);font-size:18px}
 .kpi-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
@@ -628,7 +635,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.7.0';
+const APP_VERSION = '3.7.2';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -883,7 +890,7 @@ async function refresh(){
   try { const d = await api('bootstrap'); applyData(d); await Store.set('cache', d); renderAll(); }
   catch(e){ /* mất mạng — giữ dữ liệu trong máy */ }
 }
-const vaiTro = v => ({KT_NHAP:'Kỹ thuật', QS:'QS khối lượng', CHT_DUYET:'Chỉ huy trưởng', BDH_XEM:'Ban điều hành', ADMIN:'Quản trị'}[v] || v);
+const vaiTro = v => ({KT_NHAP:'Kỹ thuật', QS:'QS khối lượng', CHT_DUYET:'Chỉ huy trưởng', BDH_XEM:'Ban điều hành', ADMIN:'Quản trị', QUAN_TRI:'Quản trị', ATLD_CTY:'Phòng ATLĐ công ty'}[v] || v);
 
 /* ---------- 6. MÀN NHẬP SỐ ---------- */
 const $ = id => document.getElementById(id);
@@ -2420,14 +2427,14 @@ const VE = {'s-tt':renderTinTuc,'s-tq':renderTongQuan,'s-dt':renderDoiTac,'s-td'
 /* ---------- H. KPI HÀNG THÁNG (3.7.0) ---------- */
 const thangLocal = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 const ngayLocal = d => thangLocal(d) + '-' + String(d.getDate()).padStart(2, '0');
-function kpiKhoiTao(){ if (!S.kpi) S.kpi = {thang: thangLocal(new Date()), cuaToi:null, ds:{}, phieu:null, vp:null, th:null, dang:false}; }
+function kpiKhoiTao(){ if (!S.kpi) S.kpi = {thang: thangLocal(new Date()), cuaToi:null, ds:{}, phieu:null, vp:null, th:null, ban:null, banDA:'', dang:false}; }
 kpiKhoiTao();
 const KPI_TT = {CHUA_TAO:'Chưa tạo', NHAP:'Chưa chấm', TU_CHAM:'Đã tự chấm', CHO_DUYET:'Chờ duyệt', DA_DUYET:'Đã duyệt', TRA_LAI:'Trả lại'};
 const KPI_MAU = {CHUA_TAO:'#888', NHAP:'#888', TU_CHAM:'#1A5C96', CHO_DUYET:'#B8860B', DA_DUYET:'#1E7B34', TRA_LAI:'#C00000'};
 const escK = t => String(t ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const thangNhan = t => t ? 'Tháng ' + t.slice(5,7) + '/' + t.slice(0,4) : '';
 function kpiDoiThang(n){ const [y,m] = S.kpi.thang.split('-').map(Number); const d = new Date(y, m - 1 + n, 1);
-  S.kpi.thang = thangLocal(d); S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; S.kpi.vp = null; S.kpi.th = null; renderKPI(); }
+  S.kpi.thang = thangLocal(d); S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; S.kpi.vp = null; S.kpi.th = null; S.kpi.ban = null; renderKPI(); }
 function kpiThanhThang(){ return `<div class="kpi-thang"><button onclick="kpiDoiThang(-1)">‹</button><b>${thangNhan(S.kpi.thang)}</b><button onclick="kpiDoiThang(1)">›</button></div>`; }
 function kpiTag(tt){ return `<span class="kpi-tag" style="background:${KPI_MAU[tt] || '#888'}">${KPI_TT[tt] || tt}</span>`; }
 function kpiDiemMau(d){ return d == null ? '#888' : d >= 85 ? '#1E7B34' : d >= 70 ? '#B8860B' : '#C00000'; }
@@ -2440,7 +2447,7 @@ async function renderKPI(){
     catch(e){ $('kpiBody').innerHTML = kpiThanhThang() + empty('Không tải được KPI: ' + escK(e.message)); return; }
   }
   const q = S.kpi.cuaToi.quyen || {};
-  const tabs = ['Của tôi'].concat(q.cham ? ['Chấm'] : [], q.duyet ? ['Duyệt'] : [], q.viPham ? ['Vi phạm'] : [], q.tongHop ? ['Tổng hợp'] : []);
+  const tabs = ['Của tôi'].concat(q.cham ? ['Chấm'] : [], q.duyet ? ['Duyệt'] : [], q.viPham ? ['Vi phạm'] : [], ['KPI Ban'], q.tongHop ? ['Tổng hợp'] : []);
   if (!tabs.includes(S.sub.kpi)) S.sub.kpi = tabs[0];
   subTabs('sub-kpi', tabs, 'kpi', renderKPI);
   const tab = S.sub.kpi;
@@ -2448,6 +2455,7 @@ async function renderKPI(){
   if (tab === 'Chấm') return renderKpiDanhSach('CHAM');
   if (tab === 'Duyệt') return renderKpiDanhSach('DUYET');
   if (tab === 'Vi phạm') return renderKpiViPham();
+  if (tab === 'KPI Ban') return renderKpiBan();
   if (tab === 'Tổng hợp') return renderKpiTongHop();
 }
 
@@ -2501,10 +2509,11 @@ function veKpiPhieu(goi, che){
     const chips = [t.pctGoiY != null ? `<span class="kpi-chip" title="Gợi ý từ số liệu app">App gợi ý ${Math.round(t.pctGoiY * 100)}%</span>` : '',
                    t.pctTuCham != null && che !== 'TU_CHAM' ? `<span class="kpi-chip nv">Tự chấm ${Math.round(t.pctTuCham * 100)}%</span>` : '',
                    t.pct != null && che !== 'CHAM' ? `<span class="kpi-chip ok">Chấm ${Math.round(t.pct * 100)}% → ${t.diem} đ</span>` : ''].join('');
-    const sua = che === 'TU_CHAM' || che === 'CHAM';
-    out += `<div class="kpi-tc" data-tc="${escK(t.maTC)}">
+    const laBan = String(t.tuDong || '').toUpperCase() === 'KPI_BAN';
+    const sua = (che === 'TU_CHAM' || che === 'CHAM') && !laBan;
+    out += `<div class="kpi-tc${laBan ? ' kpi-ban' : ''}" data-tc="${escK(t.maTC)}"${laBan ? ' data-ban="1"' : ''}>
       <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${t.diemMax} đ</b></div>
-      <div class="ct">${escK(t.chiTieu)}</div>${chips ? `<div class="chips">${chips}</div>` : ''}
+      <div class="ct">${escK(t.chiTieu)}</div>${laBan ? `<div class="chips"><span class="kpi-chip ${t.pctGoiY != null ? 'ok' : ''}">${t.pctGoiY != null ? 'KPI Ban đã duyệt: ' + Math.round(t.pctGoiY * 100) + '% → ' + (Math.round(t.pctGoiY * t.diemMax * 10) / 10) + ' đ' : 'Phiếu KPI Ban ' + escK(p.maDA) + ' chưa duyệt (' + (KPI_TT[(goi.kpiBan || {}).trangThai] || 'chưa tạo').toLowerCase() + ') — xem tab KPI Ban'}</span></div>` : (chips ? `<div class="chips">${chips}</div>` : '')}
       ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="5" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+(Math.round(this.value*${t.diemMax})/100)+' đ'"><output>${v}% · ${Math.round(v * t.diemMax) / 100} đ</output></div>
              <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới 100%)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
            : `${t.dienGiai ? `<div class="dg"><b>Người chấm:</b> ${escK(t.dienGiai)}</div>` : ''}${t.dienGiaiNV ? `<div class="dg"><b>Tự nhận xét:</b> ${escK(t.dienGiaiNV)}</div>` : ''}`}
@@ -2525,14 +2534,14 @@ function veKpiPhieu(goi, che){
   return out;
 }
 function kpiThuDiem(){
-  return [...$('kpiBody').querySelectorAll('.kpi-tc')].map(el => ({maTC: el.dataset.tc,
+  return [...$('kpiBody').querySelectorAll('.kpi-tc')].filter(el => !el.dataset.ban).map(el => ({maTC: el.dataset.tc,
     pct: el.querySelector('input[type=range]') ? +el.querySelector('input[type=range]').value : null,
     dienGiai: el.querySelector('textarea') ? el.querySelector('textarea').value.trim() : ''}));
 }
 async function kpiGui(che, email, thang){
   if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
   const diem = kpiThuDiem();
-  if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct < 100 && !x.dienGiai);
+  if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct != null && x.pct < 100 && !x.dienGiai);
     if (thieu.length) return toast('Tiêu chí dưới 100% phải có diễn giải: ' + thieu.map(x => x.maTC).join(', '), 4000);
     if (!confirm('Gửi duyệt phiếu KPI ' + thangNhan(thang) + '? Sau khi gửi không sửa được.')) return; }
   S.kpi.dang = true; toast('Đang lưu…');
@@ -2636,7 +2645,99 @@ async function renderKpiTongHop(){
   out += `<table class="kpi-tb"><tr><th>Họ tên</th><th>Vị trí</th><th>DA</th><th>Điểm</th><th>Trạng thái</th></tr>` +
     ds.map(x => `<tr><td>${escK(x.hoTen)}</td><td>${escK(x.viTri)}</td><td>${escK(x.maDA)}</td><td style="color:${kpiDiemMau(x.tongDiem)};font-weight:bold">${x.tongDiem != null ? x.tongDiem : '—'}</td><td>${kpiTag(x.trangThai)}</td></tr>`).join('') + '</table>';
   out += `<button class="btn ghost sm" style="margin-top:10px" onclick="kpiSaoChep()">Sao chép bảng</button>`;
+  const kb = t.kpiBan || [];
+  if (kb.length) out += `<div class="eyebrow" style="margin:14px 0 6px"><span>KPI Ban Chỉ huy (A7.9) ${thangNhan(S.kpi.thang)}</span></div>
+    <table class="kpi-tb"><tr><th>Dự án</th><th>Kết quả</th><th>Trạng thái</th><th>CHT chấm</th></tr>` +
+    kb.map(b => `<tr><td><b>${escK(b.maDA)}</b></td><td style="font-family:var(--mono);font-weight:bold;color:${b.ketQua != null ? kpiDiemMau(b.ketQua * 100) : '#888'}">${b.ketQua != null ? Math.round(b.ketQua * 100) + '%' : '—'}</td><td>${kpiTag(b.trangThai)}</td><td>${escK((b.nguoiCham || '').split('@')[0])}</td></tr>`).join('') + '</table>';
   $('kpiBody').innerHTML = out;
+}
+
+/* ---- KPI Ban Chỉ huy (biểu A7.9): CHT chấm KH/TH, Quản trị duyệt; % kết quả áp vào mục I (10%) phiếu cá nhân ---- */
+const KB_PP = {TH_KH:'TH / KH', KHONG_VUOT:'TH ≤ KH → 100%, vượt → 0%', KHONG_DUOI:'TH ≥ KH → 100%, thấp hơn → 0%', HAN_NGAY:'Xong trước/đúng hạn → 100%, trễ → 0%'};
+function kbHoanThanh(pp, kh, th){
+  if (th === '' || th == null) return null;
+  if (pp === 'HAN_NGAY'){ if (!kh) return null; return th <= kh ? 1 : 0; }
+  const K = +kh, T = +th; if (isNaN(T)) return null;
+  if (pp === 'KHONG_VUOT') return T <= K ? 1 : 0;
+  if (pp === 'KHONG_DUOI') return T >= K ? 1 : 0;
+  if (!K) return null; return Math.max(0, Math.min(2, Math.round(T / K * 1000) / 1000));
+}
+function kbTinh(tcs){                       // tcs: [{nhom, trongSoNhom, trongSo, ht}]
+  const nh = {}, thu = [];
+  tcs.forEach(t => { if (!nh[t.nhom]){ nh[t.nhom] = {ts:t.trongSoNhom, tong:0, co:false}; thu.push(t.nhom); } if (t.ht != null){ nh[t.nhom].tong += t.ht * t.trongSo; nh[t.nhom].co = true; } });
+  let kq = 0, co = false; const nhom = {};
+  thu.forEach(k => { const g = nh[k]; nhom[k] = g.co ? g.tong : null; if (g.co){ kq += g.tong * g.ts; co = true; } });
+  return {ketQua: co ? kq : null, nhom};
+}
+function kbDoc(){                           // đọc KH/TH từ form → mảng gửi máy chủ + tính lại tại chỗ
+  return [...$('kpiBody').querySelectorAll('.kb-tc')].map(el => {
+    const pp = el.dataset.pp; const kh = el.querySelector('.kb-kh') ? el.querySelector('.kb-kh').value.trim() : el.dataset.kh; const th = el.querySelector('.kb-th').value.trim();
+    return {ma:el.dataset.ma, nhom:el.dataset.nhom, trongSoNhom:+el.dataset.tsn, trongSo:+el.dataset.ts, pp, keHoach:kh, thucHien:th, ht:kbHoanThanh(pp, kh, th), dienGiai:el.querySelector('textarea') ? el.querySelector('textarea').value.trim() : ''};
+  });
+}
+function kbCapNhat(){                       // gõ số → cập nhật hoàn thành, nhóm, tổng ngay
+  const ds = kbDoc(); const t = kbTinh(ds);
+  ds.forEach(x => { const el = $('kpiBody').querySelector(`.kb-tc[data-ma="${x.ma}"] .ht`); if (el){ el.textContent = x.ht == null ? '—' : Math.round(x.ht * 100) + '%'; el.style.color = kpiDiemMau(x.ht == null ? null : x.ht * 100); } });
+  Object.keys(t.nhom).forEach(k => { const el = $('kpiBody').querySelector(`.kb-nhom[data-nhom="${k}"] b`); if (el) el.textContent = t.nhom[k] == null ? '—' : Math.round(t.nhom[k] * 100) + '%'; });
+  const so = $('kb-so'); if (so){ so.textContent = t.ketQua == null ? '—' : Math.round(t.ketQua * 100) + '%'; so.style.color = kpiDiemMau(t.ketQua == null ? null : t.ketQua * 100); }
+}
+async function renderKpiBan(){
+  let out = kpiThanhThang();
+  if (!S.kpi.ban){
+    $('kpiBody').innerHTML = out + '<div class="empty">Đang mở phiếu KPI Ban…</div>';
+    try { S.kpi.ban = await api('kpiBanPhieu', {thang:S.kpi.thang, maDA:S.kpi.banDA}, 60); S.kpi.banDA = S.kpi.ban.maDA; }
+    catch(e){ $('kpiBody').innerHTML = out + empty(escK(e.message)); return; }
+  }
+  const b = S.kpi.ban;
+  if ((b.dsDA || []).length > 1) out += `<div class="field"><label>Dự án</label><select onchange="S.kpi.banDA=this.value;S.kpi.ban=null;renderKPI()">${b.dsDA.map(m => `<option value="${escK(m)}"${m === b.maDA ? ' selected' : ''}>${escK(m)}</option>`).join('')}</select></div>`;
+  if (!b.goi){ $('kpiBody').innerHTML = out + empty(`Chỉ huy trưởng ${escK(b.maDA)} chưa lập phiếu KPI Ban ${thangNhan(S.kpi.thang)}.<br>Khi phiếu được Quản trị duyệt, mục I (10%) phiếu cá nhân của mọi người trong dự án nhận kết quả này.`); return; }
+  const g = b.goi, p = g.phieu, sua = g.quyen.cham;
+  const kq = p.ketQua != null ? p.ketQua : (g.tinh || {}).ketQua;
+  out += `<div class="kpi-head"><div><div class="kpi-vt">KPI Ban Chỉ huy · ${escK(p.maDA)}</div><div class="hint" style="margin:2px 0 4px">Biểu A7.9 · CHT chấm · Quản trị duyệt</div>${kpiTag(p.trangThai)}</div></div>`;
+  out += `<div class="kb-tong"><span>Kết quả KPI Ban ${thangNhan(p.thang)}</span><span class="so" id="kb-so" style="color:${kpiDiemMau(kq == null ? null : kq * 100)}">${kq == null ? '—' : Math.round(kq * 100) + '%'}</span></div>`;
+  if (p.trangThai === 'TRA_LAI' && p.lyDoTra) out += `<div class="kpi-kl" style="color:#C00000">Trả lại: ${escK(p.lyDoTra)}</div>`;
+  if (p.trangThai === 'DA_DUYET') out += `<div class="kpi-kl">Đã áp ${Math.round((p.ketQua || 0) * 100)}% vào mục I (10%) phiếu KPI cá nhân của dự án.</div>`;
+  const nhomKQ = {}; (g.tinh.nhom || []).forEach(n => nhomKQ[n.nhom] = n.pctNhom);
+  let nhom = '';
+  g.tieuChi.forEach(t => {
+    if (t.nhom !== nhom){ nhom = t.nhom; out += `<div class="kb-nhom" data-nhom="${escK(t.nhom)}"><span>${escK(t.nhom)}. ${escK(t.tenNhom)} (${Math.round(t.trongSoNhom * 100)}%)</span><b>${nhomKQ[t.nhom] == null ? '—' : Math.round(nhomKQ[t.nhom] * 100) + '%'}</b></div>`; }
+    const laNgay = t.phuongPhap === 'HAN_NGAY'; const typ = laNgay ? 'date' : 'number';
+    const kh = t.keHoach == null ? '' : t.keHoach, th = t.thucHien == null ? '' : t.thucHien;
+    out += `<div class="kb-tc" data-ma="${escK(t.ma)}" data-nhom="${escK(t.nhom)}" data-tsn="${t.trongSoNhom}" data-ts="${t.trongSo}" data-pp="${escK(t.phuongPhap)}" data-kh="${escK(kh)}">
+      <div class="tt"><span class="ma">${escK(t.ma)}</span> ${escK(t.ten)} <span class="ts">×${t.trongSo}</span></div>
+      <div class="ct">${escK(t.tieuChi)}${t.donVi ? ' · ĐVT: ' + escK(t.donVi) : ''}</div><div class="pp">${KB_PP[t.phuongPhap] || escK(t.phuongPhap)}${t.nguon ? ' · Nguồn: ' + escK(t.nguon) : ''}</div>
+      <div class="kb-in"><div><label>Kế hoạch (KH)</label>${sua ? `<input class="kb-kh" type="${typ}" ${laNgay ? '' : 'step="any" inputmode="decimal"'} value="${escK(kh)}" oninput="kbCapNhat()">` : `<div class="ht" style="font-weight:normal">${kh === '' ? '—' : escK(kh)}</div>`}</div>
+        <div><label>Thực hiện (TH)</label>${sua ? `<input class="kb-th" type="${typ}" ${laNgay ? '' : 'step="any" inputmode="decimal"'} value="${escK(th)}" oninput="kbCapNhat()">` : `<div class="ht" style="font-weight:normal">${th === '' ? '—' : escK(th)}</div>`}</div>
+        <div><label>Hoàn thành</label><div class="ht" style="color:${kpiDiemMau(t.hoanThanh == null ? null : t.hoanThanh * 100)}">${t.hoanThanh == null ? '—' : Math.round(t.hoanThanh * 100) + '%'}</div></div></div>
+      ${sua ? `<textarea rows="1" placeholder="Diễn giải / nguồn số liệu">${escK(t.dienGiai)}</textarea>` : (t.dienGiai ? `<div class="dg">${escK(t.dienGiai)}</div>` : '')}
+    </div>`;
+  });
+  const da = escK(p.maDA), th = escK(p.thang);
+  if (sua) out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiBanGui('LUU','${da}','${th}')">Lưu nháp</button><button class="btn" onclick="kpiBanGui('GUI_DUYET','${da}','${th}')">Gửi Quản trị duyệt</button></div>`;
+  if (g.quyen.duyet) out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiBanDuyet('TRA_LAI','${da}','${th}')">Trả lại</button><button class="btn" onclick="kpiBanDuyet('DUYET','${da}','${th}')">Duyệt & áp vào phiếu cá nhân</button></div>`;
+  if (p.nguoiCham || p.nguoiDuyet) out += `<div class="hint">${p.nguoiCham ? 'CHT chấm: ' + escK(p.nguoiCham) + (p.thoiGianCham ? ' · ' + escK(p.thoiGianCham).slice(0,16) : '') : ''}${p.nguoiDuyet ? '<br>Quản trị duyệt: ' + escK(p.nguoiDuyet) + (p.thoiGianDuyet ? ' · ' + escK(p.thoiGianDuyet).slice(0,16) : '') : ''}</div>`;
+  $('kpiBody').innerHTML = out;
+}
+async function kpiBanGui(che, maDA, thang){
+  if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
+  const ds = kbDoc(); const t = kbTinh(ds);
+  if (che === 'GUI_DUYET'){ const thieu = ds.filter(x => x.ht == null).map(x => x.ma);
+    if (thieu.length) return toast('Chưa đủ KH/TH ở tiêu chí: ' + thieu.join(', '), 4000);
+    if (!confirm('Gửi Quản trị duyệt KPI Ban ' + maDA + ' ' + thangNhan(thang) + ' = ' + Math.round(t.ketQua * 100) + '%? Sau khi gửi không sửa được.')) return; }
+  S.kpi.dang = true; toast('Đang lưu…');
+  try { const r = await api('kpiBanLuu', {cheDo:che, maDA, thang, diem:ds.map(x => ({ma:x.ma, keHoach:x.keHoach, thucHien:x.thucHien, dienGiai:x.dienGiai}))}, 60);
+    toast(che === 'LUU' ? 'Đã lưu nháp' : r.trangThai === 'DA_DUYET' ? 'Đã duyệt · ' + Math.round(r.ketQua * 100) + '%' : 'Đã gửi duyệt · ' + Math.round(r.ketQua * 100) + '%');
+    S.kpi.ban = null; S.kpi.th = null; S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; renderKPI();
+  } catch(e){ toast('Chưa lưu được: ' + e.message, 4000); }
+  S.kpi.dang = false;
+}
+async function kpiBanDuyet(kq, maDA, thang){
+  let lyDo = '';
+  if (kq === 'TRA_LAI'){ lyDo = (prompt('Lý do trả lại phiếu KPI Ban:') || '').trim(); if (!lyDo) return; }
+  else if (!confirm('Duyệt KPI Ban ' + maDA + ' ' + thangNhan(thang) + '? Kết quả sẽ áp vào mục I phiếu KPI cá nhân chưa khoá của dự án.')) return;
+  try { const r = await api('kpiBanDuyet', {maDA, thang, ketQua:kq, lyDo}, 60); toast(kq === 'DUYET' ? 'Đã duyệt · áp vào ' + (r.soPhieu || 0) + ' phiếu cá nhân' : 'Đã trả lại');
+    S.kpi.ban = null; S.kpi.th = null; S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; renderKPI(); }
+  catch(e){ toast(e.message, 4000); }
 }
 function kpiSaoChep(){
   const t = S.kpi.th; const txt = ['KPI ' + thangNhan(S.kpi.thang)].concat(t.ds.map(x => `${x.hoTen}\t${x.viTri}\t${x.maDA}\t${x.tongDiem ?? ''}\t${KPI_TT[x.trangThai] || x.trangThai}`)).join('\n');
