@@ -635,7 +635,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.7.3';
+const APP_VERSION = '3.7.4';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2609,13 +2609,13 @@ async function renderKpiViPham(){
   let out = kpiThanhThang();
   if (!S.kpi.vp){
     $('kpiBody').innerHTML = out + '<div class="empty">Đang tải…</div>';
-    try { const [vp, ds] = await Promise.all([api('kpiViPhamDS', {thang:S.kpi.thang}, 60), S.kpi.ds.CHAM ? Promise.resolve({ds:S.kpi.ds.CHAM}) : api('kpiDanhSach', {thang:S.kpi.thang, cheDo:'CHAM'}, 60)]);
-      S.kpi.vp = vp.ds; S.kpi.ds.CHAM = ds.ds; }
+    try { const [vp, ds] = await Promise.all([api('kpiViPhamDS', {thang:S.kpi.thang}, 60), S.kpi.ds.VI_PHAM ? Promise.resolve({ds:S.kpi.ds.VI_PHAM}) : api('kpiDanhSach', {thang:S.kpi.thang, cheDo:'VI_PHAM'}, 60)]);
+      S.kpi.vp = vp.ds; S.kpi.ds.VI_PHAM = ds.ds; }   // 3.7.4: danh sách người được ghi vi phạm (CHP/CHT/CBAT/QT)
     catch(e){ $('kpiBody').innerHTML = out + empty(escK(e.message)); return; }
   }
   const dm = S.kpi.cuaToi.dmViPham || []; let nhom = '';
   out += `<div class="card"><h4>Ghi nhận vi phạm (phụ lục A7.15)</h4>
-    <div class="field" style="margin-top:8px"><label>Nhân sự</label><select id="vp-email">${(S.kpi.ds.CHAM || []).map(x => `<option value="${escK(x.email)}">${escK(x.hoTen)} · ${escK(x.viTri)}</option>`).join('')}</select></div>
+    <div class="field" style="margin-top:8px"><label>Nhân sự</label><select id="vp-email">${(S.kpi.ds.VI_PHAM || []).map(x => `<option value="${escK(x.email)}">${escK(x.hoTen)} · ${escK(x.viTri)}</option>`).join('')}</select></div>
     <div class="field"><label>Tiêu chí vi phạm</label><select id="vp-ma">${dm.map(v => { let o = ''; if (v.nhom !== nhom){ nhom = v.nhom; o += `<option disabled>── ${escK(v.nhom)}</option>`; } return o + `<option value="${escK(v.maVP)}">[trừ ${v.mucTru}%] ${escK(v.tenVP)}</option>`; }).join('')}</select></div>
     <div class="row"><div class="field"><label>Ghi chú / minh chứng</label><input id="vp-gc" placeholder="Sự việc, thời điểm, người chứng kiến"></div><div class="field"><label>Ngày</label><input id="vp-ngay" type="date" value="${ngayLocal(new Date())}"></div></div>
     <button class="btn" onclick="kpiGhiVP()">Ghi vi phạm</button>
