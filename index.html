@@ -635,7 +635,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.7.2';
+const APP_VERSION = '3.7.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2475,7 +2475,7 @@ function veKpiNhom(tcs){
   tcs.forEach(t => { if (!nh[t.nhom]){ nh[t.nhom] = {ten:t.tenNhom, max:0, dat:0, co:false}; thu.push(t.nhom); }
     nh[t.nhom].max += t.diemMax || 0; if (t.diem != null){ nh[t.nhom].dat += t.diem; nh[t.nhom].co = true; } });
   return thu.map(k => { const g = nh[k]; const pct = g.max ? Math.round(g.dat / g.max * 100) : 0;
-    return `<div class="kpi-bar"><div class="lb"><span>${k}. ${escK(g.ten)}</span><b>${g.co ? g.dat.toFixed(1).replace('.0','') + '/' + g.max : '—/' + g.max}</b></div>
+    return `<div class="kpi-bar"><div class="lb"><span>${k}. ${escK(g.ten)}</span><b>${g.co ? Math.round(g.dat) + '/' + Math.round(g.max) : '—/' + Math.round(g.max)}</b></div>
       <div class="tr"><i style="width:${g.co ? pct : 0}%;background:${kpiDiemMau(g.co ? pct : null)}"></i></div></div>`; }).join('');
 }
 
@@ -2512,9 +2512,9 @@ function veKpiPhieu(goi, che){
     const laBan = String(t.tuDong || '').toUpperCase() === 'KPI_BAN';
     const sua = (che === 'TU_CHAM' || che === 'CHAM') && !laBan;
     out += `<div class="kpi-tc${laBan ? ' kpi-ban' : ''}" data-tc="${escK(t.maTC)}"${laBan ? ' data-ban="1"' : ''}>
-      <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${t.diemMax} đ</b></div>
-      <div class="ct">${escK(t.chiTieu)}</div>${laBan ? `<div class="chips"><span class="kpi-chip ${t.pctGoiY != null ? 'ok' : ''}">${t.pctGoiY != null ? 'KPI Ban đã duyệt: ' + Math.round(t.pctGoiY * 100) + '% → ' + (Math.round(t.pctGoiY * t.diemMax * 10) / 10) + ' đ' : 'Phiếu KPI Ban ' + escK(p.maDA) + ' chưa duyệt (' + (KPI_TT[(goi.kpiBan || {}).trangThai] || 'chưa tạo').toLowerCase() + ') — xem tab KPI Ban'}</span></div>` : (chips ? `<div class="chips">${chips}</div>` : '')}
-      ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="5" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+(Math.round(this.value*${t.diemMax})/100)+' đ'"><output>${v}% · ${Math.round(v * t.diemMax) / 100} đ</output></div>
+      <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${Math.round(t.diemMax)} đ</b></div>
+      <div class="ct">${escK(t.chiTieu)}</div>${laBan ? `<div class="chips"><span class="kpi-chip ${t.pctGoiY != null ? 'ok' : ''}">${t.pctGoiY != null ? 'KPI Ban đã duyệt: ' + Math.round(t.pctGoiY * 100) + '% → ' + Math.round(t.pctGoiY * t.diemMax) + ' đ' : 'Phiếu KPI Ban ' + escK(p.maDA) + ' chưa duyệt (' + (KPI_TT[(goi.kpiBan || {}).trangThai] || 'chưa tạo').toLowerCase() + ') — xem tab KPI Ban'}</span></div>` : (chips ? `<div class="chips">${chips}</div>` : '')}
+      ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="5" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+Math.round(this.value*${t.diemMax}/100)+' đ'"><output>${v}% · ${Math.round(v * t.diemMax / 100)} đ</output></div>
              <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới 100%)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
            : `${t.dienGiai ? `<div class="dg"><b>Người chấm:</b> ${escK(t.dienGiai)}</div>` : ''}${t.dienGiaiNV ? `<div class="dg"><b>Tự nhận xét:</b> ${escK(t.dienGiaiNV)}</div>` : ''}`}
       ${t.ghiChu ? `<div class="gc">${escK(t.ghiChu)}</div>` : ''}
