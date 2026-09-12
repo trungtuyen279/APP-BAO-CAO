@@ -635,7 +635,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.7.5';
+const APP_VERSION = '3.8.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2819,7 +2819,7 @@ function veAI(){
           `<button onclick="guiAI(this.textContent)">${q}</button>`).join('')}</div>`).join('')
       + `<p class="hint" style="margin-top:18px">AI trả lời để tham khảo nhanh — đối chiếu bản vẽ, chỉ dẫn kỹ thuật và TCVN trước khi áp dụng.</p>`;
   } else {
-    b.innerHTML = S.aiMsgs.map((m, i) => `<div class="ai-msg ${m.r}">${m.t.replace(/</g,'&lt;')}${veNguonAI(m, i)}${m.r === 'a' ? '<span class="src">Trợ lý BCH · tham khảo</span>' : ''}</div>`).join('')
+    b.innerHTML = S.aiMsgs.map((m, i) => `<div class="ai-msg ${m.r}">${m.t.replace(/</g,'&lt;')}${veNguonAI(m, i)}${veBanVeAI(m)}${m.r === 'a' ? '<span class="src">Trợ lý BCH · tham khảo</span>' : ''}</div>`).join('')
       + (S.aiDang ? '<div class="ai-msg a ai-typing"><span></span><span></span><span></span></div>' : '')
       + `<div style="text-align:center;margin-top:10px"><button class="btn sm ghost" onclick="S.aiMsgs=[];veAI()">Câu hỏi mới</button></div>`;
   }
@@ -2832,6 +2832,12 @@ function veNguonAI(m, i){
   const daCo = {};
   return '<div class="ai-src">' + m.n.filter(n => { const k = n.id || (n.chuong + '|' + n.muc); if (daCo[k]) return false; daCo[k] = 1; return true; })
     .map((n, j) => `<button onclick="moNguonAI(${i},${j})">📖 Sổ tay ${esc(n.quyen)} · ${esc(n.muc || n.chuong)}${n.trang ? ' · tr.' + esc(n.trang) : ''}</button>`).join('') + '</div>';
+}
+/* 3.8.0: nút mở bản vẽ PDF (Drive) dưới câu trả lời — backend trả banVe[] {maTo, tenVi, link, daDoc} */
+function veBanVeAI(m){
+  if (m.r !== 'a' || !Array.isArray(m.b) || !m.b.length) return '';
+  const esc = t => String(t || '').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  return '<div class="ai-src">' + m.b.map(b => `<button onclick="window.open('${esc(b.link)}','_blank','noopener')">📐 ${esc(b.maTo)} · ${esc(b.tenVi)}${b.daDoc ? ' <i>(AI đã đọc)</i>' : ''}</button>`).join('') + '</div>';
 }
 async function moNguonAI(i, j){
   const m = S.aiMsgs[i]; if (!m || !m.n) return;
@@ -2865,8 +2871,8 @@ async function guiAI(cauHoi){
   S.aiMsgs.push({r:'u', t:q}); S.aiDang = true; veAI();
   try {
     const lichSu = S.aiMsgs.slice(-7, -1).map(m => ({vai: m.r === 'u' ? 'user' : 'model', noiDung: m.t}));
-    const d = await api('hoiAI', {cauHoi: q, boiCanh: boiCanhAI(), lichSu}, 90);
-    S.aiMsgs.push({r:'a', t: d.traLoi || 'Không có câu trả lời.', n: Array.isArray(d.nguon) ? d.nguon : []});
+    const d = await api('hoiAI', {cauHoi: q, boiCanh: boiCanhAI(), lichSu, maDA: daHienTai()}, 150);   // 3.8.0: gửi mã dự án để tìm/đọc bản vẽ; đọc PDF có thể 20–40s
+    S.aiMsgs.push({r:'a', t: d.traLoi || 'Không có câu trả lời.', n: Array.isArray(d.nguon) ? d.nguon : [], b: Array.isArray(d.banVe) ? d.banVe : []});
   } catch(e){ S.aiMsgs.push({r:'a', t:'Không hỏi được: ' + e.message}); }
   S.aiDang = false; veAI();
 }
