@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Báo cáo BCH">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
 <title>BÁO CÁO CÔNG VIỆC BCH — LICOGI13FC</title>
 <style>
@@ -69,6 +70,21 @@ main{flex:1;overflow-y:auto;padding:13px 13px 128px}
   display:flex;justify-content:space-between;align-items:center}
 .home-sec .h a{font-size:11px;color:var(--brand);text-decoration:none;font-weight:bold;text-transform:none;letter-spacing:0}
 .home-da{font-size:13.5px;font-weight:bold;color:var(--ink);line-height:1.3}
+.home-chon{display:flex;align-items:center;gap:8px}
+.home-chon select{flex:1;font-family:var(--font);font-size:14px;font-weight:bold;color:var(--ink);background:#FFF1F1;border:1.5px solid #E8B4B4;border-radius:6px;padding:8px 9px}
+.home-tuan{list-style:none;margin-top:4px}
+.home-tuan li{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid #EEF0F2;font-size:12.5px;line-height:1.35}
+.home-tuan li:first-child{border-top:0}
+.home-tuan .ma{font-family:var(--mono);font-size:10.5px;color:#fff;background:var(--ink-2);border-radius:3px;padding:2px 5px;white-space:nowrap;margin-top:1px}
+.home-tuan .tv{flex:1;min-width:0}
+.home-tuan .tv small{display:block;color:var(--ink-2);font-size:11px}
+.home-tuan .hn{white-space:nowrap;text-align:right;font-size:11px;color:var(--ink-2)}
+.home-tuan .hn b{display:block;font-family:var(--mono);font-size:12px;color:var(--ink)}
+.home-tuan .hn.tre b{color:var(--alert)}
+.home-tuan .hn.nay b{color:var(--warn)}
+.home-dn{background:#EEF5FF;border-top:1px solid #C9DCF5;padding:12px 14px;text-align:center;
+  font-family:'Dancing Script','Segoe Script','Bradley Hand','Brush Script MT',cursive;font-size:20px;font-weight:bold;font-style:italic;color:#1A4E96;line-height:1.35}
+.home-dn small{display:block;font-size:14px;font-weight:bold;margin-top:4px;color:#3E6FB5}
 .home-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
 .home-grid div{background:#F7F8F9;border:1px solid var(--line);border-radius:6px;padding:6px 4px;text-align:center}
 .home-grid b{display:block;font-family:var(--mono);font-size:16px;line-height:1.1}
@@ -671,7 +687,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.8.2';
+const APP_VERSION = '3.8.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -979,6 +995,56 @@ const SLOGAN = [
   'Việc hôm nay chớ để ngày mai — nhất là báo cáo.',
   'Tôn trọng thời gian của tổ đội là tôn trọng tiến độ chung.',
   'Kết quả của Ban là tổng của từng người — bạn là một phần trong đó.'];
+const DANH_NGON = [
+  ['Không có việc gì khó, chỉ sợ lòng không bền.','Hồ Chí Minh'],
+  ['Cách duy nhất để làm việc lớn là yêu việc mình làm.','Steve Jobs'],
+  ['Thiên tài là 1% cảm hứng và 99% mồ hôi.','Thomas Edison'],
+  ['Thành công là tổng của những nỗ lực nhỏ, lặp lại mỗi ngày.','Robert Collier'],
+  ['Cơ hội thường ngụy trang thành công việc vất vả, nên ít người nhận ra nó.','Ann Landers'],
+  ['Chất lượng không phải là hành động, mà là thói quen.','Aristotle'],
+  ['Hãy làm việc như thể bạn không cần tiền.','Mark Twain'],
+  ['Tôi không thất bại. Tôi chỉ tìm ra 10.000 cách không hiệu quả.','Thomas Edison'],
+  ['Hành trình vạn dặm bắt đầu từ một bước chân.','Lão Tử'],
+  ['Không có bí quyết thành công. Đó là kết quả của chuẩn bị, chăm chỉ và học từ thất bại.','Colin Powell'],
+  ['Lao động làm cho con người lớn lên.','Maxim Gorky'],
+  ['Nếu người ta biết tôi đã làm việc vất vả thế nào, họ sẽ không thấy tôi tài giỏi.','Michelangelo'],
+  ['Tương lai thuộc về những ai tin vào vẻ đẹp của ước mơ mình.','Eleanor Roosevelt'],
+  ['Kỷ luật là cây cầu nối mục tiêu với thành tựu.','Jim Rohn'],
+  ['Điều bạn làm hôm nay có thể cải thiện mọi ngày mai.','Ralph Marston'],
+  ['Không gì thay thế được làm việc chăm chỉ.','Thomas Edison'],
+  ['Hãy bắt đầu từ nơi bạn đứng, dùng cái bạn có, làm điều bạn có thể.','Arthur Ashe'],
+  ['Xuất sắc là làm những việc bình thường một cách phi thường.','John W. Gardner'],
+  ['Người ta không lập kế hoạch để thất bại, họ chỉ thất bại vì không lập kế hoạch.','Benjamin Franklin'],
+  ['Dù bạn làm gì, hãy làm cho tốt.','Walt Disney'],
+  ['Đừng đếm ngày, hãy làm cho mỗi ngày đáng đếm.','Muhammad Ali'],
+  ['Thành công đến với người kiên trì.','Ngạn ngữ'],
+  ['Một cây làm chẳng nên non, ba cây chụm lại nên hòn núi cao.','Tục ngữ Việt Nam'],
+  ['Tay làm hàm nhai, tay quai miệng trễ.','Tục ngữ Việt Nam'],
+  ['Có công mài sắt, có ngày nên kim.','Tục ngữ Việt Nam'],
+  ['Điều khó khăn nhất là quyết định hành động, phần còn lại chỉ là kiên trì.','Amelia Earhart'],
+  ['Đừng sợ chậm, chỉ sợ dừng.','Ngạn ngữ Trung Hoa'],
+  ['Niềm vui trong công việc tạo nên sự hoàn hảo của công việc.','Aristotle'],
+  ['Hãy làm việc chăm chỉ trong im lặng, để thành công lên tiếng.','Frank Ocean'],
+  ['Bạn không cần phải vĩ đại để bắt đầu, nhưng phải bắt đầu để trở nên vĩ đại.','Zig Ziglar'],
+  ['Cách tốt nhất để dự đoán tương lai là tự tạo ra nó.','Peter Drucker']];
+function danhNgonHomNay(){ const d = new Date(); const dn = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000); return DANH_NGON[dn % DANH_NGON.length]; }
+function keHoachTuan(maDA){
+  const tuan = tuanNay(); const hn = new Date(); hn.setHours(0,0,0,0);
+  return S.danhmuc.filter(x => x.maDA === maDA).map(t => { const b = docNgay(t.ngayBD), k = docNgay(t.ngayKT); const pct = pctViec(t).pct;
+      return ((b || k) && (b || k) <= tuan.kt && (k || b) >= tuan.bd && pct < 100) ? {t, pct, han: k || b} : null; })
+    .filter(Boolean).sort((a, b) => a.han - b.han);
+}
+function veTuan(maDA){
+  const ds = keHoachTuan(maDA); const hn = new Date(); hn.setHours(0,0,0,0);
+  if (!ds.length) return '<div class="hint">Không có việc nào theo kế hoạch trong tuần này.</div>';
+  const MAX = 6;
+  const li = ds.slice(0, MAX).map(x => { const tre = Math.round((hn - x.han) / 86400000);
+    const cls = tre > 0 ? 'tre' : tre === 0 ? 'nay' : ''; const nhan = tre > 0 ? 'trễ ' + tre + ' ngày' : tre === 0 ? 'hạn hôm nay' : 'hạn ' + x.han.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+    return `<li><span class="ma">${escK(x.t.maViec)}</span><div class="tv">${escK(x.t.tenViec)}<small>${escK([x.t.phanKhu, x.t.zone].filter(Boolean).join(' · '))}${x.t.nguoiPT ? ' · ' + escK(x.t.nguoiPT) : ''}</small></div>
+      <div class="hn ${cls}"><b>${Math.round(x.pct)}%</b>${nhan}</div></li>`; }).join('');
+  return `<ul class="home-tuan">${li}</ul>` + (ds.length > MAX ? `<div class="hint" style="text-align:center">… và ${ds.length - MAX} việc khác — xem mục Tiến độ</div>` : '');
+}
+function moTab(id){ const b = document.querySelector('nav button[data-p="' + id + '"]'); if (b) b.click(); }
 function loiChao(){
   const h = new Date().getHours();
   const g = CHAO_GIO.find(x => x.tu < x.den ? (h >= x.tu && h < x.den) : (h >= x.tu || h < x.den)) || CHAO_GIO[0];
@@ -1027,13 +1093,15 @@ function renderHome(){
       <div class="c">${ch.cau}</div>
 </div>
     <div class="home-sec"><div class="h"><span>Dự án đang làm</span><a href="#" onclick="moPhu('s-tq');return false">Tổng quan ›</a></div>
-      <div class="home-da">${escK(da.tenDA || maDA)}</div>
+      ${S.duan.length > 1 ? `<div class="home-chon"><select onchange="doiDuAn(this.value,'renderHome')">${S.duan.map(d => `<option value="${d.maDA}"${d.maDA === maDA ? ' selected' : ''}>${escK(d.tenDA)}</option>`).join('')}</select></div>` : `<div class="home-da">${escK(da.tenDA || maDA)}</div>`}
       <div class="home-grid"><div><b>${tt.so}</b><span>đầu việc</span></div><div><b style="color:var(--ok)">${tt.xong}</b><span>đã xong</span></div>
         <div><b style="color:#1A5C96">${tt.dang}</b><span>đang làm</span></div><div><b style="color:${tt.cham ? 'var(--alert)' : 'var(--ink)'}">${tt.cham}</b><span>chậm</span></div></div>
       ${tt.pctGT != null ? `<div class="home-pct"><span>Giá trị</span><div class="bar"><i style="width:${tt.pctGT}%"></i></div><b>${tt.pctGT}%</b></div>` : ''}
-      <div class="hint" style="margin-top:6px">Tuần này còn <b>${tt.viecTuan}</b> việc theo kế hoạch · <b>${tt.choDuyet}</b> bản ghi chờ duyệt${tt.dmLon ? ' · số đếm theo việc đang cần' : ''}</div></div>
+      <div class="hint" style="margin-top:6px"><b>${tt.choDuyet}</b> bản ghi chờ duyệt${tt.dmLon ? ' · số đếm theo việc đang cần' : ''}</div></div>
+    <div class="home-sec"><div class="h"><span>Kế hoạch tuần này · ${tt.viecTuan} việc</span><a href="#" onclick="moTab('p-td');return false">Tiến độ ›</a></div>${veTuan(maDA)}</div>
     <div class="home-sec"><div class="h"><span>KPI của bạn</span><a href="#" onclick="moPhu('s-kpi');return false">Xem KPI ›</a></div>${kpi}</div>
     <div class="home-sl"><i>💬</i><div>${sloganHomNay()}</div></div>
+    <div class="home-dn">“${escK(danhNgonHomNay()[0])}”<small>— ${escK(danhNgonHomNay()[1])}</small></div>
     <div class="home-nav">Chọn chức năng ở thanh dưới hoặc dải nút phía trên · Bấm tên app để về Trang chủ</div></div>`;
 }
 /* 3.8.2: về Trang chủ — không nút nào sáng; luôn là màn đầu khi mở/refresh app */
