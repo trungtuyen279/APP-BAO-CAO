@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Báo cáo BCH">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
 <title>BÁO CÁO CÔNG VIỆC BCH — LICOGI13FC</title>
 <style>
@@ -56,55 +55,6 @@ header{position:sticky;top:0;z-index:30}
 .netbar.on .dot{background:var(--ok)}
 
 main{flex:1;overflow-y:auto;padding:13px 13px 128px}
-/* ---------- 3.8.1: THẺ CHÀO MỪNG đầu màn Nhập số ---------- */
-.home{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:14px;background:#fff}
-.home-hi{background:linear-gradient(135deg,#C00000 0%,#8E0000 100%);color:#fff;padding:12px 13px 11px;position:relative}
-.home-hi .t{font-size:12px;opacity:.85}
-.home-hi .n{font-size:17px;font-weight:bold;margin-top:2px;line-height:1.25}
-.home-hi .c{font-size:12px;margin-top:3px;opacity:.9}
-.home-hi .n small{font-weight:normal;font-size:12px;opacity:.85}
-.home-tg{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.18);border:0;color:#fff;border-radius:14px;
-  padding:3px 9px;font-size:11px;font-family:var(--font)}
-.home-sec{padding:10px 12px;border-top:1px solid var(--line)}
-.home-sec .h{font-size:11px;font-weight:bold;color:var(--ink-2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;
-  display:flex;justify-content:space-between;align-items:center}
-.home-sec .h a{font-size:11px;color:var(--brand);text-decoration:none;font-weight:bold;text-transform:none;letter-spacing:0}
-.home-da{font-size:13.5px;font-weight:bold;color:var(--ink);line-height:1.3}
-.home-chon{display:flex;align-items:center;gap:8px}
-.home-chon select{flex:1;font-family:var(--font);font-size:14px;font-weight:bold;color:var(--ink);background:#FFF1F1;border:1.5px solid #E8B4B4;border-radius:6px;padding:8px 9px}
-.home-tuan{list-style:none;margin-top:4px}
-.home-tuan li{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid #EEF0F2;font-size:12.5px;line-height:1.35}
-.home-tuan li:first-child{border-top:0}
-.home-tuan .ma{font-family:var(--mono);font-size:10.5px;color:#fff;background:var(--ink-2);border-radius:3px;padding:2px 5px;white-space:nowrap;margin-top:1px}
-.home-tuan .tv{flex:1;min-width:0}
-.home-tuan .tv small{display:block;color:var(--ink-2);font-size:11px}
-.home-tuan .hn{white-space:nowrap;text-align:right;font-size:11px;color:var(--ink-2)}
-.home-tuan .hn b{display:block;font-family:var(--mono);font-size:12px;color:var(--ink)}
-.home-tuan .hn.tre b{color:var(--alert)}
-.home-tuan .hn.nay b{color:var(--warn)}
-.home-dn{background:#EEF5FF;border-top:1px solid #C9DCF5;padding:12px 14px;text-align:center;
-  font-family:'Dancing Script','Segoe Script','Bradley Hand','Brush Script MT',cursive;font-size:20px;font-weight:bold;font-style:italic;color:#1A4E96;line-height:1.35}
-.home-dn small{display:block;font-size:14px;font-weight:bold;margin-top:4px;color:#3E6FB5}
-.home-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
-.home-grid div{background:#F7F8F9;border:1px solid var(--line);border-radius:6px;padding:6px 4px;text-align:center}
-.home-grid b{display:block;font-family:var(--mono);font-size:16px;line-height:1.1}
-.home-grid span{font-size:10px;color:var(--ink-2)}
-.home-pct{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--ink-2)}
-.home-pct .bar{flex:1;border-radius:4px;overflow:hidden}
-.home-pct .bar i{display:block;height:100%;background:var(--brand)}
-.home-pct b{font-family:var(--mono);color:var(--ink)}
-.home-kpi{display:flex;align-items:center;gap:12px}
-.home-kpi .so{font-family:var(--mono);font-size:34px;font-weight:bold;line-height:1;min-width:64px;text-align:center}
-.home-kpi .so small{display:block;font-size:10px;color:var(--ink-2);font-weight:normal;font-family:var(--font);margin-top:2px}
-.home-kpi .kl{font-size:12.5px;color:var(--ink);line-height:1.4;flex:1}
-.home-kpi .kl span{display:block;font-size:11.5px;color:var(--ink-2)}
-.home .kpi-svg{margin-top:8px;border:0;background:#FBFBFC}
-.home-sl{background:#FFF8E1;border-top:1px solid #F1E3B0;padding:10px 12px;font-size:13px;color:#5C4400;line-height:1.45;
-  display:flex;gap:8px;align-items:flex-start}
-.home-sl i{font-style:normal;font-size:16px;line-height:1.2}
-.home-nav{padding:10px 12px;font-size:12px;color:var(--ink-2);text-align:center;border-top:1px solid var(--line);background:#F7F8F9;line-height:1.5}
-#topbar{cursor:pointer}
-
 .pane{display:none}.pane.show{display:block}
 
 /* ---------- form ---------- */
@@ -441,11 +391,11 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 <!-- ============================ APP ============================ -->
 <div class="stage" id="app" style="display:none">
 <header>
-  <div class="topbar" id="topbar" onclick="veTrangChu()" title="Về Trang chủ">
+  <div class="topbar">
     <img src="icons/logo.png" alt="">
     <div><div class="t1">BÁO CÁO CÔNG VIỆC BCH</div><div class="t2" id="whoami">—</div></div>
   </div>
-  <div class="secbar" id="secbar"><span>TRANG CHỦ</span></div>
+  <div class="secbar" id="secbar"><span>I. NHẬP KHỐI LƯỢNG</span></div>
   <div class="strip" id="strip">
     <button class="sitem" data-s="s-tt"><i><svg viewBox="0 0 24 24"><path d="M4 5h13v14H4zM17 9h3v8a2 2 0 01-3 0zM7 9h7M7 13h7M7 16h4"/></svg></i>Tin tức</button>
     <button class="sitem" data-s="s-tq"><i><svg viewBox="0 0 24 24"><path d="M4 20V9M10 20V4M16 20v-7M22 20H2"/></svg></i>Tổng quan</button>
@@ -458,10 +408,8 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 </header>
 
 <main>
-  <!-- ---------- 0. TRANG CHỦ (3.8.2) ---------- -->
-  <section class="pane show" id="p-home"><div id="home"></div></section>
   <!-- ---------- 1. NHẬP SỐ ---------- -->
-  <section class="pane" id="p-nhap">
+  <section class="pane show" id="p-nhap">
     <div class="field"><label for="f-da">Dự án</label><select id="f-da"></select></div>
     <div id="phamvi" class="meta" style="font-size:12px;color:var(--ink-2);background:#F7F8F9;
       border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:12px;line-height:1.5"></div>
@@ -634,7 +582,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 </main>
 
 <nav>
-  <button data-p="p-nhap" data-t="I. NHẬP KHỐI LƯỢNG">
+  <button class="on" data-p="p-nhap" data-t="I. NHẬP KHỐI LƯỢNG">
     <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nhập số</button>
   <button data-p="s-bt" data-t="ĐỔ BÊ TÔNG">
     <svg viewBox="0 0 24 24"><path d="M3 8l9-4 9 4v8l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v8"/></svg>Bê tông</button>
@@ -687,7 +635,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.8.3';
+const APP_VERSION = '3.8.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -836,31 +784,53 @@ async function api(action, data = {}, giay = 60) {
       nguoiGui:S.user.hoTen, thoiGian:new Date().toISOString(), daXacNhan:null, thongKe:'0/14 người'}); return {}; }
     return {};
   }
-  const bo = new AbortController();
-  const hen = setTimeout(() => bo.abort(), giay * 1000);
-  let res;
-  try {
-    res = await fetch(CONFIG.API_URL, {
-      method:'POST', redirect:'follow', signal: bo.signal,
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({action, token:S.token, data})
-    });
-  } catch(e){
+  /* 3.8.1: Google Apps Script thỉnh thoảng trả trang HTML 404 "không thể mở tệp" (lỗi tạm thời phía Google,
+     máy chủ thực ra đã chạy xong < 1 giây). Tự thử lại tối đa 3 lần với các yêu cầu an toàn (backend chống trùng
+     theo id); các yêu cầu tạo bản ghi mới không có id (thông báo, vi phạm, báo cáo, hỏi AI) thì báo rõ để người dùng tự gửi lại. */
+  const KHONG_THU_LAI = ['notify','kpiViPham','taoBaoCao','hoiAI'];
+  const soLan = KHONG_THU_LAI.indexOf(action) > -1 ? 1 : 3;
+  let loiCuoi = null;
+  for (let lan = 1; lan <= soLan; lan++){
+    if (lan > 1){
+      S.apiThuLai = lan; try { document.dispatchEvent(new CustomEvent('api-thu-lai', {detail:{action, lan}})); } catch(e){}
+      await new Promise(r => setTimeout(r, lan === 2 ? 1200 : 2500));
+    }
+    const bo = new AbortController();
+    const hen = setTimeout(() => bo.abort(), giay * 1000);
+    let res;
+    try {
+      res = await fetch(CONFIG.API_URL, {
+        method:'POST', redirect:'follow', signal: bo.signal, cache:'no-store',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({action, token:S.token, data})
+      });
+    } catch(e){
+      clearTimeout(hen);
+      loiCuoi = new Error(e.name === 'AbortError'
+        ? 'Máy chủ không phản hồi sau ' + giay + ' giây. Kiểm tra mạng, hoặc backend đang xử lý quá lâu.'
+        : 'Không kết nối được máy chủ. Kiểm tra sóng 4G/Wi-Fi.');
+      if (e.name === 'AbortError') break;          // hết giờ thì không thử tiếp (đã đợi đủ lâu)
+      continue;
+    }
     clearTimeout(hen);
-    throw new Error(e.name === 'AbortError'
-      ? 'Máy chủ không phản hồi sau ' + giay + ' giây. Kiểm tra mạng, hoặc backend đang xử lý quá lâu.'
-      : 'Không kết nối được máy chủ. Kiểm tra sóng 4G/Wi-Fi.');
+    const raw = await res.text();
+    let out;
+    try { out = JSON.parse(raw); }
+    catch(e){
+      const tamThoi = res.status === 404 || res.status >= 500 || /kh[oô]ng th[eể] m[oở] t[eệ]p|unable to open|Rất tiếc|Sorry/i.test(raw);
+      loiCuoi = new Error(tamThoi
+        ? 'Máy chủ Google tạm quá tải (lỗi tạm thời, không phải lỗi dữ liệu). '
+          + (soLan > 1 ? 'Đã thử lại ' + soLan + ' lần — vui lòng bấm lại sau ít giây.' : 'Vui lòng kiểm tra rồi gửi lại.')
+        : 'Máy chủ trả về dữ liệu không hợp lệ — thường do Code.gs lỗi hoặc chưa Triển khai phiên bản Mới. (' + raw.slice(0, 80) + ')');
+      if (!tamThoi) break;
+      continue;
+    }
+    S.apiThuLai = 0;
+    if (!out.ok) throw new Error(out.error || 'Máy chủ từ chối yêu cầu');
+    return out.data;
   }
-  clearTimeout(hen);
-  const raw = await res.text();
-  let out;
-  try { out = JSON.parse(raw); }
-  catch(e){
-    throw new Error('Máy chủ trả về dữ liệu không hợp lệ — thường do Code.gs lỗi '
-      + 'hoặc chưa Triển khai phiên bản Mới. (' + raw.slice(0, 80) + ')');
-  }
-  if (!out.ok) throw new Error(out.error || 'Máy chủ từ chối yêu cầu');
-  return out.data;
+  S.apiThuLai = 0;
+  throw loiCuoi;
 }
 
 /* ---------- 4. ĐĂNG NHẬP ---------- */
@@ -880,13 +850,15 @@ document.getElementById('btnLogin').onclick = async () => {
   err.classList.remove('show');
   nut.disabled = true; nut.textContent = 'Đang đăng nhập…';
   const nhac = setTimeout(() => { nut.textContent = 'Đang tải dữ liệu dự án…'; }, 6000);
+  const baoThu = ev => { nut.textContent = 'Google bận, đang thử lại lần ' + ev.detail.lan + '…'; };
+  document.addEventListener('api-thu-lai', baoThu);
   try { await doLogin(e,p); }
   catch(ex){
     err.textContent = navigator.onLine ? ex.message
       : 'Không có mạng. Lần đăng nhập đầu tiên phải có kết nối.';
     err.classList.add('show');
   } finally {
-    clearTimeout(nhac); nut.disabled = false; nut.textContent = 'Đăng nhập';
+    clearTimeout(nhac); document.removeEventListener('api-thu-lai', baoThu); nut.disabled = false; nut.textContent = 'Đăng nhập';
   }
 };
 document.getElementById('lgPin').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btnLogin').click(); });
@@ -916,7 +888,6 @@ function startApp(d, cached){
   hienFabAI();
   if (['CHT_DUYET','ADMIN'].includes(S.user.vaiTro)) document.getElementById('btnNewNoti').style.display='block';
   renderAll(); flush();
-  setTimeout(taiKpiNha, 1500);                       // 3.8.1: KPI cho thẻ chào, chạy ngầm sau khi màn đã hiện
 }
 function applyData(d){
   S.duan = d.duan || S.duan; S.danhmuc = d.danhmuc || S.danhmuc;
@@ -943,194 +914,7 @@ async function refresh(){
   try { const d = await api('bootstrap'); applyData(d); await Store.set('cache', d); renderAll(); }
   catch(e){ /* mất mạng — giữ dữ liệu trong máy */ }
 }
-const vaiTro = v => ({KT_NHAP:'Kỹ thuật', QS:'QS khối lượng', CHT_DUYET:'Chỉ huy trưởng', BDH_XEM:'Ban điều hành', ADMIN:'Quản trị', QUAN_TRI:'Quản trị', ATLD_CTY:'Phòng ATLĐ công ty',
-  PCH:'Chỉ huy phó', P_CH:'Chỉ huy phó', CHT:'Chỉ huy trưởng', CBAT:'Cán bộ an toàn', SHOP:'Shopdrawing', KE_TOAN:'Kế toán', KE_TOAN_KHO:'Kế toán kho', THO_DIEN:'Thợ điện', THO_CO_KHI:'Thợ cơ khí'}[v] || v);
-/* 3.8.1: tên chức danh KPI (khớp KPI_VI_TRI) dùng cho lời chào */
-const TEN_VT_KPI = {CBKT:'Cán bộ kỹ thuật', THU_KHO:'Thủ kho', CHP_HT:'Chỉ huy phó hiện trường', CHP_VP:'Chỉ huy phó văn phòng', QS:'Cán bộ QS', SHOP:'Cán bộ Shopdrawing', KE_TOAN:'Kế toán hiện trường', PHIEN_DICH:'Phiên dịch', CBAT:'Cán bộ an toàn', CHT:'Chỉ huy trưởng', THO_DIEN:'Thợ điện công trường', THO_CO_KHI:'Thợ cơ khí công trường'};
-
-
-/* ---------- 5b. THẺ CHÀO MỪNG (3.8.1) ----------
-   Hiện đầu màn Nhập số: lời chào theo giờ · tình hình dự án · KPI tháng gần nhất · slogan mỗi ngày.
-   Không thêm action backend: KPI lấy qua kpiCuaToi (1 lần/phiên, đệm trong máy để mở offline). */
-const CHAO_GIO = [
-  {tu:5,  den:11, nhan:'Chào buổi sáng',  cau:['Chúc bạn buổi sáng vui vẻ, một ngày làm việc hiệu quả và an toàn.',
-                                               'Ngày mới bắt đầu — làm chắc từng việc, an toàn là trên hết.',
-                                               'Chúc bạn ngày mới nhiều năng lượng, công việc trôi chảy.']},
-  {tu:11, den:13, nhan:'Chào buổi trưa',  cau:['Nghỉ trưa cho khoẻ, chiều làm tiếp cho chắc. Chúc bạn ngon miệng!',
-                                               'Nửa ngày đã qua — cảm ơn bạn đã cố gắng. Nghỉ ngơi một chút nhé.']},
-  {tu:13, den:18, nhan:'Chào buổi chiều', cau:['Chúc bạn buổi chiều làm việc tập trung, xong việc đúng kế hoạch.',
-                                               'Cố thêm chút nữa cho trọn ngày — nhớ gửi báo cáo trước 18h nhé.']},
-  {tu:18, den:23, nhan:'Chào buổi tối',   cau:['Một ngày vất vả đã qua — cảm ơn bạn. Chúc bạn buổi tối thư giãn.',
-                                               'Việc hôm nay đã ghi nhận. Nghỉ ngơi tốt để mai lại chắc tay.']},
-  {tu:23, den:5,  nhan:'Khuya rồi',       cau:['Vẫn còn làm giờ này — cảm ơn bạn. Nhớ giữ sức khoẻ nhé.']}];
-const SLOGAN = [
-  'KPI không để soi nhau — để việc của mỗi người được nhìn thấy và ghi nhận đúng.',
-  'Số liệu thật — Điểm số thật — Ghi nhận thật.',
-  'Làm bao nhiêu, thấy bấy nhiêu. KPI là bằng chứng, không phải cảm tính.',
-  'Điểm hôm nay là bậc lương ngày mai.',
-  'Chấm đúng là tôn trọng người làm thật.',
-  'Báo cáo đúng giờ là kỷ luật nhỏ làm nên uy tín lớn.',
-  'An toàn không phải khẩu hiệu — là về nhà đủ tay chân mỗi tối.',
-  'Một bức ảnh minh chứng hôm nay đỡ một cuộc tranh cãi ngày mai.',
-  'Đúng bản vẽ, đúng tiêu chuẩn, đúng tiến độ — ba cái đúng làm nên nghề.',
-  'Việc chậm không đáng sợ; giấu việc chậm mới đáng sợ.',
-  'Khối lượng khai thật là tự bảo vệ mình khi quyết toán.',
-  'Không có đầu việc nhỏ, chỉ có người làm cẩu thả.',
-  'Tiến độ là lời hứa với Chủ đầu tư; mỗi ca báo cáo là một lần giữ lời.',
-  'Người giỏi không phải người không sai — là người phát hiện sai sớm nhất.',
-  'Hồ sơ đi trước, nghiệm thu theo sau, thanh toán mới về.',
-  'Vướng mắc nói ra hôm nay là bớt một ngày trễ tuần sau.',
-  'KPI đo việc, không đo người. Làm tốt thì điểm tự lên.',
-  'Nhật ký ca là ký ức của công trường — thiếu một ngày là mất một mảnh.',
-  'Kiểm tra lần đầu cho đạt, khỏi làm lại lần hai.',
-  'Đội mạnh là đội biết báo tin xấu sớm.',
-  'Vật tư đúng chủng loại, đúng số lượng — hao hụt giảm, lợi nhuận tăng.',
-  'Mỗi mẻ bê tông là một cam kết: đúng mác, đúng khối, đúng giờ.',
-  'Trách nhiệm không nằm ở chức danh, nằm ở việc bạn ký tên.',
-  'Đọc kỹ bản vẽ 10 phút, tiết kiệm đập phá 10 ngày.',
-  'Kỷ luật là tự do: làm đúng quy trình thì không phải lo giải trình.',
-  'Điểm KPI cao nhất là điểm bạn tự thấy xứng đáng.',
-  'Không ai giỏi một mình — nhìn nhau làm, nhắc nhau đúng.',
-  'Công trường sạch là công trường an toàn và chuyên nghiệp.',
-  'Việc hôm nay chớ để ngày mai — nhất là báo cáo.',
-  'Tôn trọng thời gian của tổ đội là tôn trọng tiến độ chung.',
-  'Kết quả của Ban là tổng của từng người — bạn là một phần trong đó.'];
-const DANH_NGON = [
-  ['Không có việc gì khó, chỉ sợ lòng không bền.','Hồ Chí Minh'],
-  ['Cách duy nhất để làm việc lớn là yêu việc mình làm.','Steve Jobs'],
-  ['Thiên tài là 1% cảm hứng và 99% mồ hôi.','Thomas Edison'],
-  ['Thành công là tổng của những nỗ lực nhỏ, lặp lại mỗi ngày.','Robert Collier'],
-  ['Cơ hội thường ngụy trang thành công việc vất vả, nên ít người nhận ra nó.','Ann Landers'],
-  ['Chất lượng không phải là hành động, mà là thói quen.','Aristotle'],
-  ['Hãy làm việc như thể bạn không cần tiền.','Mark Twain'],
-  ['Tôi không thất bại. Tôi chỉ tìm ra 10.000 cách không hiệu quả.','Thomas Edison'],
-  ['Hành trình vạn dặm bắt đầu từ một bước chân.','Lão Tử'],
-  ['Không có bí quyết thành công. Đó là kết quả của chuẩn bị, chăm chỉ và học từ thất bại.','Colin Powell'],
-  ['Lao động làm cho con người lớn lên.','Maxim Gorky'],
-  ['Nếu người ta biết tôi đã làm việc vất vả thế nào, họ sẽ không thấy tôi tài giỏi.','Michelangelo'],
-  ['Tương lai thuộc về những ai tin vào vẻ đẹp của ước mơ mình.','Eleanor Roosevelt'],
-  ['Kỷ luật là cây cầu nối mục tiêu với thành tựu.','Jim Rohn'],
-  ['Điều bạn làm hôm nay có thể cải thiện mọi ngày mai.','Ralph Marston'],
-  ['Không gì thay thế được làm việc chăm chỉ.','Thomas Edison'],
-  ['Hãy bắt đầu từ nơi bạn đứng, dùng cái bạn có, làm điều bạn có thể.','Arthur Ashe'],
-  ['Xuất sắc là làm những việc bình thường một cách phi thường.','John W. Gardner'],
-  ['Người ta không lập kế hoạch để thất bại, họ chỉ thất bại vì không lập kế hoạch.','Benjamin Franklin'],
-  ['Dù bạn làm gì, hãy làm cho tốt.','Walt Disney'],
-  ['Đừng đếm ngày, hãy làm cho mỗi ngày đáng đếm.','Muhammad Ali'],
-  ['Thành công đến với người kiên trì.','Ngạn ngữ'],
-  ['Một cây làm chẳng nên non, ba cây chụm lại nên hòn núi cao.','Tục ngữ Việt Nam'],
-  ['Tay làm hàm nhai, tay quai miệng trễ.','Tục ngữ Việt Nam'],
-  ['Có công mài sắt, có ngày nên kim.','Tục ngữ Việt Nam'],
-  ['Điều khó khăn nhất là quyết định hành động, phần còn lại chỉ là kiên trì.','Amelia Earhart'],
-  ['Đừng sợ chậm, chỉ sợ dừng.','Ngạn ngữ Trung Hoa'],
-  ['Niềm vui trong công việc tạo nên sự hoàn hảo của công việc.','Aristotle'],
-  ['Hãy làm việc chăm chỉ trong im lặng, để thành công lên tiếng.','Frank Ocean'],
-  ['Bạn không cần phải vĩ đại để bắt đầu, nhưng phải bắt đầu để trở nên vĩ đại.','Zig Ziglar'],
-  ['Cách tốt nhất để dự đoán tương lai là tự tạo ra nó.','Peter Drucker']];
-function danhNgonHomNay(){ const d = new Date(); const dn = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000); return DANH_NGON[dn % DANH_NGON.length]; }
-function keHoachTuan(maDA){
-  const tuan = tuanNay(); const hn = new Date(); hn.setHours(0,0,0,0);
-  return S.danhmuc.filter(x => x.maDA === maDA).map(t => { const b = docNgay(t.ngayBD), k = docNgay(t.ngayKT); const pct = pctViec(t).pct;
-      return ((b || k) && (b || k) <= tuan.kt && (k || b) >= tuan.bd && pct < 100) ? {t, pct, han: k || b} : null; })
-    .filter(Boolean).sort((a, b) => a.han - b.han);
-}
-function veTuan(maDA){
-  const ds = keHoachTuan(maDA); const hn = new Date(); hn.setHours(0,0,0,0);
-  if (!ds.length) return '<div class="hint">Không có việc nào theo kế hoạch trong tuần này.</div>';
-  const MAX = 6;
-  const li = ds.slice(0, MAX).map(x => { const tre = Math.round((hn - x.han) / 86400000);
-    const cls = tre > 0 ? 'tre' : tre === 0 ? 'nay' : ''; const nhan = tre > 0 ? 'trễ ' + tre + ' ngày' : tre === 0 ? 'hạn hôm nay' : 'hạn ' + x.han.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
-    return `<li><span class="ma">${escK(x.t.maViec)}</span><div class="tv">${escK(x.t.tenViec)}<small>${escK([x.t.phanKhu, x.t.zone].filter(Boolean).join(' · '))}${x.t.nguoiPT ? ' · ' + escK(x.t.nguoiPT) : ''}</small></div>
-      <div class="hn ${cls}"><b>${Math.round(x.pct)}%</b>${nhan}</div></li>`; }).join('');
-  return `<ul class="home-tuan">${li}</ul>` + (ds.length > MAX ? `<div class="hint" style="text-align:center">… và ${ds.length - MAX} việc khác — xem mục Tiến độ</div>` : '');
-}
-function moTab(id){ const b = document.querySelector('nav button[data-p="' + id + '"]'); if (b) b.click(); }
-function loiChao(){
-  const h = new Date().getHours();
-  const g = CHAO_GIO.find(x => x.tu < x.den ? (h >= x.tu && h < x.den) : (h >= x.tu || h < x.den)) || CHAO_GIO[0];
-  const ngay = Math.floor(Date.now() / 86400000);
-  return {nhan:g.nhan, cau:g.cau[ngay % g.cau.length]};
-}
-function sloganHomNay(){ const d = new Date(); const dn = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000); return SLOGAN[dn % SLOGAN.length]; }
-function tomTatDA(maDA){
-  const ds = S.danhmuc.filter(x => x.maDA === maDA);
-  const hn = new Date(); hn.setHours(0,0,0,0);
-  let cham = 0, dang = 0, xong = 0, gtTong = 0, gtXong = 0;
-  ds.forEach(t => { const {pct} = pctViec(t);
-    gtTong += t.giaTri || 0; gtXong += (t.giaTri || 0) * pct / 100;
-    if (pct >= 100) xong++; else if (pct > 0) dang++;
-    const kt = t.ngayKT ? docNgay(t.ngayKT) : null;
-    if (pct < 100 && kt && hn > kt) cham++; });
-  const choDuyet = S.logs.filter(l => l.maDA === maDA && l.trangThai === 'CHO_DUYET').length;
-  const tuan = tuanNay();
-  const viecTuan = ds.filter(t => { const b = docNgay(t.ngayBD), k = docNgay(t.ngayKT);
-    return (b || k) && (b || k) <= tuan.kt && (k || b) >= tuan.bd && pctViec(t).pct < 100; }).length;
-  const tt = S.tomTatKhu && S.tomTatKhu[maDA];
-  return {so: ds.length, xong, dang, cham, choDuyet, viecTuan, pctGT: gtTong ? Math.round(gtXong / gtTong * 100) : null, dmLon: S.dmLon && !!tt};
-}
-function chucDanhChao(){
-  const k = S.kpiNha && S.kpiNha.viTri;
-  return (k && (S.kpiNha.tenViTri || TEN_VT_KPI[k])) || TEN_VT_KPI[String(S.user.viTriKPI || '').toUpperCase()] || vaiTro(S.user.vaiTro);
-}
-function renderHome(){
-  const box = $('home'); if (!box || !S.user) return;
-  const maDA = daHienTai(); const da = S.duan.find(d => d.maDA === maDA) || {};
-  const ch = loiChao(); const tt = tomTatDA(maDA);
-  let kpi = '';
-  const k = S.kpiNha;
-  if (k){
-    const ls = (k.lichSu || []).filter(x => x.tongDiem != null);
-    const cuoi = ls[ls.length - 1];
-    if (!k.viTri) kpi = `<div class="hint">Tài khoản chưa gán vị trí KPI — Quản trị điền cột <b>vi_tri_kpi</b>.</div>`;
-    else if (cuoi) kpi = `<div class="home-kpi"><div class="so" style="color:${kpiDiemMau(cuoi.tongDiem)}">${cuoi.tongDiem}<small>${thangNhan(cuoi.thang)}</small></div>
-        <div class="kl">${escK(kpiKetLuanNhan(cuoi.tongDiem))}<span>${KPI_TT[cuoi.trangThai] || ''}${k.goi && k.goi.phieu && k.goi.phieu.thang !== cuoi.thang ? ' · ' + thangNhan(k.goi.phieu.thang) + ': ' + (KPI_TT[k.goi.phieu.trangThai] || '').toLowerCase() : ''}</span></div></div>`
-        + (ls.length >= 2 ? veKpiLine(ls) : '');
-    else kpi = `<div class="hint">Chưa có tháng nào được chấm. ${k.goi && k.goi.quyen && k.goi.quyen.tuCham ? 'Bạn có thể <b>tự chấm</b> tháng này trong mục KPI.' : 'Phiếu tháng này: ' + (KPI_TT[((k.goi || {}).phieu || {}).trangThai] || 'chưa tạo').toLowerCase() + '.'}</div>`;
-  } else kpi = `<div class="hint">${navigator.onLine ? 'Đang tải KPI…' : 'Mở KPI khi có mạng để xem điểm.'}</div>`;
-  box.innerHTML = `<div class="home">
-    <div class="home-hi"><div class="t">${ch.nhan}, ${new Date().toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit'})}</div>
-      <div class="n">${escK(S.user.hoTen)} <small>· ${escK(chucDanhChao())}</small></div>
-      <div class="c">${ch.cau}</div>
-</div>
-    <div class="home-sec"><div class="h"><span>Dự án đang làm</span><a href="#" onclick="moPhu('s-tq');return false">Tổng quan ›</a></div>
-      ${S.duan.length > 1 ? `<div class="home-chon"><select onchange="doiDuAn(this.value,'renderHome')">${S.duan.map(d => `<option value="${d.maDA}"${d.maDA === maDA ? ' selected' : ''}>${escK(d.tenDA)}</option>`).join('')}</select></div>` : `<div class="home-da">${escK(da.tenDA || maDA)}</div>`}
-      <div class="home-grid"><div><b>${tt.so}</b><span>đầu việc</span></div><div><b style="color:var(--ok)">${tt.xong}</b><span>đã xong</span></div>
-        <div><b style="color:#1A5C96">${tt.dang}</b><span>đang làm</span></div><div><b style="color:${tt.cham ? 'var(--alert)' : 'var(--ink)'}">${tt.cham}</b><span>chậm</span></div></div>
-      ${tt.pctGT != null ? `<div class="home-pct"><span>Giá trị</span><div class="bar"><i style="width:${tt.pctGT}%"></i></div><b>${tt.pctGT}%</b></div>` : ''}
-      <div class="hint" style="margin-top:6px"><b>${tt.choDuyet}</b> bản ghi chờ duyệt${tt.dmLon ? ' · số đếm theo việc đang cần' : ''}</div></div>
-    <div class="home-sec"><div class="h"><span>Kế hoạch tuần này · ${tt.viecTuan} việc</span><a href="#" onclick="moTab('p-td');return false">Tiến độ ›</a></div>${veTuan(maDA)}</div>
-    <div class="home-sec"><div class="h"><span>KPI của bạn</span><a href="#" onclick="moPhu('s-kpi');return false">Xem KPI ›</a></div>${kpi}</div>
-    <div class="home-sl"><i>💬</i><div>${sloganHomNay()}</div></div>
-    <div class="home-dn">“${escK(danhNgonHomNay()[0])}”<small>— ${escK(danhNgonHomNay()[1])}</small></div>
-    <div class="home-nav">Chọn chức năng ở thanh dưới hoặc dải nút phía trên · Bấm tên app để về Trang chủ</div></div>`;
-}
-/* 3.8.2: về Trang chủ — không nút nào sáng; luôn là màn đầu khi mở/refresh app */
-function veTrangChu(){
-  if (!S.user) return;
-  document.querySelectorAll('nav button, .sitem').forEach(x => x.classList.remove('on'));
-  document.querySelectorAll('.pane').forEach(p => p.classList.remove('show'));
-  $('p-home').classList.add('show');
-  $('secbar').innerHTML = '<span>TRANG CHỦ</span>';
-  renderHome(); document.querySelector('main').scrollTop = 0;
-}
-function kpiKetLuanNhan(d){ return d >= 85 ? 'Xuất sắc — vượt ngưỡng 85' : d >= 80 ? 'Tốt — đạt ngưỡng 80' : d >= 75 ? 'Khá — đạt ngưỡng 75' : d >= 70 ? 'Đạt — ngưỡng 70' : d >= 60 ? 'Cần cố gắng — dưới 70' : 'Chưa đạt — cần xem lại'; }
-function moPhu(id){ const b = document.querySelector('.sitem[data-s="' + id + '"]'); if (b) b.click(); }
-let kpiNhaDangTai = false;
-async function taiKpiNha(){
-  if (!S.user || kpiNhaDangTai) return;
-  kpiKhoiTao();
-  if (S.kpi.cuaToi && S.kpi.thang === thangLocal(new Date())){ S.kpiNha = S.kpi.cuaToi; renderHome(); return; }
-  if (!S.kpiNha){ const dem = await Store.get('home-kpi'); if (dem && dem.email === S.user.email){ S.kpiNha = dem.kpi; renderHome(); } }
-  if (!navigator.onLine) return;
-  kpiNhaDangTai = true;
-  try {
-    const r = await api('kpiCuaToi', {thang: thangLocal(new Date())}, 60);
-    S.kpiNha = r; if (S.kpi.thang === r.thang) S.kpi.cuaToi = r;      // dùng lại khi mở màn KPI
-    await Store.set('home-kpi', {email:S.user.email, kpi:r, luc:Date.now()});
-    renderHome();
-  } catch(e){ /* giữ bản đệm */ }
-  finally { kpiNhaDangTai = false; }
-}
+const vaiTro = v => ({KT_NHAP:'Kỹ thuật', QS:'QS khối lượng', CHT_DUYET:'Chỉ huy trưởng', BDH_XEM:'Ban điều hành', ADMIN:'Quản trị', QUAN_TRI:'Quản trị', ATLD_CTY:'Phòng ATLĐ công ty'}[v] || v);
 
 /* ---------- 6. MÀN NHẬP SỐ ---------- */
 const $ = id => document.getElementById(id);
@@ -1219,7 +1003,7 @@ async function napKhu(ma, khu){
 
 function onProject(){
   const ma = $('f-da').value;
-  S.maDA = ma; setTimeout(renderHome, 0);
+  S.maDA = ma;
   const items = S.danhmuc.filter(x => x.maDA === ma && conNhap(x));
   /* danh mục lớn: danh sách khu lấy từ bảng tóm tắt (đủ 100%), khu chưa tải sẽ tải khi chọn */
   const pks = S.dmLon
@@ -1533,7 +1317,7 @@ async function paintNet(msg){
 }
 
 /* ---------- 8. HIỂN THỊ ---------- */
-function renderAll(){ if (window.tatSplash) window.tatSplash(); paintNet(); renderLogs(); renderProgress(); renderNotis(); renderAcct(); if (S.duan.length && !$('f-da').options.length) fillSelects(); renderHome(); }
+function renderAll(){ if (window.tatSplash) window.tatSplash(); paintNet(); renderLogs(); renderProgress(); renderNotis(); renderAcct(); if (S.duan.length && !$('f-da').options.length) fillSelects(); }
 
 async function renderLogs(){
   const q = await Store.all();
