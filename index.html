@@ -687,7 +687,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.8.4';
+const APP_VERSION = '3.8.5';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2396,7 +2396,13 @@ const NHOM_ANH = [
   ['chotKL',   'Biên bản chốt khối lượng tổng'],
   ['bbTru',    'Biên bản trừ hao hụt do tổ đội']
 ];
-const NGUYEN_NHAN = ['Do tổ đội', 'Do nhà cung cấp', 'Do tổ đội và nhà cung cấp'];
+const NGUYEN_NHAN = ['Do tổ đội', 'Do nhà cung cấp', 'Do tổ đội và nhà cung cấp'];          // đổ NHIỀU hơn QS tính (hao hụt)
+/* 3.8.5: đổ ÍT hơn QS tính (chênh lệch dương) — CBKT ghi lý do để QS kiểm tra lại cách tính */
+const NGUYEN_NHAN_DU = ['QS kiểm tra lại cách tính', 'Nguyên nhân khác'];
+/* 3.8.5: QUY ƯỚC HIỂN THỊ chênh lệch = QS tính − thực tế đổ (dương = đổ ít hơn, âm = hao hụt).
+   Dữ liệu lưu (x.lech, sheet chenh_lech) vẫn = thực tế − QS như cũ; chỉ đổi dấu khi hiển thị. */
+const lechQS = x => -(x.lech || 0);
+const soLech = v => (v > 0 ? '+' : '') + num(Math.round(v * 100) / 100);
 
 /* Trạng thái 48h báo nhà cung cấp cho mẻ đổ VƯỢT khối lượng QS tính */
 function tt48(x){
@@ -2474,13 +2480,13 @@ function renderBeTong(){
     const mVuot = ds.reduce((s,x) => s + x.lech, 0);
     const mMat = quaHan.reduce((s,x) => s + x.lech, 0);
     out += `<div class="tq-box" style="${quaHan.length ? 'border-color:var(--alert);border-width:2px' : ''}">
-        <h5>Mẻ đổ vượt khối lượng QS tính</h5>
+        <h5>Mẻ đổ hao hụt (đổ nhiều hơn QS tính)</h5>
         <div class="tq-line"><span>Cần báo NCC trong 48h</span>
           <b style="color:var(--warn)">${trongHan.length} mẻ</b></div>
         <div class="tq-line"><span>Đã quá 48h — bên gọi chịu</span>
           <b style="color:var(--alert)">${quaHan.length} mẻ · ${num(mMat)} m³</b></div>
         <div class="tq-line"><span>Đã thông báo NCC</span><b style="color:var(--ok)">${daBao.length} mẻ</b></div>
-        <div class="tq-line"><span>Tổng khối lượng vượt</span><b>${num(mVuot)} m³</b></div>
+        <div class="tq-line"><span>Tổng hao hụt</span><b style="color:var(--alert)">−${num(mVuot)} m³</b></div>
       </div>`;
     const ve = x => `<div class="item" style="${tt48(x) && tt48(x).con === 0 ? 'border-color:var(--alert)' : ''}">
         <div style="font-size:11.5px;font-weight:bold;color:var(--brand)">${x.khoi} · ${x.ncc || 'chưa ghi NCC'}</div>
@@ -2488,23 +2494,23 @@ function renderBeTong(){
         <div class="meta">Đổ ngày ${dmy(x.ngayDo)} · ${x.maPhieu || '—'}</div>
         <div class="tq-line"><span>QS tính / thực đổ</span>
           <b>${num(x.klKH)} → ${num(x.klTT)} m³</b></div>
-        <div class="tq-line"><span>Vượt</span>
-          <b style="color:var(--alert)">+${num(x.lech)} m³ · ${x.pctLech}%</b></div>
+        <div class="tq-line"><span>Hao hụt</span>
+          <b style="color:var(--alert)">−${num(x.lech)} m³ · −${x.pctLech}%</b></div>
         ${x.nguyenNhan ? `<div class="tq-line"><span>Nguyên nhân</span>
           <b style="color:var(--alert)">${x.nguyenNhan}</b></div>` : ''}
         ${x.lyDo ? `<div class="meta">⚠ ${x.lyDo}</div>` : ''}
         ${theBaoNCC(x)}
       </div>`;
     out += ds.length ? [...quaHan, ...trongHan, ...daBao].map(ve).join('')
-      : empty('Không có mẻ đổ nào vượt khối lượng QS tính.');
+      : empty('Không có mẻ đổ nào hao hụt so với khối lượng QS tính.');
   } else {
     const ds = cuaDA(S.doBT);
     const canDuyet = ['CHT_DUYET','ADMIN'].includes(S.user.vaiTro);
     out += ds.length ? ds.map(x => {
       const khop = Math.abs(x.lech) < 0.01;
-      const mau = khop ? 'var(--ok)' : x.lech > 0 ? 'var(--alert)' : 'var(--warn)';
-      const nhan = khop ? 'Khớp QS tính' : x.lech > 0 ? 'VƯỢT ' + x.pctLech + '%'
-                 : 'HAO HỤT ' + Math.abs(x.pctLech) + '%';
+      const mau = khop ? 'var(--ok)' : x.lech > 0 ? 'var(--alert)' : '#1A5C96';
+      const nhan = khop ? 'Khớp QS tính' : x.lech > 0 ? 'HAO HỤT −' + Math.abs(x.pctLech) + '%'
+                 : 'ĐỔ ÍT HƠN QS +' + Math.abs(x.pctLech) + '%';
       const st = x.trangThai === 'DA_DUYET' ? ['b-appr','Đã duyệt'] : x.trangThai === 'TU_CHOI' ? ['b-rej','Trả lại'] : ['b-wait','Chờ duyệt'];
       return `<div class="item">
         <div style="font-size:11.5px;font-weight:bold;color:var(--brand)">${x.khoi} · ${x.macBT || ''}</div>
@@ -2513,11 +2519,11 @@ function renderBeTong(){
         <div class="tq-line"><span>QS tính</span><b>${num(x.klKH)} m³</b></div>
         <div class="tq-line"><span>Thực tế đổ</span><b>${num(x.klTT)} m³</b></div>
         <div class="tq-line"><span>Chênh lệch</span>
-          <b style="color:${mau}">${x.lech > 0 ? '+' : ''}${num(x.lech)} m³ · ${nhan}</b></div>
+          <b style="color:${mau}">${soLech(lechQS(x))} m³ · ${nhan}</b></div>
         <div class="meta">${x.soXe ? x.soXe + ' xe · ' : ''}${x.caBom ? x.caBom + ' ca bơm · ' : ''}${x.klBom ? num(x.klBom) + ' m³ bơm' : ''}</div>
         ${x.nguyenNhan ? `<div class="tq-line"><span>Nguyên nhân</span>
-          <b style="color:${x.nguyenNhan === 'Do nhà cung cấp' ? 'var(--alert)' : 'var(--warn)'}">${x.nguyenNhan}</b></div>` : ''}
-        ${x.lyDo ? `<div class="meta">⚠ ${x.lyDo}</div>` : ''}
+          <b style="color:${x.nguyenNhan === 'Do nhà cung cấp' ? 'var(--alert)' : x.lech < 0 ? '#1A5C96' : 'var(--warn)'}">${x.nguyenNhan}</b></div>` : ''}
+        ${x.lyDo ? `<div class="meta">${x.lech > 0 ? '⚠' : 'ℹ'} ${x.lyDo}</div>` : ''}
         <div class="meta">${x.hoTen || ''}</div>
         <span class="badge ${st[0]}">${st[1]}</span>
         ${theBaoNCC(x)}
@@ -2532,10 +2538,9 @@ function renderBeTong(){
       out = out.replace('<div class="item">', `<div class="tq-box"><h5>Tổng hợp ${ds.length} mẻ đổ gần nhất</h5>
         <div class="tq-line"><span>QS tính</span><b>${num(tKH)} m³</b></div>
         <div class="tq-line"><span>Thực tế đổ</span><b>${num(tTT)} m³</b></div>
-        <div class="tq-line"><span>Chênh lệch luỹ kế</span>
-          <b style="color:${Math.abs(tTT-tKH) < 0.01 ? 'var(--ok)' : tTT > tKH ? 'var(--alert)' : 'var(--warn)'}">${
-            tTT-tKH > 0 ? '+' : ''}${num(tTT-tKH)} m³</b></div>
-        <div class="tq-line"><span>Mẻ vượt / hao hụt</span>
+        <div class="tq-line"><span>Chênh lệch luỹ kế (QS − thực tế)</span>
+          <b style="color:${Math.abs(tTT-tKH) < 0.01 ? 'var(--ok)' : tTT > tKH ? 'var(--alert)' : '#1A5C96'}">${soLech(tKH-tTT)} m³</b></div>
+        <div class="tq-line"><span>Mẻ hao hụt / đổ ít hơn QS</span>
           <b>${vt.length} / ${hh.length}</b></div>
       </div><div class="item">`);
     }
@@ -2576,7 +2581,7 @@ function formBeTong(){
       <div><label>Ca bơm</label><input id="b-ca" type="number" step="0.5" inputmode="decimal"></div>
       <div><label>KL bơm (m³)</label><input id="b-klb" type="number" step="0.1" inputmode="decimal"></div>
     </div>
-    <div class="field"><label for="b-nn">Nguyên nhân hao hụt <span id="b-bb2" style="color:var(--alert)"></span></label>
+    <div class="field"><label for="b-nn"><span id="b-nn-lbl">Nguyên nhân chênh lệch</span> <span id="b-bb2" style="color:var(--alert)"></span></label>
       <select id="b-nn" onchange="doiNguyenNhan()">
         <option value="">— chọn nguyên nhân —</option>
         ${NGUYEN_NHAN.map(x => `<option value="${x}">${x}</option>`).join('')}
@@ -2593,6 +2598,7 @@ function formBeTong(){
     <button class="primary" onclick="luuBeTong()">LƯU KHAI BÁO</button>
     <button class="ghost" onclick="huyKhaiBao()">Huỷ</button>
     <p class="hint">Ảnh lưu trên Drive theo thư mục <b>BeTong / ngày đổ / block</b>.
+      <b>Chênh lệch = QS tính − thực tế đổ</b>: dương = đổ ít hơn (QS kiểm tra lại cách tính), âm = hao hụt.
       <b>Nguyên tắc: không chấp nhận hao hụt</b> — mọi chênh lệch so với khối lượng QS tính đều phải ghi lý do.
       Hao hụt do nhà cung cấp: QS liên hệ giải trình trong 2 ngày để chốt lại khối lượng.</p>
   </div>`;
@@ -2615,18 +2621,32 @@ function doiNguyenNhan(){
     e.innerHTML = '<b style="color:var(--alert)">QS phải báo nhà cung cấp trong 48 giờ</b> kể từ khi đổ xong, quá hạn công ty chịu.';
   else if (v === 'Do tổ đội và nhà cung cấp')
     e.innerHTML = '<b style="color:var(--alert)">Làm cả hai:</b> biên bản trừ với tổ đội và báo nhà cung cấp trong 48 giờ. Ghi rõ phần nào của bên nào.';
+  else if (v === 'QS kiểm tra lại cách tính')
+    e.innerHTML = '<b style="color:#1A5C96">QS rà lại khối lượng tính</b> (kích thước, cao độ, phần trừ lỗ mở…) và chốt lại kế hoạch đổ. Ghi rõ vị trí nghi sai ở Lý do chi tiết.';
+  else if (v === 'Nguyên nhân khác')
+    e.innerHTML = 'Ghi rõ ở Lý do chi tiết (VD: thay đổi phạm vi đổ, để lại mạch ngừng, cốp pha lệch…) để QS đối chiếu.';
   else e.textContent = '';
+}
+/* 3.8.5: đổi danh sách nguyên nhân theo dấu chênh lệch (QS − thực tế) */
+function datNguyenNhan(d){
+  const sel = $('b-nn'), lbl = $('b-nn-lbl'); if (!sel) return;
+  const ds = d < -0.005 ? NGUYEN_NHAN : d > 0.005 ? NGUYEN_NHAN_DU : NGUYEN_NHAN;
+  const cu = sel.value;
+  sel.innerHTML = '<option value="">— chọn nguyên nhân —</option>' + ds.map(x => `<option value="${x}">${x}</option>`).join('');
+  sel.value = ds.includes(cu) ? cu : '';
+  lbl.textContent = d < -0.005 ? 'Nguyên nhân hao hụt' : d > 0.005 ? 'Nguyên nhân đổ ít hơn QS tính' : 'Nguyên nhân chênh lệch';
+  doiNguyenNhan();
 }
 
 function tinhLech(){
   const kh = parseFloat($('b-kh').value) || 0, tt = parseFloat($('b-tt').value) || 0;
-  const lech = tt - kh, pct = kh ? Math.round(lech/kh*1000)/10 : 0;
-  const khop = Math.abs(lech) < 0.01;
-  const mau = khop ? 'var(--ok)' : lech > 0 ? 'var(--alert)' : 'var(--warn)';
+  const d = kh - tt, pct = kh ? Math.round(d/kh*1000)/10 : 0;        // 3.8.5: QS tính − thực tế
+  const khop = Math.abs(d) < 0.01;
+  const mau = khop ? 'var(--ok)' : d < 0 ? 'var(--alert)' : '#1A5C96';
   const nhan = !tt ? '—' : khop ? 'Khớp khối lượng QS tính'
-    : (lech > 0 ? '+' : '') + (Math.round(lech*100)/100) + ' m³ · ' + (pct > 0 ? '+' : '') + pct
-      + '% · ' + (lech > 0 ? 'VƯỢT' : 'HAO HỤT');
-  $('b-lech').innerHTML = `<span>Chênh lệch</span><b style="color:${mau}">${nhan}</b>`;
+    : soLech(d) + ' m³ · ' + (pct > 0 ? '+' : '') + pct + '% · ' + (d < 0 ? 'HAO HỤT' : 'ĐỔ ÍT HƠN QS TÍNH');
+  $('b-lech').innerHTML = `<span>Chênh lệch (QS − thực tế)</span><b style="color:${mau}">${nhan}</b>`;
+  if (tt) datNguyenNhan(d);
   $('b-bb').textContent  = (tt && !khop) ? '(bắt buộc — có chênh lệch)' : '';
   $('b-bb2').textContent = (tt && !khop) ? '(bắt buộc)' : '';
 }
@@ -2660,9 +2680,9 @@ async function luuBeTong(){
   if (!$('b-ncc').value) return toast('Chọn nhà cung cấp bê tông.');
   if (!tt) return toast('Chưa nhập khối lượng thực tế đổ.');
   const co_lech = Math.abs(tt - kh) >= 0.01;
-  if (co_lech && !$('b-nn').value) return toast('Có chênh lệch — chọn nguyên nhân hao hụt.');
-  if (co_lech && !$('b-lydo').value.trim()) return toast('Ghi lý do chi tiết của chênh lệch.');
-  if (co_lech && $('b-nn').value.indexOf('tổ đội') > -1 && !S.anhBT.bbTru.length
+  if (co_lech && !$('b-nn').value) return toast(tt > kh ? 'Có hao hụt — chọn nguyên nhân hao hụt.' : 'Đổ ít hơn QS tính — chọn nguyên nhân.');
+  if (co_lech && !$('b-lydo').value.trim()) return toast(tt > kh ? 'Ghi lý do chi tiết của hao hụt.' : 'Ghi rõ lý do để QS kiểm tra lại cách tính.');
+  if (co_lech && tt > kh && $('b-nn').value.indexOf('tổ đội') > -1 && !S.anhBT.bbTru.length
       && !confirm('Nguyên nhân do tổ đội nhưng chưa có ảnh biên bản trừ hao hụt.\n\nVẫn lưu?')) return;
   if (!S.anhBT.chotKL.length && !S.anhBT.phieuXe.length)
     return toast('Cần ít nhất ảnh phiếu xe hoặc biên bản chốt khối lượng.');
