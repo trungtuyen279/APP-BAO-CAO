@@ -80,6 +80,14 @@ main{flex:1;overflow-y:auto;padding:13px 13px 128px}
 .home-tuan .tv small{display:block;color:var(--ink-2);font-size:11px}
 .home-tuan .hn{white-space:nowrap;text-align:right;font-size:11px;color:var(--ink-2)}
 .home-tuan .hn b{display:block;font-family:var(--mono);font-size:12px;color:var(--ink)}
+/* 3.9.0: Trợ lý BCH (Claude) — lời khuyên sáng / chiều */
+.home-tl{border:1.5px solid #F3C9C9;border-left:5px solid var(--brand);border-radius:8px;padding:8px 10px;margin-top:6px;background:#FFF9F9}
+.home-tl .b{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ink-2);margin-bottom:4px}
+.home-tl .b b{color:var(--brand);font-size:12px}
+.home-tl .nd{font-size:12.5px;line-height:1.45;white-space:pre-wrap;color:var(--ink)}
+.home-tl .nd.gon{max-height:7.3em;overflow:hidden;position:relative}
+.home-tl .nd.gon:after{content:'';position:absolute;left:0;right:0;bottom:0;height:2.2em;background:linear-gradient(rgba(255,249,249,0),#FFF9F9)}
+.home-tl .xem{font-size:11.5px;color:var(--brand);font-weight:bold;background:none;border:0;padding:4px 0 0;cursor:pointer}
 .home-tuan .hn.tre b{color:var(--alert)}
 .home-tuan .hn.nay b{color:var(--warn)}
 .home-dn{background:#EEF5FF;border-top:1px solid #C9DCF5;padding:12px 14px;text-align:center;
@@ -687,7 +695,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.8.5';
+const APP_VERSION = '3.9.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -967,6 +975,7 @@ function applyData(d){
   S.keHoachDo = d.keHoachDo || S.keHoachDo; S.doBT = d.doBT || S.doBT;
   S.macBT = d.macBT || S.macBT; S.nccBT = d.nccBT || S.nccBT;
   S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
+  S.troLy = d.troLy || S.troLy || [];        // 3.9.0
   S.svVer = d.svVer || S.svVer || '';
   setTimeout(kiemTraNhac, 800);
 }
@@ -1068,7 +1077,7 @@ function keHoachTuan(maDA){
 function veTuan(maDA){
   const ds = keHoachTuan(maDA); const hn = new Date(); hn.setHours(0,0,0,0);
   if (!ds.length) return '<div class="hint">Không có việc nào theo kế hoạch trong tuần này.</div>';
-  const MAX = 6;
+  const MAX = 4;                                   // 3.9.0: 4 việc, nhường chỗ cho Trợ lý BCH
   const li = ds.slice(0, MAX).map(x => { const tre = Math.round((hn - x.han) / 86400000);
     const cls = tre > 0 ? 'tre' : tre === 0 ? 'nay' : ''; const nhan = tre > 0 ? 'trễ ' + tre + ' ngày' : tre === 0 ? 'hạn hôm nay' : 'hạn ' + x.han.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
     return `<li><span class="ma">${escK(x.t.maViec)}</span><div class="tv">${escK(x.t.tenViec)}<small>${escK([x.t.phanKhu, x.t.zone].filter(Boolean).join(' · '))}${x.t.nguoiPT ? ' · ' + escK(x.t.nguoiPT) : ''}</small></div>
@@ -1130,10 +1139,23 @@ function renderHome(){
       ${tt.pctGT != null ? `<div class="home-pct"><span>Giá trị</span><div class="bar"><i style="width:${tt.pctGT}%"></i></div><b>${tt.pctGT}%</b></div>` : ''}
       <div class="hint" style="margin-top:6px"><b>${tt.choDuyet}</b> bản ghi chờ duyệt${tt.dmLon ? ' · số đếm theo việc đang cần' : ''}</div></div>
     <div class="home-sec"><div class="h"><span>Kế hoạch tuần này · ${tt.viecTuan} việc</span><a href="#" onclick="moTab('p-td');return false">Tiến độ ›</a></div>${veTuan(maDA)}</div>
+    <div class="home-sec"><div class="h"><span>Trợ lý BCH · Claude</span><a href="#" onclick="moTab('p-tb');return false">Thông báo ›</a></div>${veTroLy(maDA)}</div>
     <div class="home-sec"><div class="h"><span>KPI của bạn</span><a href="#" onclick="moPhu('s-kpi');return false">Xem KPI ›</a></div>${kpi}</div>
     <div class="home-sl"><i>💬</i><div>${sloganHomNay()}</div></div>
     <div class="home-dn">“${escK(danhNgonHomNay()[0])}”<small>— ${escK(danhNgonHomNay()[1])}</small></div>
     <div class="home-nav">Chọn chức năng ở thanh dưới hoặc dải nút phía trên · Bấm tên app để về Trang chủ</div></div>`;
+}
+/* 3.9.0: khối Trợ lý BCH — bản sáng + chiều mới nhất của dự án đang chọn (dữ liệu từ bootstrap, không gọi thêm mạng) */
+function veTroLy(maDA){
+  const ds = (S.troLy || []).filter(x => x.maDA === maDA);
+  if (!ds.length) return '<div class="hint">Chưa có lời khuyên cho dự án này. Trợ lý gửi 2 bản mỗi ngày (sáng ~06:00, chiều ~18:00).</div>';
+  const hn = new Date().toISOString().slice(0, 10);
+  const nhan = x => (x.buoi === 'SANG' ? '☀ Sáng' : '🌙 Chiều') + ' ' + (x.ngay === hn ? 'hôm nay' : dmy(x.ngay));
+  return ds.sort((a, b) => (b.ngay + (b.buoi === 'CHIEU' ? '2' : '1')).localeCompare(a.ngay + (a.buoi === 'CHIEU' ? '2' : '1')))
+    .map((x, i) => { const id = 'tl-' + x.buoi; const dai = (x.noiDung || '').length > 260;
+      return `<div class="home-tl"><div class="b"><b>${nhan(x)}</b><span>${escK(x.tieuDe || '')}</span></div>
+        <div class="nd${dai ? ' gon' : ''}" id="${id}">${escK(x.noiDung || '')}</div>
+        ${dai ? `<button class="xem" onclick="const e=$('${id}');e.classList.toggle('gon');this.textContent=e.classList.contains('gon')?'Xem đủ ▾':'Thu gọn ▴'">Xem đủ ▾</button>` : ''}</div>`; }).join('');
 }
 /* 3.8.2: về Trang chủ — không nút nào sáng; luôn là màn đầu khi mở/refresh app */
 function veTrangChu(){
