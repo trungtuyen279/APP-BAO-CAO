@@ -695,7 +695,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.9.0';
+const APP_VERSION = '3.9.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1141,7 +1141,6 @@ function renderHome(){
     <div class="home-sec"><div class="h"><span>Kế hoạch tuần này · ${tt.viecTuan} việc</span><a href="#" onclick="moTab('p-td');return false">Tiến độ ›</a></div>${veTuan(maDA)}</div>
     <div class="home-sec"><div class="h"><span>Trợ lý BCH · Claude</span><a href="#" onclick="moTab('p-tb');return false">Thông báo ›</a></div>${veTroLy(maDA)}</div>
     <div class="home-sec"><div class="h"><span>KPI của bạn</span><a href="#" onclick="moPhu('s-kpi');return false">Xem KPI ›</a></div>${kpi}</div>
-    <div class="home-sl"><i>💬</i><div>${sloganHomNay()}</div></div>
     <div class="home-dn">“${escK(danhNgonHomNay()[0])}”<small>— ${escK(danhNgonHomNay()[1])}</small></div>
     <div class="home-nav">Chọn chức năng ở thanh dưới hoặc dải nút phía trên · Bấm tên app để về Trang chủ</div></div>`;
 }
@@ -1149,8 +1148,10 @@ function renderHome(){
 function veTroLy(maDA){
   const ds = (S.troLy || []).filter(x => x.maDA === maDA);
   if (!ds.length) return '<div class="hint">Chưa có lời khuyên cho dự án này. Trợ lý gửi 2 bản mỗi ngày (sáng ~06:00, chiều ~18:00).</div>';
-  const hn = new Date().toISOString().slice(0, 10);
-  const nhan = x => (x.buoi === 'SANG' ? '☀ Sáng' : '🌙 Chiều') + ' ' + (x.ngay === hn ? 'hôm nay' : dmy(x.ngay));
+  const hn = thangLocal(new Date()) + '-' + String(new Date().getDate()).padStart(2, '0');
+  const chuanNgay = v => { const t = String(v || ''); if (/^\d{4}-\d{2}-\d{2}/.test(t)) return t.slice(0, 10); const d = new Date(t); return isNaN(d) ? t : thangLocal(d) + '-' + String(d.getDate()).padStart(2, '0'); };   // 3.9.1: máy chủ có thể trả ngày dạng Date
+  ds.forEach(x => { x.ngay = chuanNgay(x.ngay); });
+  const nhan = x => (x.buoi === 'SANG' ? '☀ Sáng' : '🌙 Chiều') + ' ' + (x.ngay === hn ? 'hôm nay' : dmy(x.ngay)) + (x.nguon && !/claude/i.test(x.nguon) ? ' · ' + escK(x.nguon) : '');
   return ds.sort((a, b) => (b.ngay + (b.buoi === 'CHIEU' ? '2' : '1')).localeCompare(a.ngay + (a.buoi === 'CHIEU' ? '2' : '1')))
     .map((x, i) => { const id = 'tl-' + x.buoi; const dai = (x.noiDung || '').length > 260;
       return `<div class="home-tl"><div class="b"><b>${nhan(x)}</b><span>${escK(x.tieuDe || '')}</span></div>
