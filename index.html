@@ -80,6 +80,10 @@ main{flex:1;overflow-y:auto;padding:13px 13px 128px}
 .home-tuan .tv small{display:block;color:var(--ink-2);font-size:11px}
 .home-tuan .hn{white-space:nowrap;text-align:right;font-size:11px;color:var(--ink-2)}
 .home-tuan .hn b{display:block;font-family:var(--mono);font-size:12px;color:var(--ink)}
+/* 3.9.3: việc QUAN TRỌNG */
+.qt{display:inline-block;background:#FFF1C2;color:#8A5A00;border:1px solid #F0C000;border-radius:4px;font-size:10px;font-weight:800;padding:0 5px;margin-right:4px;vertical-align:1px;white-space:nowrap}
+.home-tuan li.qtl{background:#FFFBEA;margin:0 -4px;padding-left:4px;padding-right:4px;border-radius:6px}
+.khu.qtk>button{border-left:5px solid #F0C000}
 /* 3.9.0: Trợ lý BCH (Claude) — lời khuyên sáng / chiều */
 .home-tl{border:1.5px solid #F3C9C9;border-left:5px solid var(--brand);border-radius:8px;padding:8px 10px;margin-top:6px;background:#FFF9F9}
 .home-tl .b{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--ink-2);margin-bottom:4px}
@@ -695,7 +699,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.9.2';
+const APP_VERSION = '3.9.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1072,7 +1076,7 @@ function keHoachTuan(maDA){
   const tuan = tuanNay(); const hn = new Date(); hn.setHours(0,0,0,0);
   return S.danhmuc.filter(x => x.maDA === maDA).map(t => { const b = docNgay(t.ngayBD), k = docNgay(t.ngayKT); const pct = pctViec(t).pct;
       return ((b || k) && (b || k) <= tuan.kt && (k || b) >= tuan.bd && pct < 100) ? {t, pct, han: k || b} : null; })
-    .filter(Boolean).sort((a, b) => a.han - b.han);
+    .filter(Boolean).sort((a, b) => ((b.t.quanTrong ? 1 : 0) - (a.t.quanTrong ? 1 : 0)) || (a.han - b.han));   // 3.9.3: việc quan trọng lên đầu
 }
 function veTuan(maDA){
   const ds = keHoachTuan(maDA); const hn = new Date(); hn.setHours(0,0,0,0);
@@ -1080,7 +1084,7 @@ function veTuan(maDA){
   const MAX = 4;                                   // 3.9.0: 4 việc, nhường chỗ cho Trợ lý BCH
   const li = ds.slice(0, MAX).map(x => { const tre = Math.round((hn - x.han) / 86400000);
     const cls = tre > 0 ? 'tre' : tre === 0 ? 'nay' : ''; const nhan = tre > 0 ? 'trễ ' + tre + ' ngày' : tre === 0 ? 'hạn hôm nay' : 'hạn ' + x.han.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
-    return `<li><span class="ma">${escK(x.t.maViec)}</span><div class="tv">${escK(x.t.tenViec)}<small>${escK([x.t.phanKhu, x.t.zone].filter(Boolean).join(' · '))}${x.t.nguoiPT ? ' · ' + escK(x.t.nguoiPT) : ''}</small></div>
+    return `<li${x.t.quanTrong ? ' class="qtl"' : ''}><span class="ma">${escK(x.t.maViec)}</span><div class="tv">${x.t.quanTrong ? '<span class="qt">★ QUAN TRỌNG</span>' : ''}${escK(x.t.tenViec)}<small>${escK([x.t.phanKhu, x.t.zone].filter(Boolean).join(' · '))}${x.t.nguoiPT ? ' · ' + escK(x.t.nguoiPT) : ''}</small></div>
       <div class="hn ${cls}"><b>${Math.round(x.pct)}%</b>${nhan}</div></li>`; }).join('');
   return `<ul class="home-tuan">${li}</ul>` + (ds.length > MAX ? `<div class="hint" style="text-align:center">… và ${ds.length - MAX} việc khác — xem mục Tiến độ</div>` : '');
 }
@@ -1744,11 +1748,25 @@ function renderProgress(){
     ? S.logs.filter(r => r.trangThai === 'CHO_DUYET').length
     : xong + '/' + items.length + (tre ? ' · ' + tre + ' trễ' : '');
 
+  /* 3.9.3: khối ★ QUAN TRỌNG chưa xong luôn đứng đầu, mở sẵn */
+  const qtItems = S.danhmuc.filter(x => x.maDA === ma && x.quanTrong && pctViec(x).pct < 99.5)
+    .sort((a, b) => ((docNgay(a.ngayKT) || new Date(2100,0,1)) - (docNgay(b.ngayKT) || new Date(2100,0,1))));
+  if (qtItems.length){
+    out += `<div class="khu qtk"><button onclick="void 0" style="cursor:default">
+        <div class="kh-top"><span class="kh-ten">★ VIỆC QUAN TRỌNG</span><b class="kh-pct" style="color:#8A5A00">${qtItems.length}</b><span></span></div>
+        <div class="kh-sub"><span>BCH đánh dấu — ưu tiên hoàn thành đúng hạn</span></div></button>
+      <div class="kh-body">${qtItems.map(x => { const {pct, lk} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
+        return `<div class="prow"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
+          <div class="track"><i style="width:${Math.round(pct)}%"></i></div>
+          <div class="lb" style="font-size:11.5px;margin-top:3px">
+            <span>${[x.phanKhu, x.zone].filter(Boolean).join(' · ')}${x.nguoiPT ? ' · ' + x.nguoiPT : ''}</span>
+            <b style="color:${treV ? 'var(--alert)' : 'var(--ink-2)'}">${x.ngayKT ? (treV ? 'TRỄ · hạn ' : 'Hạn ') + dmy(x.ngayKT) : ''}</b></div></div>`; }).join('')}</div></div>`;
+  }
   /* nhóm theo khu vực (tòa / tầng / hạng mục) */
   const nhom = {};
   items.forEach(x => (nhom[x.phanKhu] = nhom[x.phanKhu] || []).push(x));
   out += Object.keys(nhom).map(khu => {
-    const vs = nhom[khu];
+    const vs = nhom[khu].slice().sort((a, b) => ((b.quanTrong && pctViec(b).pct < 99.5 ? 1 : 0) - (a.quanTrong && pctViec(a).pct < 99.5 ? 1 : 0)));
     const w = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
     const p = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / w;
     const xg = vs.filter(x => pctViec(x).pct >= 99.5).length;
@@ -1766,7 +1784,7 @@ function renderProgress(){
       ${mo ? `<div class="kh-body">${vs.map(x => {
         const {pct, lk} = pctViec(x);
         const treV = pct < 99.5 && docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
-        return `<div class="prow"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
+        return `<div class="prow"><div class="lb"><span>${x.quanTrong && pct < 99.5 ? '<span class="qt">★</span>' : ''}${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
           <div class="track"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.round(pct)}%"></i></div>
           <div class="lb" style="font-size:11.5px;margin-top:3px">
             <span>${x.zone ? x.zone + ' · ' : ''}${num(Math.min(lk, x.klHopDong))}/${num(x.klHopDong)} ${x.donVi || ''}${x.nguoiPT ? ' · ' + x.nguoiPT : ''}</span>
