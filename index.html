@@ -397,6 +397,20 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .tt-dot .gt{text-align:right;font-family:var(--mono);font-size:12.5px;font-weight:bold;white-space:nowrap;line-height:1.4}
 .tt-tt{font-size:10px;font-weight:bold;padding:1px 6px;border-radius:3px;display:inline-block;margin-top:4px}.tt-dot .nd span.tt-tt{display:inline-block;margin-right:4px}
 #tt-modal input,#tt-modal select,#tt-modal textarea{font-size:14px;padding:9px 8px}
+/* 3.10.1: gói gập + lưu trình hồ sơ */
+.tt-goi .gh{cursor:pointer}.tt-goi .body{display:none}.tt-goi.mo .body{display:block}
+.tt-goi .mui{display:inline-block;font-style:normal;transition:transform .2s;color:var(--ink-2)}.tt-goi.mo .mui{transform:rotate(180deg)}
+.lt{display:flex;gap:2px;margin-top:6px}
+.lt i{flex:1;font-style:normal;font-family:var(--mono);font-size:11px;font-weight:bold;text-align:center;line-height:20px;background:#E5E7EB;color:#9CA3AF;
+  clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%,7px 50%);padding:0 4px 0 9px;position:relative}
+.lt i b{display:block;font-family:var(--font);font-size:9.5px;font-weight:bold;line-height:11px;padding-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lt i:first-child{clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%)}
+.lt i.now{outline:2px solid var(--ink);outline-offset:-2px;animation:ltnhay 1.2s infinite alternate}
+@keyframes ltnhay{from{filter:brightness(1)}to{filter:brightness(1.25)}}
+.lt.nho{margin-top:4px;max-width:200px}.lt.nho i{line-height:14px;font-size:9.5px;padding:0 2px 0 7px}
+.tt-lt-row{padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}.tt-lt-row:last-of-type{border-bottom:0}
+.tt-lt-row .r1{display:flex;justify-content:space-between;font-size:13px}.tt-lt-row .r2{font-size:11px;color:var(--ink-2);margin-top:3px}
+
 /* ---------- tổng quan ---------- */
 .tq-box{border:1.5px solid var(--line);border-radius:7px;padding:12px;margin-bottom:11px}
 .tq-box h5{font-size:12px;color:var(--ink-2);margin-bottom:7px}
@@ -713,7 +727,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.0';
+const APP_VERSION = '3.10.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2242,9 +2256,15 @@ function renderTongQuan(){
   $('tqBody').innerHTML = thanhChonDA('renderTongQuan') + out;
 }
 
-/* ---------- B2. THANH TOÁN VỚI CHỦ ĐẦU TƯ (3.10.0) — chỉ CHT / CHP / Quản trị (S.quyenTT do máy chủ quyết) ---------- */
+/* ---------- B2. THANH TOÁN VỚI CHỦ ĐẦU TƯ (3.10.0 · 3.10.1 gập gói + lưu trình hồ sơ) — chỉ CHT / CHP / Quản trị (S.quyenTT do máy chủ quyết) ---------- */
 const TT_TT = {CHUA_DEN_HAN:['Chưa đến hạn','#6B7280','#F3F4F6'], DANG_LAM_HO_SO:['Đang làm hồ sơ','#1D4ED8','#DBEAFE'], DA_DE_NGHI:['Đã đề nghị','#B45309','#FEF3C7'],
   CHO_CDT:['Chờ CĐT trả','#C2410C','#FFEDD5'], DA_THANH_TOAN:['Đã thanh toán','#15803D','#DCFCE7'], TAM_HOAN:['Tạm hoãn','#6B7280','#F3F4F6']};
+/* 3.10.1: lưu trình hồ sơ thanh toán 6 bước (cột buoc_hs 1..6; 0/trống = chưa chạy) */
+const TT_BUOC = [[1,'NT ký','Nhà thầu làm hồ sơ, ký công ty xong','#E53935'],[2,'Cố vấn','Cố vấn ký','#FB8C00'],[3,'Xưởng vụ','Xưởng vụ CĐT ký','#FDD835'],
+  [4,'Hóa đơn','Xuất hóa đơn','#7CB342'],[5,'KT CĐT','Phòng kế toán CĐT ký','#00ACC1'],[6,'CĐT trả','CĐT thanh toán','#1E88E5']];
+const ttLuuTrinh = (b, nho) => { b = +b || 0; return `<div class="lt${nho ? ' nho' : ''}">` + TT_BUOC.map(k => `<i style="${k[0] <= b ? 'background:' + k[3] + ';color:' + (k[0] === 3 ? '#4A3B00' : '#fff') : ''}" class="${k[0] === b ? 'now' : ''}" title="${k[2]}">${k[0]}${nho ? '' : '<b>' + k[1] + '</b>'}</i>`).join('') + `</div>`; };
+const ttBuocTen = b => { const k = TT_BUOC.find(k => k[0] === +b); return k ? 'Bước ' + k[0] + '/6 · ' + k[2] : ''; };
+const ttDangChay = x => ['DANG_LAM_HO_SO','DA_DE_NGHI','CHO_CDT'].includes(x.trangThai) && +x.buocHS >= 1 && +x.buocHS <= 5;
 const tienT = v => { v = +v || 0; const a = Math.abs(v); if (!a) return '—'; if (a >= 1e9) return (v/1e9).toLocaleString('vi-VN', {maximumFractionDigits:2}) + ' tỷ';
   if (a >= 1e6) return (v/1e6).toLocaleString('vi-VN', {maximumFractionDigits:0}) + ' tr'; return v.toLocaleString('vi-VN'); };
 const tienDu = v => (+v || 0) ? Math.round(+v).toLocaleString('vi-VN') : '';
@@ -2301,30 +2321,37 @@ async function renderThanhToan(){
     qhTra.map(x => `<div class="tq-line" onclick="ttMoForm('${x.id}')" style="cursor:pointer"><span>${x.goi} · đợt ${x.dot}</span><b style="color:var(--alert)">${tienT(x.giaTriDeNghi || x.giaTriKH)} · trễ ${Math.round((homNay - new Date(x.hanTT + 'T00:00:00'))/NGAY)} ngày</b></div>`).join('') + `</div>`;
   if (sapDN.length) out += `<div class="tq-box" style="border-color:#F59E0B"><h5 style="color:#B45309">⏰ ĐẾN HẠN ĐỀ NGHỊ TRONG 21 NGÀY · ${sapDN.length} đợt — chuẩn bị hồ sơ, khối lượng nghiệm thu</h5>` +
     sapDN.map(x => { const tre = Math.round((homNay - new Date(x.ngayKH + 'T00:00:00'))/NGAY); return `<div class="tq-line" onclick="ttMoForm('${x.id}')" style="cursor:pointer"><span>${x.goi} · đợt ${x.dot}</span><b>${tienT(x.giaTriKH)} · ${tre > 0 ? '<span style="color:var(--alert)">trễ ' + tre + ' ngày</span>' : 'còn ' + (-tre) + ' ngày'}</b></div>`; }).join('') + `</div>`;
+  const dangChay = ds.filter(ttDangChay).sort((a, b) => (+b.buocHS - +a.buocHS) || ((+b.giaTriDeNghi || +b.giaTriKH) - (+a.giaTriDeNghi || +a.giaTriKH)));
+  if (dangChay.length) out += `<div class="tq-box" style="border-color:#1E88E5"><h5 style="color:#1565C0">📄 HỒ SƠ ĐANG CHẠY LƯU TRÌNH · ${dangChay.length} đợt</h5>` +
+    dangChay.map(x => `<div class="tt-lt-row" onclick="ttMoForm('${x.id}')"><div class="r1"><span><b>${x.goi}</b> · đợt ${x.dot}</span><b style="font-family:var(--mono)">${tienT(x.giaTriDeNghi || x.giaTriKH)}</b></div>${ttLuuTrinh(x.buocHS)}<div class="r2">${ttBuocTen(x.buocHS)}${x.ngayDeNghi ? ' · ĐN ' + ngayS(x.ngayDeNghi) : ''}${x.ghiChu ? ' · ' + x.ghiChu.slice(0, 60) : ''}</div></div>`).join('') +
+    `<div class="tq-sub" style="margin-top:6px">Lưu trình: ${TT_BUOC.map(k => k[0] + ' ' + k[2]).join(' → ')}</div></div>`;
   if (q.sua) out += `<button class="ghost" style="margin:0 0 11px" onclick="ttMoForm('')">+ Thêm đợt thanh toán</button>`;
+  S.ttMo = S.ttMo || {};
   if (!ds.length) out += empty(d.coSheet === false ? 'Dự án chưa có sheet THANH_TOAN — Quản trị chạy hàm taoSheetThanhToan() trong Code.gs, hoặc bấm "+ Thêm đợt" (máy chủ tự tạo sheet).' : 'Chưa có đợt thanh toán nào. Bấm "+ Thêm đợt thanh toán" để nhập.');
   goi.forEach(g => {
     const pN = g.gt ? Math.min(100, g.nhan/g.gt*100) : 0, pD = g.gt ? Math.min(100, (g.nhan + g.deNghi)/g.gt*100) : 0;
-    out += `<div class="tt-goi"><div class="gh"><div style="display:flex;justify-content:space-between;gap:8px"><b>${g.ten}</b><b style="font-family:var(--mono);white-space:nowrap">${tienT(g.gt)}</b></div>
+    const kMo = maDA + '|' + g.ten, mo = !!S.ttMo[kMo], soChay = g.ds.filter(ttDangChay).length;
+    out += `<div class="tt-goi${mo ? ' mo' : ''}"><div class="gh" onclick="ttGap('${kMo.replace(/'/g, "\\'")}')"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${g.ten}</b><b style="font-family:var(--mono);white-space:nowrap">${tienT(g.gt)} <i class="mui">▾</i></b></div>
         <div class="bar"><i class="dn" style="width:${pD}%"></i><i style="width:${pN}%"></i></div>
-        <div class="tq-sub">Đã nhận ${tienT(g.nhan)} (${pN.toFixed(1)}%)${g.deNghi ? ' · chờ CĐT ' + tienT(g.deNghi) : ''} · ${g.ds.length} đợt</div></div>` +
+        <div class="tq-sub">Đã nhận ${tienT(g.nhan)} (${pN.toFixed(1)}%)${g.deNghi ? ' · chờ CĐT ' + tienT(g.deNghi) : ''} · ${g.ds.length} đợt${soChay ? ' · <span style="color:#1565C0;font-weight:bold">' + soChay + ' hồ sơ đang chạy</span>' : ''} · <span style="color:var(--brand)">${mo ? 'thu gọn' : 'xem chi tiết'}</span></div></div><div class="body">` +
       g.ds.map(x => { const qh = ['CHO_CDT','DA_DE_NGHI'].includes(x.trangThai) && x.hanTT && new Date(x.hanTT + 'T00:00:00') < homNay;
         return `<div class="tt-dot" onclick="ttMoForm('${x.id}')"><div class="d">${x.dot}</div>
           <div class="nd">${x.noiDung ? x.noiDung.slice(0, 110) + (x.noiDung.length > 110 ? '…' : '') : '(chưa ghi điều kiện)'}
             <span>${[x.tyLe ? x.tyLe + '%' : '', x.ngayKH ? 'dự kiến ĐN ' + ngayS(x.ngayKH) : '', x.ngayDeNghi ? 'ĐN ' + ngayS(x.ngayDeNghi) : '', x.hanTT ? 'hạn trả ' + ngayS(x.hanTT) : '', x.ngayNhan ? 'nhận ' + ngayS(x.ngayNhan) : ''].filter(String).join(' · ')}</span>
-            ${ttBadge(x.trangThai)}${qh ? ' <span class="tt-tt" style="color:#fff;background:var(--alert)">QUÁ HẠN</span>' : ''}</div>
-          <div class="gt">${tienT(x.giaTriKH)}${x.giaTriNhan ? '<br><span style="color:var(--ok)">✓ ' + tienT(x.giaTriNhan) + '</span>' : (x.giaTriDeNghi && x.giaTriDeNghi !== x.giaTriKH ? '<br><span style="color:#B45309">ĐN ' + tienT(x.giaTriDeNghi) + '</span>' : '')}</div></div>`; }).join('') + `</div>`;
+            ${ttBadge(x.trangThai)}${qh ? ' <span class="tt-tt" style="color:#fff;background:var(--alert)">QUÁ HẠN</span>' : ''}${ttDangChay(x) ? ttLuuTrinh(x.buocHS, true) : ''}</div>
+          <div class="gt">${tienT(x.giaTriKH)}${x.giaTriNhan ? '<br><span style="color:var(--ok)">✓ ' + tienT(x.giaTriNhan) + '</span>' : (x.giaTriDeNghi && x.giaTriDeNghi !== x.giaTriKH ? '<br><span style="color:#B45309">ĐN ' + tienT(x.giaTriDeNghi) + '</span>' : '')}</div></div>`; }).join('') + `</div></div>`;
   });
   out += `<div class="hint">Số tiền tính bằng đồng, tỷ = 10⁹. Mỗi dòng một đợt; giá trị gói ghi ở đợt bất kỳ của gói. Chỉ Chỉ huy trưởng, Chỉ huy phó và Quản trị xem được mục này.</div>`;
   box.innerHTML = thanhChonDA('renderTongQuan') + out;
 }
+function ttGap(k){ S.ttMo = S.ttMo || {}; S.ttMo[k] = !S.ttMo[k]; renderThanhToan(); }
 function ttMoForm(id){
   const maDA = daHienTai(); const d = ttCua(maDA) || {ds:[], quyen:{}}; const q = d.quyen || {};
   if (!q.sua){ toast('Bạn chỉ được xem, không sửa được mục này'); return; }
   const x = id ? d.ds.find(v => v.id === id) : null;
   if (id && !x){ toast('Không thấy đợt này — tải lại'); return; }
   const dsGoi = [...new Set(d.ds.map(v => v.goi))];
-  const v = x || {goi:dsGoi[0] || '', giaTriGoi:0, dot:'', noiDung:'', tyLe:'', giaTriKH:0, ngayKH:'', giaTriDeNghi:0, ngayDeNghi:'', hanTT:'', giaTriNhan:0, ngayNhan:'', trangThai:'CHUA_DEN_HAN', ghiChu:''};
+  const v = x || {goi:dsGoi[0] || '', giaTriGoi:0, dot:'', noiDung:'', tyLe:'', giaTriKH:0, ngayKH:'', giaTriDeNghi:0, ngayDeNghi:'', hanTT:'', giaTriNhan:0, ngayNhan:'', trangThai:'CHUA_DEN_HAN', ghiChu:'', buocHS:0};
   if (!x && v.goi){ const g = d.ds.filter(r => r.goi === v.goi); v.giaTriGoi = Math.max(0, ...g.map(r => +r.giaTriGoi || 0)); }
   const cu = document.getElementById('tt-modal'); if (cu) cu.remove();
   const div = document.createElement('div'); div.id = 'tt-modal';
@@ -2339,6 +2366,7 @@ function ttMoForm(id){
         <div class="field"><label>Giá trị gói (đ)</label>${inTien('tt-gtg', v.giaTriGoi)}</div></div>
       <div class="row" style="grid-template-columns:90px 1fr"><div class="field"><label>Đợt *</label><input id="tt-dot" value="${v.dot}" placeholder="1, 6.1, TU"></div>
         <div class="field"><label>Trạng thái</label><select id="tt-tt" onchange="ttGoiY()">${Object.keys(TT_TT).map(k => `<option value="${k}" ${k === v.trangThai ? 'selected' : ''}>${TT_TT[k][0]}</option>`).join('')}</select></div></div>
+      <div class="field"><label>Hồ sơ đang ở bước (lưu trình)</label><select id="tt-buoc" onchange="ttGoiYBuoc()"><option value="0" ${!+v.buocHS ? 'selected' : ''}>— Chưa chạy hồ sơ —</option>${TT_BUOC.map(k => `<option value="${k[0]}" ${k[0] === +v.buocHS ? 'selected' : ''}>${k[0]}. ${k[2]}</option>`).join('')}</select><div id="tt-lt-xem" style="margin-top:6px">${+v.buocHS ? ttLuuTrinh(v.buocHS) : ''}</div></div>
       <div class="field"><label>Điều kiện / nội dung đợt</label><textarea id="tt-nd" rows="2" placeholder="VD: Sau khi hoàn thành cốt 0.000 và được CĐT nghiệm thu">${v.noiDung.replace(/</g, '&lt;')}</textarea></div>
       <div class="row" style="grid-template-columns:80px 1fr 1fr"><div class="field"><label>Tỷ lệ %</label><input id="tt-tl" inputmode="decimal" value="${v.tyLe || ''}"></div>
         <div class="field"><label>Giá trị kế hoạch (đ)</label>${inTien('tt-gtkh', v.giaTriKH)}</div>
@@ -2355,18 +2383,25 @@ function ttMoForm(id){
     </div></div>`;
   document.body.appendChild(div);
 }
+/* Chọn bước lưu trình -> tự đổi trạng thái tương ứng (1–3 đang làm hồ sơ, 4 đã đề nghị/hoá đơn, 5 chờ CĐT trả, 6 đã thanh toán) */
+function ttGoiYBuoc(){
+  const b = +$('tt-buoc').value; $('tt-lt-xem').innerHTML = b ? ttLuuTrinh(b) : '';
+  if (!b) return;
+  $('tt-tt').value = b <= 3 ? 'DANG_LAM_HO_SO' : b === 4 ? 'DA_DE_NGHI' : b === 5 ? 'CHO_CDT' : 'DA_THANH_TOAN'; ttGoiY();
+}
 /* Chọn trạng thái -> gợi ý điền số/ngày tương ứng nếu đang trống */
 function ttGoiY(){
   const tt = $('tt-tt').value, hn = new Date().toISOString().slice(0, 10);
   if (['DA_DE_NGHI','CHO_CDT','DA_THANH_TOAN'].includes(tt)){ if (!soTien($('tt-gtdn').value)) $('tt-gtdn').value = $('tt-gtkh').value; if (!$('tt-ndn').value) $('tt-ndn').value = hn; }
-  if (tt === 'DA_THANH_TOAN'){ if (!soTien($('tt-gtn').value)) $('tt-gtn').value = $('tt-gtdn').value || $('tt-gtkh').value; if (!$('tt-nn').value) $('tt-nn').value = hn; }
+  if (tt === 'DA_THANH_TOAN'){ if (!soTien($('tt-gtn').value)) $('tt-gtn').value = $('tt-gtdn').value || $('tt-gtkh').value; if (!$('tt-nn').value) $('tt-nn').value = hn; $('tt-buoc').value = '6'; $('tt-lt-xem').innerHTML = ttLuuTrinh(6); }
+  if (tt === 'CHUA_DEN_HAN' || tt === 'TAM_HOAN'){ $('tt-buoc').value = '0'; $('tt-lt-xem').innerHTML = ''; }
 }
 async function ttLuu(id){
   const maDA = daHienTai();
   const d = {maDA, id, goi:$('tt-goi').value.trim(), giaTriGoi:soTien($('tt-gtg').value), dot:$('tt-dot').value.trim(), noiDung:$('tt-nd').value.trim(),
     tyLe:parseFloat(String($('tt-tl').value).replace(',', '.')) || '', giaTriKH:soTien($('tt-gtkh').value), ngayKH:$('tt-nkh').value,
     giaTriDeNghi:soTien($('tt-gtdn').value), ngayDeNghi:$('tt-ndn').value, hanTT:$('tt-han').value, giaTriNhan:soTien($('tt-gtn').value), ngayNhan:$('tt-nn').value,
-    trangThai:$('tt-tt').value, ghiChu:$('tt-gc').value.trim()};
+    trangThai:$('tt-tt').value, ghiChu:$('tt-gc').value.trim(), buocHS:+$('tt-buoc').value || 0};
   if (!d.goi){ toast('Thiếu tên gói'); return; }
   if (!d.dot){ toast('Thiếu số đợt'); return; }
   if (d.trangThai === 'DA_THANH_TOAN' && !d.giaTriNhan){ toast('Đã thanh toán thì phải ghi số tiền đã nhận'); return; }
