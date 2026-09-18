@@ -727,7 +727,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.1';
+const APP_VERSION = '3.10.2';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2659,14 +2659,17 @@ function tt48(x){
 }
 function theBaoNCC(x){
   const t = tt48(x); if (!t) return '';
-  const quyen = ['QS','CHT_DUYET','ADMIN'].includes(S.user.vaiTro);
+  const quyen = ['KT_NHAP','QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);      // 3.10.2: CBKT + QS cũng được báo NCC
+  const quyenKQ = ['QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);
   return `<div style="border-top:1px solid var(--line);margin-top:9px;padding-top:9px">
     <div class="tq-line"><span>Thông báo nhà cung cấp</span><b style="color:${t.mau}">${t.nhan}</b></div>
+    ${x.daBao && x.hinhThuc ? `<div class="meta">${x.hinhThuc}${x.nguoiBao ? ' · ' + x.nguoiBao : ''}</div>` : ''}
     ${x.ketQua ? `<div class="meta">Kết quả: ${x.ketQua}${x.klChot ? ' · chốt lại ' + num(x.klChot) + ' m³' : ''}</div>` : ''}
     ${(!x.daBao && quyen) ? `<div class="acts">
       <button class="small ok" onclick="ghiBao('${x.id}','Điện thoại')">Đã gọi NCC</button>
-      <button class="small ok" onclick="ghiBao('${x.id}','Văn bản/Zalo')">Đã gửi văn bản</button></div>` : ''}
-    ${(x.daBao && quyen && !x.ketQua) ? `<div class="acts">
+      <button class="small ok" onclick="soanVanBanNCC('${x.id}')">Soạn & gửi văn bản</button></div>` : ''}
+    ${(x.daBao && quyen && x.hinhThuc && x.hinhThuc.indexOf('Văn bản') < 0) ? `<div class="acts"><button class="small" onclick="soanVanBanNCC('${x.id}')">Gửi thêm văn bản</button></div>` : ''}
+    ${(x.daBao && quyenKQ && !x.ketQua) ? `<div class="acts">
       <button class="small" onclick="ghiKetQua('${x.id}')">Ghi kết quả giải trình</button></div>` : ''}
   </div>`;
 }
@@ -2674,10 +2677,62 @@ async function ghiBao(id, hinhThuc){
   const nd = prompt('Nội dung đã thông báo nhà cung cấp (người nhận, tóm tắt):', '');
   if (nd === null) return;
   const x = S.doBT.find(v => v.id === id);
-  if (x) { x.daBao = new Date().toISOString(); x.hinhThuc = hinhThuc; renderBeTong(); }
+  if (x) { x.daBao = new Date().toISOString(); x.hinhThuc = hinhThuc; x.nguoiBao = S.user.hoTen; renderBeTong(); }
   toast('Đã ghi nhận thông báo NCC');
   try { await api('baoNCC', {id, hinhThuc, noiDung:nd}, 30); }
   catch(e){ if (x) { x.daBao = ''; renderBeTong(); } toast('Chưa gửi được: ' + e.message); }
+}
+/* 3.10.2: soạn văn bản thông báo hao hụt ngay trên app -> sao chép / chia sẻ Zalo -> ghi nhận đã gửi */
+function soanVanBanNCC(id){
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  const da = S.duan.find(d => d.maDA === x.maDA) || {};
+  const ncc = (S.ncc || []).find(n => n.maDA === x.maDA && n.tenNCC && x.ncc && (String(n.tenNCC).toLowerCase().indexOf(String(x.ncc).toLowerCase()) > -1 || String(x.ncc).toLowerCase().indexOf(String(n.tenNCC).toLowerCase()) > -1));
+  const haoHut = Math.round(x.lech * 100) / 100, pct = x.klKH ? Math.round(x.lech / x.klKH * 1000) / 10 : 0;
+  const han = x.hanBao ? new Date(x.hanBao) : null, hn = new Date();
+  const phanHoi = new Date(hn.getTime() + 2 * 86400000).toLocaleDateString('vi-VN');
+  const vb = `CÔNG TY CỔ PHẦN LICOGI13FC
+BAN CHỈ HUY DỰ ÁN ${(da.tenDA || x.maDA).toUpperCase()}
+
+THÔNG BÁO CHÊNH LỆCH KHỐI LƯỢNG BÊ TÔNG THƯƠNG PHẨM
+
+Kính gửi: ${x.ncc || 'Nhà cung cấp bê tông'}${ncc && ncc.nguoiLienHe ? ' — ' + ncc.nguoiLienHe : ''}${ncc && ncc.dienThoai ? ' (' + ncc.dienThoai + ')' : ''}
+
+Mẻ đổ ngày ${x.ngayDo}${x.maPhieu ? ' · Phiếu ' + x.maPhieu : ''} · ${[x.khoi, x.cauKien].filter(String).join(' · ')}${x.macBT ? ' · Mác ' + x.macBT : ''}
+- Khối lượng QS tính theo bản vẽ: ${num(x.klKH)} m³
+- Khối lượng thực tế theo phiếu xe: ${num(x.klTT)} m³${x.soXe ? ' (' + x.soXe + ' xe)' : ''}${x.klBom ? ' · bơm ' + num(x.klBom) + ' m³' : ''}
+- Chênh lệch: +${num(haoHut)} m³ (${pct}%) — đổ nhiều hơn khối lượng thiết kế
+${x.nguyenNhan || x.lyDo ? '- Nguyên nhân sơ bộ tại hiện trường: ' + [x.nguyenNhan, x.lyDo].filter(String).join(' — ') + '\n' : ''}
+Căn cứ thỏa thuận về thông báo chênh lệch khối lượng trong 48 giờ kể từ khi đổ${han ? ' (hạn: ' + han.toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) + ')' : ''}, Ban chỉ huy thông báo để Quý công ty:
+1. Kiểm tra lại phiếu xuất trạm, khối lượng từng xe và số xe thực giao của mẻ đổ trên.
+2. Phản hồi bằng văn bản trước ngày ${phanHoi} để hai bên chốt khối lượng nghiệm thu thanh toán.
+Phần khối lượng chênh lệch chưa được hai bên xác nhận sẽ không được nghiệm thu thanh toán.
+
+Người thông báo: ${S.user.hoTen} · ${vaiTro(S.user.vaiTro)} · ${hn.toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})}
+(Kèm ảnh phiếu xe / biên bản chốt khối lượng trong app BÁO CÁO CÔNG VIỆC BCH)`;
+  const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'bc-modal';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:16px';
+  div.innerHTML = `<div style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:88vh;display:flex;flex-direction:column;padding:14px">
+      <div style="font-weight:800;color:var(--brand);margin-bottom:4px">VĂN BẢN THÔNG BÁO NCC</div>
+      <div class="hint" style="margin:0 0 8px">Sửa nội dung nếu cần → Sao chép hoặc Chia sẻ (Zalo/Email) cho NCC → bấm "Đã gửi" để hệ thống ghi nhận giờ thông báo.</div>
+      <textarea id="bc-text" style="flex:1;min-height:260px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:13px;line-height:1.45;white-space:pre-wrap">${vb.replace(/</g, '&lt;')}</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="small" onclick="saoChepBC()">Sao chép</button>
+        <button class="small" onclick="chiaSeBC()">Chia sẻ Zalo/Email</button>
+        ${ncc && ncc.dienThoai ? `<a class="small" href="tel:${ncc.dienThoai}" style="text-decoration:none;display:inline-block">Gọi ${ncc.dienThoai}</a>` : ''}
+        <button class="small ok" style="background:var(--ok);color:#fff;flex:1" onclick="ghiBaoVB('${x.id}')">✓ Đã gửi cho NCC</button>
+        <button class="small" onclick="document.getElementById('bc-modal').remove()">Đóng</button>
+      </div></div>`;
+  document.body.appendChild(div);
+}
+async function ghiBaoVB(id){
+  const nd = document.getElementById('bc-text').value;
+  const x = S.doBT.find(v => v.id === id);
+  if (x) { x.daBao = new Date().toISOString(); x.hinhThuc = 'Văn bản (app)'; x.nguoiBao = S.user.hoTen; renderBeTong(); }
+  const m = document.getElementById('bc-modal'); if (m) m.remove();
+  toast('Đã ghi nhận gửi văn bản cho NCC');
+  try { await api('baoNCC', {id, hinhThuc:'Văn bản (app)', noiDung:nd}, 30); }
+  catch(e){ if (x) { x.daBao = ''; x.hinhThuc = ''; renderBeTong(); } toast('Chưa gửi được: ' + e.message, 4000); }
 }
 async function ghiKetQua(id){
   const kq = prompt('Kết quả làm việc với NCC (VD: NCC thừa nhận thiếu 1,5 m³, trừ vào đợt sau):', '');
