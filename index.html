@@ -287,6 +287,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .ai-msg.a{background:#fff;color:#222;border:1px solid #F1E0E3;border-bottom-left-radius:4px}
 .ai-msg.a .src{display:block;font-size:11px;color:#999;margin-top:6px}
 .kpi-thang{display:flex;align-items:center;justify-content:center;gap:14px;margin:2px 0 10px}
+.kpi-lich{font-size:12px;line-height:1.45;border-radius:7px;padding:8px 10px;margin:-4px 0 10px}.kpi-lich.khoa{background:#FFF1F0;border:1.5px solid var(--alert);color:#7A1A12}.kpi-lich.mo{background:#E4F3EA;border:1.5px solid var(--ok);color:#0F5C37}
 .kpi-thang button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:20px;line-height:1;color:var(--brand)}
 .kpi-thang b{font-size:15px}
 .kpi-head{display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff}
@@ -727,7 +728,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.2';
+const APP_VERSION = '3.10.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1158,7 +1159,7 @@ function renderHome(){
     else if (cuoi) kpi = `<div class="home-kpi"><div class="so" style="color:${kpiDiemMau(cuoi.tongDiem)}">${cuoi.tongDiem}<small>${thangNhan(cuoi.thang)}</small></div>
         <div class="kl">${escK(kpiKetLuanNhan(cuoi.tongDiem))}<span>${KPI_TT[cuoi.trangThai] || ''}${k.goi && k.goi.phieu && k.goi.phieu.thang !== cuoi.thang ? ' · ' + thangNhan(k.goi.phieu.thang) + ': ' + (KPI_TT[k.goi.phieu.trangThai] || '').toLowerCase() : ''}</span></div></div>`
         + (ls.length >= 2 ? veKpiLine(ls) : '');
-    else kpi = `<div class="hint">Chưa có tháng nào được chấm. ${k.goi && k.goi.quyen && k.goi.quyen.tuCham ? 'Bạn có thể <b>tự chấm</b> tháng này trong mục KPI.' : 'Phiếu tháng này: ' + (KPI_TT[((k.goi || {}).phieu || {}).trangThai] || 'chưa tạo').toLowerCase() + '.'}</div>`;
+    else kpi = `<div class="hint">Chưa có tháng nào được chấm. ${k.goi && k.goi.quyen && k.goi.quyen.tuCham ? 'Bạn có thể <b>tự chấm</b> ' + thangNhan(k.thang || kpiThangMacDinh()) + ' trong mục KPI (lịch chấm 01–03 tháng sau).' : 'Phiếu ' + thangNhan(k.thang || kpiThangMacDinh()) + ': ' + (KPI_TT[((k.goi || {}).phieu || {}).trangThai] || 'chưa tạo').toLowerCase() + '.'}</div>`;
   } else kpi = `<div class="hint">${navigator.onLine ? 'Đang tải KPI…' : 'Mở KPI khi có mạng để xem điểm.'}</div>`;
   box.innerHTML = `<div class="home">
     <div class="home-hi"><div class="t">${ch.nhan}, ${new Date().toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit'})}</div>
@@ -1207,13 +1208,13 @@ let kpiNhaDangTai = false;
 async function taiKpiNha(){
   if (!S.user || kpiNhaDangTai) return;
   kpiKhoiTao();
-  if (S.kpi.cuaToi && S.kpi.thang === thangLocal(new Date())){ S.kpiNha = S.kpi.cuaToi; renderHome(); return; }
+  if (S.kpi.cuaToi && S.kpi.thang === kpiThangMacDinh()){ S.kpiNha = S.kpi.cuaToi; renderHome(); return; }
   if (!S.kpiNha){ const dem = await Store.get('home-kpi'); if (dem && dem.email === S.user.email){ S.kpiNha = dem.kpi; S.kpiNhaLuc = +dem.luc || 0; renderHome(); } }
   if (!navigator.onLine) return;
   if (S.kpiNhaLuc && Date.now() - S.kpiNhaLuc < 2 * 3600000) return;   // 3.8.4: đệm KPI < 2 giờ → không gọi máy chủ (mở màn KPI vẫn tải mới)
   kpiNhaDangTai = true;
   try {
-    const r = await api('kpiCuaToi', {thang: thangLocal(new Date())}, 60);
+    const r = await api('kpiCuaToi', {thang: kpiThangMacDinh()}, 60);   // 3.10.3: thẻ KPI trang chủ = tháng trước
     S.kpiNha = r; if (S.kpi.thang === r.thang) S.kpi.cuaToi = r;      // dùng lại khi mở màn KPI
     S.kpiNhaLuc = Date.now(); await Store.set('home-kpi', {email:S.user.email, kpi:r, luc:S.kpiNhaLuc});
     renderHome();
@@ -3014,7 +3015,21 @@ const VE = {'s-tt':renderTinTuc,'s-tq':renderTongQuan,'s-dt':renderDoiTac,'s-td'
 /* ---------- H. KPI HÀNG THÁNG (3.7.0) ---------- */
 const thangLocal = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 const ngayLocal = d => thangLocal(d) + '-' + String(d.getDate()).padStart(2, '0');
-function kpiKhoiTao(){ if (!S.kpi) S.kpi = {thang: thangLocal(new Date()), cuaToi:null, ds:{}, phieu:null, vp:null, th:null, ban:null, banDA:'', dang:false}; }
+/* 3.10.3: KPI mở mặc định THÁNG TRƯỚC; lịch: chấm tháng M từ 01–03 tháng M+1, duyệt 03–05 tháng M+1; chưa đến ngày thì khoá */
+const kpiThangMacDinh = () => { const d = new Date(); return thangLocal(new Date(d.getFullYear(), d.getMonth() - 1, 1)); };
+function kpiLich(thang){
+  const [y, m] = String(thang).split('-').map(Number); const moCham = new Date(y, m, 1), moDuyet = new Date(y, m, 3), hetDuyet = new Date(y, m, 6), now = new Date();
+  const f = d => String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0');
+  return {cham: now >= moCham, duyet: now >= moDuyet, tre: now >= hetDuyet, moCham:f(moCham), moDuyet:f(moDuyet), hetCham:f(new Date(y, m, 3)), hetDuyet:f(new Date(y, m, 5))};
+}
+function kpiBangLich(){
+  const l = kpiLich(S.kpi.thang);
+  if (!l.cham) return `<div class="kpi-lich khoa">🔒 <b>Chưa đến lịch chấm KPI ${thangNhan(S.kpi.thang)}</b><br>Chấm: ${l.moCham}–${l.hetCham} · Duyệt: ${l.moDuyet}–${l.hetDuyet}. Tháng này chỉ xem, không chấm được — tránh chấm nhầm.</div>`;
+  if (!l.duyet) return `<div class="kpi-lich mo">🟢 Đang trong lịch <b>CHẤM</b> KPI ${thangNhan(S.kpi.thang)} (${l.moCham}–${l.hetCham}) · duyệt từ ${l.moDuyet}</div>`;
+  if (!l.tre) return `<div class="kpi-lich mo">🟢 Đang trong lịch <b>DUYỆT</b> KPI ${thangNhan(S.kpi.thang)} (${l.moDuyet}–${l.hetDuyet})</div>`;
+  return '';
+}
+function kpiKhoiTao(){ if (!S.kpi) S.kpi = {thang: kpiThangMacDinh(), cuaToi:null, ds:{}, phieu:null, vp:null, th:null, ban:null, banDA:'', dang:false}; }
 kpiKhoiTao();
 const KPI_TT = {CHUA_TAO:'Chưa tạo', NHAP:'Chưa chấm', TU_CHAM:'Đã tự chấm', CHO_DUYET:'Chờ duyệt', DA_DUYET:'Đã duyệt', TRA_LAI:'Trả lại'};
 const KPI_MAU = {CHUA_TAO:'#888', NHAP:'#888', TU_CHAM:'#1A5C96', CHO_DUYET:'#B8860B', DA_DUYET:'#1E7B34', TRA_LAI:'#C00000'};
@@ -3022,7 +3037,7 @@ const escK = t => String(t ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 const thangNhan = t => t ? 'Tháng ' + t.slice(5,7) + '/' + t.slice(0,4) : '';
 function kpiDoiThang(n){ const [y,m] = S.kpi.thang.split('-').map(Number); const d = new Date(y, m - 1 + n, 1);
   S.kpi.thang = thangLocal(d); S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; S.kpi.vp = null; S.kpi.th = null; S.kpi.ban = null; renderKPI(); }
-function kpiThanhThang(){ return `<div class="kpi-thang"><button onclick="kpiDoiThang(-1)">‹</button><b>${thangNhan(S.kpi.thang)}</b><button onclick="kpiDoiThang(1)">›</button></div>`; }
+function kpiThanhThang(){ return `<div class="kpi-thang"><button onclick="kpiDoiThang(-1)">‹</button><b>${thangNhan(S.kpi.thang)}</b><button onclick="kpiDoiThang(1)">›</button></div>` + kpiBangLich(); }
 function kpiTag(tt){ return `<span class="kpi-tag" style="background:${KPI_MAU[tt] || '#888'}">${KPI_TT[tt] || tt}</span>`; }
 function kpiDiemMau(d){ return d == null ? '#888' : d >= 85 ? '#1E7B34' : d >= 70 ? '#B8860B' : '#C00000'; }
 
@@ -3127,6 +3142,7 @@ function kpiThuDiem(){
 }
 async function kpiGui(che, email, thang){
   if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
+  { const l = kpiLich(thang); if (!l.cham) return toast('Chưa đến lịch chấm KPI ' + thangNhan(thang) + ' — chấm từ ' + l.moCham + ' đến ' + l.hetCham, 4000); }
   const diem = kpiThuDiem();
   if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct != null && x.pct < 100 && !x.dienGiai);
     if (thieu.length) return toast('Tiêu chí dưới 100% phải có diễn giải: ' + thieu.map(x => x.maTC).join(', '), 4000);
@@ -3143,6 +3159,7 @@ async function kpiGuiYKien(email, thang){
   catch(e){ toast(e.message, 4000); }
 }
 async function kpiDuyet(kq, email, thang){
+  { const l = kpiLich(thang); if (!l.duyet) return toast('Chưa đến lịch duyệt KPI ' + thangNhan(thang) + ' — duyệt từ ' + l.moDuyet + ' đến ' + l.hetDuyet, 4000); }
   let lyDo = '';
   if (kq === 'TRA_LAI'){ lyDo = (prompt('Lý do trả lại phiếu:') || '').trim(); if (!lyDo) return; }
   else if (!confirm('Duyệt và khoá phiếu KPI ' + thangNhan(thang) + '?')) return;
@@ -3307,6 +3324,7 @@ async function renderKpiBan(){
 }
 async function kpiBanGui(che, maDA, thang){
   if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
+  { const l = kpiLich(thang); if (!l.cham) return toast('Chưa đến lịch chấm KPI Ban ' + thangNhan(thang) + ' — chấm từ ' + l.moCham, 4000); }
   const ds = kbDoc(); const t = kbTinh(ds);
   if (che === 'GUI_DUYET'){ const thieu = ds.filter(x => x.ht == null).map(x => x.ma);
     if (thieu.length) return toast('Chưa đủ KH/TH ở tiêu chí: ' + thieu.join(', '), 4000);
@@ -3319,6 +3337,7 @@ async function kpiBanGui(che, maDA, thang){
   S.kpi.dang = false;
 }
 async function kpiBanDuyet(kq, maDA, thang){
+  { const l = kpiLich(thang); if (!l.duyet) return toast('Chưa đến lịch duyệt KPI Ban ' + thangNhan(thang) + ' — duyệt từ ' + l.moDuyet, 4000); }
   let lyDo = '';
   if (kq === 'TRA_LAI'){ lyDo = (prompt('Lý do trả lại phiếu KPI Ban:') || '').trim(); if (!lyDo) return; }
   else if (!confirm('Duyệt KPI Ban ' + maDA + ' ' + thangNhan(thang) + '? Kết quả sẽ áp vào mục I phiếu KPI cá nhân chưa khoá của dự án.')) return;
