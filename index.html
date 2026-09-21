@@ -728,7 +728,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.3';
+const APP_VERSION = '3.10.4';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1297,8 +1297,8 @@ async function napKhu(ma, khu){
       if ((d.items || []).length) { try { await Store.set('khu3:' + k, d); } catch(e){} }
     } catch(e){ toast('Chưa tải được khu: ' + e.message); return false; }
   }
-  const daCo = new Set(S.danhmuc.map(x => x.maDA + '|' + x.phanKhu + '|' + x.maViec));
-  (d.items || []).forEach(x => { if (!daCo.has(x.maDA + '|' + x.phanKhu + '|' + x.maViec)) S.danhmuc.push(x); });
+  const daCo = new Set(S.danhmuc.map(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec)));   // 3.10.4: khoá 4 phần (có zone) — trước thiếu zone nên cùng mã việc khác zone bị bỏ
+  (d.items || []).forEach(x => { if (!daCo.has(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))) S.danhmuc.push(x); });
   Object.keys(d.luyke || {}).forEach(kk => {
     if (S.luyke[kk] === undefined) S.luyke[kk] = d.luyke[kk];
     if (S.luykeGoc && S.luykeGoc[kk] === undefined) S.luykeGoc[kk] = d.luyke[kk];
@@ -2440,7 +2440,7 @@ function tpCards(loc){
         x.ngayKy ? ' · Ký ngày ' + x.ngayKy : ''}</div>
       ${(x.viec && x.viec.length) ? `
         <div class="prow" style="margin-top:10px">
-          <div class="lb"><span>Thực hiện gói thầu · ${x.viec.length} đầu việc${
+          <div class="lb"><span>Thực hiện gói thầu · ${x.soViec || x.viec.length} đầu việc${
             x.theoGiaTri ? ' · ' + (x.giaTriGoi/1e9).toFixed(1) + ' tỷ' : ''}</span>
             <b>${x.pctGoi}%</b></div>
           <div class="track"><i class="${x.pctGoi>=100?'full':''}" style="width:${x.pctGoi}%"></i></div>
