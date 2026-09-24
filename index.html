@@ -181,6 +181,14 @@ button:disabled{opacity:.5}
 .prow{margin-bottom:9px}
 .prow .lb{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
 .prow .lb b{font-family:var(--mono)}
+.prow.tap{cursor:pointer;border-radius:8px;margin:0 -4px 9px;padding:2px 4px}.prow.tap:active{background:#F3F4F6}
+.prow.tap .lb:first-child span::after{content:' ✎';color:#B0B4BC;font-size:11px}
+.sv-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:flex-end;justify-content:center}
+.sv-modal .sv-box{background:#fff;border-radius:18px 18px 0 0;max-width:560px;width:100%;max-height:92vh;overflow:auto;padding:14px 14px 18px}
+.sv-box label{display:block;font-size:12px;color:var(--ink-2);font-weight:700;margin:10px 0 4px}
+.sv-box input,.sv-box select{width:100%;box-sizing:border-box;border:1px solid #D9DCE2;border-radius:10px;padding:10px;font-size:14px;font-family:inherit}
+.sv-box .hai{display:flex;gap:10px}.sv-box .hai>div{flex:1}
+.sv-box .chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px}.sv-box .chk input{width:20px;height:20px;margin:0}
 .track{height:18px;background:#F0F1F3;border:1px solid var(--line);border-radius:3px;overflow:hidden}
 .track i{display:block;height:100%;background:var(--brand)}
 .track i.full{background:var(--ok)}
@@ -728,7 +736,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.4';
+const APP_VERSION = '3.10.5';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1009,6 +1017,8 @@ function applyData(d){
   S.macBT = d.macBT || S.macBT; S.nccBT = d.nccBT || S.nccBT;
   S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
   if (d.quyenTT !== undefined) S.quyenTT = !!d.quyenTT;   // 3.10.0: được xem tab Thanh toán CĐT
+  if (d.quyenSuaDM !== undefined) S.quyenSuaDM = !!d.quyenSuaDM;   // 3.10.5: được sửa đầu việc ở màn Tiến độ
+  S.nhanSuDA = d.nhanSuDA || S.nhanSuDA || [];
   S.troLy = d.troLy || S.troLy || [];        // 3.9.0
   S.svVer = d.svVer || S.svVer || '';
   setTimeout(kiemTraNhac, 800);
@@ -1729,7 +1739,7 @@ function renderProgress(){
           </button>
           ${mo ? `<div class="kh-body">${chiTiet.length ? chiTiet.map(v => {
             const {pct, lk} = pctViec(v);
-            return `<div class="prow"><div class="lb"><span>${v.maViec} · ${v.tenViec}</span><b>${Math.round(pct)}%</b></div>
+            return `<div class="prow tap" data-k="${encodeURIComponent(kViec(v.maDA, v.phanKhu, v.zone, v.maViec))}" onclick="moSuaViec(this.dataset.k)"><div class="lb"><span>${v.maViec} · ${v.tenViec}</span><b>${Math.round(pct)}%</b></div>
               <div class="track"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.round(pct)}%"></i></div>
               <div class="lb" style="font-size:11.5px;margin-top:3px">
                 <span>${num(Math.min(lk, v.klHopDong))}/${num(v.klHopDong)} ${v.donVi || ''}</span>
@@ -1786,7 +1796,7 @@ function renderProgress(){
         <div class="kh-top"><span class="kh-ten">★ VIỆC QUAN TRỌNG</span><b class="kh-pct" style="color:#8A5A00">${qtItems.length}</b><span></span></div>
         <div class="kh-sub"><span>BCH đánh dấu — ưu tiên hoàn thành đúng hạn</span></div></button>
       <div class="kh-body">${qtItems.map(x => { const {pct, lk} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
-        return `<div class="prow"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
+        return `<div class="prow tap" data-k="${encodeURIComponent(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))}" onclick="moSuaViec(this.dataset.k)"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
           <div class="track"><i style="width:${Math.round(pct)}%"></i></div>
           <div class="lb" style="font-size:11.5px;margin-top:3px">
             <span>${[x.phanKhu, x.zone].filter(Boolean).join(' · ')}${x.nguoiPT ? ' · ' + x.nguoiPT : ''}</span>
@@ -1814,7 +1824,7 @@ function renderProgress(){
       ${mo ? `<div class="kh-body">${vs.map(x => {
         const {pct, lk} = pctViec(x);
         const treV = pct < 99.5 && docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
-        return `<div class="prow"><div class="lb"><span>${x.quanTrong && pct < 99.5 ? '<span class="qt">★</span>' : ''}${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
+        return `<div class="prow tap" data-k="${encodeURIComponent(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))}" onclick="moSuaViec(this.dataset.k)"><div class="lb"><span>${x.quanTrong && pct < 99.5 ? '<span class="qt">★</span>' : ''}${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
           <div class="track"><i class="${pct >= 100 ? 'full' : ''}" style="width:${Math.round(pct)}%"></i></div>
           <div class="lb" style="font-size:11.5px;margin-top:3px">
             <span>${x.zone ? x.zone + ' · ' : ''}${num(Math.min(lk, x.klHopDong))}/${num(x.klHopDong)} ${x.donVi || ''}${x.nguoiPT ? ' · ' + x.nguoiPT : ''}</span>
@@ -2255,6 +2265,55 @@ function renderTongQuan(){
         Nếu bỏ trống ô này thì số liệu nhân lực sẽ thiếu.</div></div>`;
   }
   $('tqBody').innerHTML = thanhChonDA('renderTongQuan') + out;
+}
+
+/* ---------- 3.10.5: SỬA ĐẦU VIỆC TỪ MÀN TIẾN ĐỘ — bấm dòng việc → sửa mốc, người phụ trách, tình trạng ---------- */
+const TT_DM = [['', '— Chưa đặt —'], ['CHUA_BAT_DAU', 'Chưa bắt đầu'], ['DANG_THI_CONG', 'Đang thi công'], ['CHAM', 'Chậm'], ['HOAN_THANH', 'Hoàn thành']];
+const escA = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+function moSuaViec(k){
+  k = decodeURIComponent(k || '');
+  const t = S.danhmuc.find(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec) === k); if (!t) return;
+  const {pct, lk} = pctViec(t);
+  const suaDuoc = !!S.quyenSuaDM;
+  const ten = new Set(S.nhanSuDA || []); S.danhmuc.filter(x => x.maDA === t.maDA && x.nguoiPT).forEach(x => ten.add(String(x.nguoiPT).trim()));
+  const cu = document.getElementById('sv-modal'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'sv-modal'; div.className = 'sv-modal';
+  div.onclick = e => { if (e.target === div) div.remove(); };
+  div.innerHTML = `<div class="sv-box">
+    <div style="font-weight:800;color:var(--brand)">${escA(t.maViec)} · ${escA(t.tenViec)}</div>
+    <div style="font-size:12px;color:var(--ink-2);margin-top:3px">${escA([t.phanKhu, t.zone].filter(Boolean).join(' · '))}${t.maTP ? ' · thầu phụ ' + escA(t.maTP) : ''}
+      · ${num(Math.min(lk, t.klHopDong))}/${num(t.klHopDong)} ${escA(t.donVi || '')} (${Math.round(pct)}%)</div>
+    ${suaDuoc ? '' : '<div style="margin-top:8px;font-size:12.5px;color:#8A5A00;background:#FFF6E0;border-radius:8px;padding:7px 9px">Bạn chỉ xem — muốn đổi mốc / người phụ trách / tình trạng hãy báo CHT, CHP hoặc QS.</div>'}
+    <div class="hai"><div><label>Ngày bắt đầu</label><input type="date" id="sv-bd" value="${escA(t.ngayBD || '')}" ${suaDuoc ? '' : 'disabled'}></div>
+      <div><label>Ngày kết thúc (hạn)</label><input type="date" id="sv-kt" value="${escA(t.ngayKT || '')}" ${suaDuoc ? '' : 'disabled'}></div></div>
+    <label>Người phụ trách</label><input id="sv-pt" list="sv-ns" value="${escA(t.nguoiPT || '')}" placeholder="Tên CBKT / tổ đội / thầu phụ" ${suaDuoc ? '' : 'disabled'}>
+    <datalist id="sv-ns">${[...ten].sort().map(n => '<option value="' + escA(n) + '">').join('')}</datalist>
+    <label>Tình trạng</label><select id="sv-tt" ${suaDuoc ? '' : 'disabled'}>${TT_DM.map(o => '<option value="' + o[0] + '"' + (o[0] === (t.tinhTrang || '') ? ' selected' : '') + '>' + o[1] + '</option>').join('')}</select>
+    <div style="font-size:11.5px;color:var(--ink-2);margin-top:4px">Chọn <b>Hoàn thành</b> ⇒ app tính việc này 100% dù lũy kế chưa đủ. Chỉ chọn khi đã nghiệm thu xong.</div>
+    <label class="chk"><input type="checkbox" id="sv-qt" ${t.quanTrong ? 'checked' : ''} ${suaDuoc ? '' : 'disabled'}> ★ Việc quan trọng (ghim đầu màn Tiến độ)</label>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      ${suaDuoc ? '<button class="primary" style="flex:1" onclick="luuSuaViec(\'' + encodeURIComponent(k).replace(/'/g, '%27') + '\')">LƯU THAY ĐỔI</button>' : ''}
+      <button class="ghost" style="flex:${suaDuoc ? '0 0 auto' : '1'};width:auto;padding:0 18px" onclick="document.getElementById('sv-modal').remove()">Đóng</button>
+    </div></div>`;
+  document.body.appendChild(div);
+}
+async function luuSuaViec(k){
+  k = decodeURIComponent(k);
+  const t = S.danhmuc.find(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec) === k); if (!t) return;
+  if (!navigator.onLine){ toast('Cần có mạng để lưu thay đổi'); return; }
+  const bd = $('sv-bd').value, kt = $('sv-kt').value, pt = $('sv-pt').value.trim(), tt = $('sv-tt').value, qt = $('sv-qt').checked;
+  if (bd && kt && kt < bd){ toast('Ngày kết thúc phải sau ngày bắt đầu'); return; }
+  if (tt === 'HOAN_THANH' && t.tinhTrang !== 'HOAN_THANH' && !confirm('Đánh dấu HOÀN THÀNH: app sẽ tính việc này 100%. Tiếp tục?')) return;
+  const nut = document.querySelector('#sv-modal .primary'); if (nut){ nut.disabled = true; nut.textContent = 'Đang lưu…'; }
+  try {
+    const r = await api('suaDanhMuc', {maDA:t.maDA, phanKhu:t.phanKhu, zone:t.zone, maViec:t.maViec, ngayBD:bd, ngayKT:kt, nguoiPT:pt, tinhTrang:tt, quanTrong:qt}, 45);
+    t.ngayBD = r.ngayBD; t.ngayKT = r.ngayKT; t.nguoiPT = r.nguoiPT; t.tinhTrang = r.tinhTrang; t.quanTrong = r.quanTrong;
+    try { const c = await Store.get('cache'); if (c && c.danhmuc){ const i = c.danhmuc.findIndex(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec) === k); if (i > -1) c.danhmuc[i] = Object.assign({}, c.danhmuc[i], {ngayBD:r.ngayBD, ngayKT:r.ngayKT, nguoiPT:r.nguoiPT, tinhTrang:r.tinhTrang, quanTrong:r.quanTrong}); await Store.set('cache', c); } } catch(e){}
+    try { const kk = 'khu3:' + t.maDA + '|' + chuanKhu(t.phanKhu); const d = await Store.get(kk); if (d && d.items){ const i = d.items.findIndex(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec) === k); if (i > -1){ d.items[i] = Object.assign({}, d.items[i], {ngayBD:r.ngayBD, ngayKT:r.ngayKT, nguoiPT:r.nguoiPT, tinhTrang:r.tinhTrang, quanTrong:r.quanTrong}); await Store.set(kk, d); } } } catch(e){}
+    const m = document.getElementById('sv-modal'); if (m) m.remove();
+    toast(r.soThayDoi ? 'Đã lưu vào sheet DANH_MỤC (' + r.soThayDoi + ' thay đổi)' : 'Không có gì thay đổi');
+    renderProgress();
+  } catch(e){ toast('Chưa lưu được: ' + e.message, 3500); if (nut){ nut.disabled = false; nut.textContent = 'LƯU THAY ĐỔI'; } }
 }
 
 /* ---------- B2. THANH TOÁN VỚI CHỦ ĐẦU TƯ (3.10.0 · 3.10.1 gập gói + lưu trình hồ sơ) — chỉ CHT / CHP / Quản trị (S.quyenTT do máy chủ quyết) ---------- */
