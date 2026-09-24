@@ -736,7 +736,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.6';
+const APP_VERSION = '3.10.7';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1018,6 +1018,7 @@ function applyData(d){
   S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
   if (d.quyenTT !== undefined) S.quyenTT = !!d.quyenTT;   // 3.10.0: được xem tab Thanh toán CĐT
   if (d.quyenSuaDM !== undefined) S.quyenSuaDM = !!d.quyenSuaDM;   // 3.10.5: được sửa đầu việc ở màn Tiến độ
+  if (d.chuHeThong !== undefined) S.chuHeThong = !!d.chuHeThong;   // 3.10.7: chỉ chủ hệ thống sửa việc ★
   S.nhanSuDA = d.nhanSuDA || S.nhanSuDA || [];
   S.troLy = d.troLy || S.troLy || [];        // 3.9.0
   S.svVer = d.svVer || S.svVer || '';
@@ -1700,11 +1701,9 @@ function tuanNay(){
 }
 /* 3.10.6: % của một nhóm việc (khu / cả dự án). Chỉ cân theo GIÁ TRỊ khi MỌI việc trong nhóm có giá trị;
    còn thiếu giá trị (BOQ chưa tách) thì mỗi việc 1 phiếu — việc đã xong = 100%, việc chưa xong = % lũy kế. */
-function pctNhom(vs){
-  if (!vs.length) return {p:0, theo:'số việc'};
-  const duGia = vs.every(x => x.giaTri > 0);
-  if (duGia){ const W = vs.reduce((s,x) => s + x.giaTri, 0); return {p: vs.reduce((s,x) => s + x.giaTri * pctViec(x).pct, 0) / W, theo:'giá trị'}; }
-  return {p: vs.reduce((s,x) => s + pctViec(x).pct, 0) / vs.length, theo:'số việc'};
+function pctNhom(vs){                                                     // 3.10.7: Tuyến chốt — % khu = TRUNG BÌNH % các việc trong khu (mỗi việc 1 phiếu)
+  if (!vs.length) return {p:0, theo:'trung bình việc'};
+  return {p: vs.reduce((s,x) => s + pctViec(x).pct, 0) / vs.length, theo:'trung bình việc'};
 }
 function pctViec(t){
   const lk = S.luyke[kViec(t.maDA, t.phanKhu, t.zone, t.maViec)] || 0;
@@ -1724,12 +1723,9 @@ function renderProgress(){
     const ts = S.tomTatKhu.filter(x => x.maDA === ma);
     if (ts.length){
       const gia = ts.reduce((s,x) => s + x.giaTri, 0);
-      const duGiaDA = ts.every(x => x.duGia !== false && x.giaTri > 0);      // 3.10.6: mọi khu đủ giá trị mới cân theo giá trị
-      const pKhu = x => x.pctTB != null && !(x.duGia && x.giaTri > 0) ? x.pctTB : (x.giaTri > 0 ? x.giaTriXong / x.giaTri * 100 : (x.klTong ? x.klXong / x.klTong * 100 : 0));
-      const tong = duGiaDA && gia > 0
-        ? ts.reduce((s,x) => s + x.giaTriXong, 0) / gia * 100
-        : (ts.reduce((s,x) => s + x.soViec, 0) ? ts.reduce((s,x) => s + pKhu(x) * x.soViec, 0) / ts.reduce((s,x) => s + x.soViec, 0) : 0);
-      $('k-pct-l').textContent = 'Hoàn thành (theo ' + (duGiaDA ? 'giá trị' : 'số việc') + ')';
+      const pKhu = x => x.pctTB != null ? x.pctTB : (x.giaTri > 0 ? x.giaTriXong / x.giaTri * 100 : (x.klTong ? x.klXong / x.klTong * 100 : 0));   // 3.10.7: trung bình % việc (máy chủ pctTB)
+      const tong = ts.reduce((s,x) => s + x.soViec, 0) ? ts.reduce((s,x) => s + pKhu(x) * x.soViec, 0) / ts.reduce((s,x) => s + x.soViec, 0) : 0;
+      $('k-pct-l').textContent = 'Hoàn thành (trung bình việc)';
       $('k-pct').textContent = Math.round(tong) + '%';
       $('k-wait-l').textContent = 'Bản ghi chờ duyệt';
       $('k-wait').textContent = S.logs.filter(r => r.trangThai === 'CHO_DUYET').length;
@@ -2282,7 +2278,9 @@ function moSuaViec(k){
   k = decodeURIComponent(k || '');
   const t = S.danhmuc.find(x => kViec(x.maDA, x.phanKhu, x.zone, x.maViec) === k); if (!t) return;
   const {pct, lk} = pctViec(t);
-  const suaDuoc = !!S.quyenSuaDM;
+  const chu = !!S.chuHeThong;
+  const suaDuoc = !!S.quyenSuaDM && (!t.quanTrong || chu);                 // 3.10.7: việc ★ chỉ chủ hệ thống sửa
+  const lyDo = t.quanTrong && !chu ? 'Việc ★ QUAN TRỌNG — chỉ Quản trị hệ thống mới sửa được mốc / người phụ trách / tình trạng.' : 'Bạn chỉ xem — muốn đổi mốc / người phụ trách / tình trạng hãy báo CHT, CHP hoặc QS.';
   const ten = new Set(S.nhanSuDA || []); S.danhmuc.filter(x => x.maDA === t.maDA && x.nguoiPT).forEach(x => ten.add(String(x.nguoiPT).trim()));
   const cu = document.getElementById('sv-modal'); if (cu) cu.remove();
   const div = document.createElement('div'); div.id = 'sv-modal'; div.className = 'sv-modal';
@@ -2291,14 +2289,14 @@ function moSuaViec(k){
     <div style="font-weight:800;color:var(--brand)">${escA(t.maViec)} · ${escA(t.tenViec)}</div>
     <div style="font-size:12px;color:var(--ink-2);margin-top:3px">${escA([t.phanKhu, t.zone].filter(Boolean).join(' · '))}${t.maTP ? ' · thầu phụ ' + escA(t.maTP) : ''}
       · ${num(Math.min(lk, t.klHopDong))}/${num(t.klHopDong)} ${escA(t.donVi || '')} (${Math.round(pct)}%)</div>
-    ${suaDuoc ? '' : '<div style="margin-top:8px;font-size:12.5px;color:#8A5A00;background:#FFF6E0;border-radius:8px;padding:7px 9px">Bạn chỉ xem — muốn đổi mốc / người phụ trách / tình trạng hãy báo CHT, CHP hoặc QS.</div>'}
+    ${suaDuoc ? '' : '<div style="margin-top:8px;font-size:12.5px;color:#8A5A00;background:#FFF6E0;border-radius:8px;padding:7px 9px">' + lyDo + '</div>'}
     <div class="hai"><div><label>Ngày bắt đầu</label><input type="date" id="sv-bd" value="${escA(t.ngayBD || '')}" ${suaDuoc ? '' : 'disabled'}></div>
       <div><label>Ngày kết thúc (hạn)</label><input type="date" id="sv-kt" value="${escA(t.ngayKT || '')}" ${suaDuoc ? '' : 'disabled'}></div></div>
     <label>Người phụ trách</label><input id="sv-pt" list="sv-ns" value="${escA(t.nguoiPT || '')}" placeholder="Tên CBKT / tổ đội / thầu phụ" ${suaDuoc ? '' : 'disabled'}>
     <datalist id="sv-ns">${[...ten].sort().map(n => '<option value="' + escA(n) + '">').join('')}</datalist>
     <label>Tình trạng</label><select id="sv-tt" ${suaDuoc ? '' : 'disabled'}>${TT_DM.map(o => '<option value="' + o[0] + '"' + (o[0] === (t.tinhTrang || '') ? ' selected' : '') + '>' + o[1] + '</option>').join('')}</select>
     <div style="font-size:11.5px;color:var(--ink-2);margin-top:4px">Chọn <b>Hoàn thành</b> ⇒ app tính việc này 100% dù lũy kế chưa đủ. Chỉ chọn khi đã nghiệm thu xong.</div>
-    <label class="chk"><input type="checkbox" id="sv-qt" ${t.quanTrong ? 'checked' : ''} ${suaDuoc ? '' : 'disabled'}> ★ Việc quan trọng (ghim đầu màn Tiến độ)</label>
+    <label class="chk"><input type="checkbox" id="sv-qt" ${t.quanTrong ? 'checked' : ''} ${suaDuoc && chu ? '' : 'disabled'}> ★ Việc quan trọng (ghim đầu màn Tiến độ)${chu ? '' : ' — chỉ Quản trị hệ thống đánh dấu'}</label>
     <div style="display:flex;gap:8px;margin-top:16px">
       ${suaDuoc ? '<button class="primary" style="flex:1" onclick="luuSuaViec(\'' + encodeURIComponent(k).replace(/'/g, '%27') + '\')">LƯU THAY ĐỔI</button>' : ''}
       <button class="ghost" style="flex:${suaDuoc ? '0 0 auto' : '1'};width:auto;padding:0 18px" onclick="document.getElementById('sv-modal').remove()">Đóng</button>
