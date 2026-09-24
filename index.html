@@ -736,7 +736,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.5';
+const APP_VERSION = '3.10.6';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1698,6 +1698,14 @@ function tuanNay(){
   const bd = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 86400000);
   return {bd, kt: new Date(bd.getTime() + 6 * 86400000 + 86399000)};
 }
+/* 3.10.6: % của một nhóm việc (khu / cả dự án). Chỉ cân theo GIÁ TRỊ khi MỌI việc trong nhóm có giá trị;
+   còn thiếu giá trị (BOQ chưa tách) thì mỗi việc 1 phiếu — việc đã xong = 100%, việc chưa xong = % lũy kế. */
+function pctNhom(vs){
+  if (!vs.length) return {p:0, theo:'số việc'};
+  const duGia = vs.every(x => x.giaTri > 0);
+  if (duGia){ const W = vs.reduce((s,x) => s + x.giaTri, 0); return {p: vs.reduce((s,x) => s + x.giaTri * pctViec(x).pct, 0) / W, theo:'giá trị'}; }
+  return {p: vs.reduce((s,x) => s + pctViec(x).pct, 0) / vs.length, theo:'số việc'};
+}
 function pctViec(t){
   const lk = S.luyke[kViec(t.maDA, t.phanKhu, t.zone, t.maViec)] || 0;
   let pct = t.klHopDong ? Math.min(100, lk / t.klHopDong * 100) : 0;
@@ -1716,16 +1724,17 @@ function renderProgress(){
     const ts = S.tomTatKhu.filter(x => x.maDA === ma);
     if (ts.length){
       const gia = ts.reduce((s,x) => s + x.giaTri, 0);
-      const tong = gia > 0
+      const duGiaDA = ts.every(x => x.duGia !== false && x.giaTri > 0);      // 3.10.6: mọi khu đủ giá trị mới cân theo giá trị
+      const pKhu = x => x.pctTB != null && !(x.duGia && x.giaTri > 0) ? x.pctTB : (x.giaTri > 0 ? x.giaTriXong / x.giaTri * 100 : (x.klTong ? x.klXong / x.klTong * 100 : 0));
+      const tong = duGiaDA && gia > 0
         ? ts.reduce((s,x) => s + x.giaTriXong, 0) / gia * 100
-        : (ts.reduce((s,x) => s + x.klTong, 0)
-           ? ts.reduce((s,x) => s + x.klXong, 0) / ts.reduce((s,x) => s + x.klTong, 0) * 100 : 0);
-      $('k-pct-l').textContent = 'Hoàn thành (theo giá trị)';
+        : (ts.reduce((s,x) => s + x.soViec, 0) ? ts.reduce((s,x) => s + pKhu(x) * x.soViec, 0) / ts.reduce((s,x) => s + x.soViec, 0) : 0);
+      $('k-pct-l').textContent = 'Hoàn thành (theo ' + (duGiaDA ? 'giá trị' : 'số việc') + ')';
       $('k-pct').textContent = Math.round(tong) + '%';
       $('k-wait-l').textContent = 'Bản ghi chờ duyệt';
       $('k-wait').textContent = S.logs.filter(r => r.trangThai === 'CHO_DUYET').length;
       $('prog').innerHTML = thanhChonDA('renderProgress') + ts.map(x => {
-        const p = x.giaTri > 0 ? x.giaTriXong / x.giaTri * 100 : (x.klTong ? x.klXong / x.klTong * 100 : 0);
+        const p = pKhu(x);                                                   // 3.10.6
         const mo = S.sub['khu_' + x.khu];
         const chiTiet = mo ? S.danhmuc.filter(v => v.maDA === ma && chuanKhu(v.phanKhu) === chuanKhu(x.khu)) : [];
         return `<div class="khu ${p >= 99.5 ? 'xong' : ''}">
@@ -1775,13 +1784,11 @@ function renderProgress(){
   }
 
   /* tổng % theo trọng số giá trị (không có giá trị thì đếm việc) */
-  const coGia = items.some(x => x.giaTri > 0);
-  const W = items.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
-  const tongPct = items.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / W;
+  const {p: tongPct, theo: theoDA} = pctNhom(items);                      // 3.10.6: thiếu giá trị → mỗi việc 1 phiếu, không bỏ việc nào
   const xong = items.filter(x => pctViec(x).pct >= 99.5).length;
   const tre  = items.filter(x => { const d = docNgay(x.ngayKT); return pctViec(x).pct < 99.5 && d && d < nay; }).length;
 
-  $('k-pct-l').textContent = tab === 'Toàn bộ' ? 'Hoàn thành (theo giá trị)' : 'Kế hoạch ' + tab.toLowerCase();
+  $('k-pct-l').textContent = tab === 'Toàn bộ' ? 'Hoàn thành (theo ' + theoDA + ')' : 'Kế hoạch ' + tab.toLowerCase();
   $('k-pct').textContent = Math.round(tongPct) + '%';
   $('k-wait-l').textContent = tab === 'Toàn bộ' ? 'Bản ghi chờ duyệt' : 'Việc xong / trễ hạn';
   $('k-wait').textContent = tab === 'Toàn bộ'
@@ -1792,23 +1799,24 @@ function renderProgress(){
   const qtItems = S.danhmuc.filter(x => x.maDA === ma && x.quanTrong && pctViec(x).pct < 99.5)
     .sort((a, b) => ((docNgay(a.ngayKT) || new Date(2100,0,1)) - (docNgay(b.ngayKT) || new Date(2100,0,1))));
   if (qtItems.length){
-    out += `<div class="khu qtk"><button onclick="void 0" style="cursor:default">
-        <div class="kh-top"><span class="kh-ten">★ VIỆC QUAN TRỌNG</span><b class="kh-pct" style="color:#8A5A00">${qtItems.length}</b><span></span></div>
-        <div class="kh-sub"><span>BCH đánh dấu — ưu tiên hoàn thành đúng hạn</span></div></button>
-      <div class="kh-body">${qtItems.map(x => { const {pct, lk} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
+    const moQT = !!S.sub['khu_★'];                                           // 3.10.6: gập mặc định, bấm mở
+    const treQT = qtItems.filter(x => docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay).length;
+    out += `<div class="khu qtk"><button onclick="moKhu('★')">
+        <div class="kh-top"><span class="kh-ten">★ VIỆC QUAN TRỌNG</span><b class="kh-pct" style="color:#8A5A00">${qtItems.length}</b><span>${moQT ? '▾' : '›'}</span></div>
+        <div class="kh-sub"><span>BCH đánh dấu — ưu tiên hoàn thành đúng hạn${treQT ? ' · <b style="color:var(--alert)">' + treQT + ' trễ hạn</b>' : ''}</span><span>${moQT ? '' : 'Bấm để xem'}</span></div></button>
+      ${moQT ? `<div class="kh-body">${qtItems.map(x => { const {pct, lk} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay;
         return `<div class="prow tap" data-k="${encodeURIComponent(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))}" onclick="moSuaViec(this.dataset.k)"><div class="lb"><span>${x.maViec} · ${x.tenViec}</span><b>${Math.round(pct)}%</b></div>
           <div class="track"><i style="width:${Math.round(pct)}%"></i></div>
           <div class="lb" style="font-size:11.5px;margin-top:3px">
             <span>${[x.phanKhu, x.zone].filter(Boolean).join(' · ')}${x.nguoiPT ? ' · ' + x.nguoiPT : ''}</span>
-            <b style="color:${treV ? 'var(--alert)' : 'var(--ink-2)'}">${x.ngayKT ? (treV ? 'TRỄ · hạn ' : 'Hạn ') + dmy(x.ngayKT) : ''}</b></div></div>`; }).join('')}</div></div>`;
+            <b style="color:${treV ? 'var(--alert)' : 'var(--ink-2)'}">${x.ngayKT ? (treV ? 'TRỄ · hạn ' : 'Hạn ') + dmy(x.ngayKT) : ''}</b></div></div>`; }).join('')}</div>` : ''}</div>`;
   }
   /* nhóm theo khu vực (tòa / tầng / hạng mục) */
   const nhom = {};
   items.forEach(x => (nhom[x.phanKhu] = nhom[x.phanKhu] || []).push(x));
   out += Object.keys(nhom).map(khu => {
     const vs = nhom[khu].slice().sort((a, b) => ((b.quanTrong && pctViec(b).pct < 99.5 ? 1 : 0) - (a.quanTrong && pctViec(a).pct < 99.5 ? 1 : 0)));
-    const w = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1), 0) || 1;
-    const p = vs.reduce((s,x) => s + (coGia ? x.giaTri : 1) * pctViec(x).pct, 0) / w;
+    const p = pctNhom(vs).p;                                               // 3.10.6
     const xg = vs.filter(x => pctViec(x).pct >= 99.5).length;
     const tr = vs.filter(x => { const d = docNgay(x.ngayKT); return pctViec(x).pct < 99.5 && d && d < nay; }).length;
     const mo = S.sub['khu_' + khu];
