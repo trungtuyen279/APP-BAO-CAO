@@ -736,7 +736,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.8';
+const APP_VERSION = '3.10.9';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2723,6 +2723,22 @@ function tt48(x){
   return {nhan:'Còn ' + (con >= 24 ? Math.floor(con/24) + ' ngày ' : '') + Math.floor(con%24) + ' giờ để báo NCC',
           mau: con < 12 ? 'var(--alert)' : 'var(--warn)', con:con};
 }
+/* 3.10.9: mẻ có chênh lệch nhưng CHƯA có nguyên nhân (mẻ cũ mất dữ liệu vì sheet thiếu cột) -> chọn ngay trên thẻ */
+function chonNguyenNhan(x){
+  if (!['KT_NHAP','QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro)) return '';
+  const ds = x.lech > 0 ? NGUYEN_NHAN : NGUYEN_NHAN_DU;
+  return `<div class="tq-line" style="align-items:center"><span style="color:var(--alert)">Nguyên nhân chưa ghi</span>
+    <select onchange="luuNguyenNhan('${x.id}', this)" style="max-width:62%;border:1px solid var(--alert);border-radius:8px;padding:6px;font-size:12.5px;font-family:inherit">
+      <option value="">— Chọn nguyên nhân —</option>${ds.map(n => '<option value="' + n + '">' + n + '</option>').join('')}</select></div>`;
+}
+async function luuNguyenNhan(id, sel){
+  const nn = sel.value; if (!nn) return;
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  if (!navigator.onLine){ toast('Cần có mạng để lưu'); sel.value = ''; return; }
+  sel.disabled = true;
+  try { await api('suaNguyenNhanBT', {id, nguyenNhan: nn}, 30); x.nguyenNhan = nn; toast('Đã ghi nguyên nhân: ' + nn); renderBeTong(); }
+  catch(e){ sel.disabled = false; sel.value = ''; toast('Chưa lưu được: ' + e.message, 4000); }
+}
 /* 3.10.8: hao hụt do TỔ ĐỘI (hoặc tổ đội + NCC) → gọi tổ đội + nhắn tin mời lập biên bản hiện trường */
 const doToDoi = x => x.lech > 0.01 && /tổ đội/i.test(String(x.nguyenNhan || ''));
 function theBaoToDoi(x){
@@ -2935,7 +2951,7 @@ function renderBeTong(){
         <div class="tq-line"><span>Hao hụt</span>
           <b style="color:var(--alert)">−${num(x.lech)} m³ · −${x.pctLech}%</b></div>
         ${x.nguyenNhan ? `<div class="tq-line"><span>Nguyên nhân</span>
-          <b style="color:var(--alert)">${x.nguyenNhan}</b></div>` : ''}
+          <b style="color:var(--alert)">${x.nguyenNhan}</b></div>` : ''}${!x.nguyenNhan && Math.abs(x.lech) > 0.01 ? chonNguyenNhan(x) : ''}
         ${x.lyDo ? `<div class="meta">⚠ ${x.lyDo}</div>` : ''}
         ${theBaoToDoi(x)}${theBaoNCC(x)}
       </div>`;
@@ -2960,7 +2976,7 @@ function renderBeTong(){
           <b style="color:${mau}">${soLech(lechQS(x))} m³ · ${nhan}</b></div>
         <div class="meta">${x.soXe ? x.soXe + ' xe · ' : ''}${x.caBom ? x.caBom + ' ca bơm · ' : ''}${x.klBom ? num(x.klBom) + ' m³ bơm' : ''}</div>
         ${x.nguyenNhan ? `<div class="tq-line"><span>Nguyên nhân</span>
-          <b style="color:${x.nguyenNhan === 'Do nhà cung cấp' ? 'var(--alert)' : x.lech < 0 ? '#1A5C96' : 'var(--warn)'}">${x.nguyenNhan}</b></div>` : ''}
+          <b style="color:${x.nguyenNhan === 'Do nhà cung cấp' ? 'var(--alert)' : x.lech < 0 ? '#1A5C96' : 'var(--warn)'}">${x.nguyenNhan}</b></div>` : ''}${!x.nguyenNhan && Math.abs(x.lech) > 0.01 ? chonNguyenNhan(x) : ''}
         ${x.lyDo ? `<div class="meta">${x.lech > 0 ? '⚠' : 'ℹ'} ${x.lyDo}</div>` : ''}
         <div class="meta">${x.hoTen || ''}</div>
         <span class="badge ${st[0]}">${st[1]}</span>
