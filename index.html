@@ -428,6 +428,33 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .tq-line{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}
 .tq-line:last-child{border-bottom:0}
 .tq-line b{font-family:var(--mono)}
+/* 3.10.10: BIÊN BẢN HIỆN TRƯỜNG in được (A4) */
+#bb-print{position:fixed;inset:0;background:#fff;z-index:120;overflow:auto;-webkit-overflow-scrolling:touch}
+#bb-print .bb-bar{position:sticky;top:0;background:var(--brand);color:#fff;padding:9px 12px;display:flex;gap:8px;align-items:center;z-index:2}
+#bb-print .bb-bar button{border:0;border-radius:8px;padding:8px 12px;font-weight:700;font-family:inherit;font-size:13px}
+.bb-page{width:210mm;max-width:100%;margin:0 auto;padding:12mm 14mm 16mm;box-sizing:border-box;font-family:'Times New Roman',Times,serif;font-size:13pt;line-height:1.35;color:#000;background:#fff}
+.bb-page img.bb-hd{width:100%;display:block;margin-bottom:4px}
+.bb-page .bb-date{text-align:right;font-style:italic;margin:2px 0 8px}
+.bb-page h1{font-size:16pt;text-align:center;color:#C00000;margin:6px 0 2px;letter-spacing:.5px}
+.bb-page .bb-vv{text-align:center;font-style:italic;margin:0 0 10px}
+.bb-page table{border-collapse:collapse;width:100%}
+.bb-page table.bb-da td{padding:2px 4px;vertical-align:top}
+.bb-page table.bb-da td:first-child{font-weight:700;width:26mm;white-space:nowrap}
+.bb-page h3{font-size:13pt;margin:10px 0 3px}
+.bb-page p{margin:2px 0}
+.bb-page .bb-tp{padding-left:6mm}
+.bb-page .bb-tp p{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:600px){.bb-page{padding:12px 12px 20px;font-size:12pt} .bb-page [contenteditable]{min-width:0!important;max-width:100%} .bb-page [contenteditable]:empty{min-width:32mm!important}}
+.bb-page .bb-tp p span:first-child{white-space:nowrap}
+.bb-page .nd p{padding-left:4mm;text-align:justify}
+.bb-page .yk{min-height:22mm;border-bottom:1px dotted #999;margin:0 0 6px}
+.bb-page .bb-ky{margin-top:10px}
+.bb-page .bb-ky td{width:50%;text-align:center;vertical-align:top;padding:6px 4px 0}
+.bb-page .bb-ky b{display:block}.bb-page .bb-ky i{display:block;font-size:11pt}.bb-page .bb-ky .kt{height:22mm}
+.bb-page [contenteditable]{outline:none;border-bottom:1px dotted #B00;min-width:30px;display:inline-block}
+.bb-page .nd [contenteditable],.bb-page .yk[contenteditable]{display:block;border-bottom:0;border-left:3px solid #FFD9D9;padding-left:4px}
+@media print{ body.bb-in>*:not(#bb-print){display:none!important} #bb-print{position:static;overflow:visible} #bb-print .bb-bar{display:none} .bb-page{width:auto;padding:0;font-size:12.5pt}
+  .bb-page [contenteditable]{border:0!important;padding-left:0!important;min-width:0!important;display:inline!important} .bb-page .yk[contenteditable]{display:block!important;min-height:22mm} .bb-page [contenteditable]:empty{display:inline-block!important;min-width:45mm!important;border-bottom:1px dotted #000!important} .bb-page .bb-ky{page-break-inside:avoid} html,body{background:#fff!important} @page{size:A4;margin:14mm 16mm} }
 
 /* ---------- tài khoản ---------- */
 .profile{background:var(--brand);color:#fff;border-radius:8px;padding:16px 14px;text-align:center;margin-bottom:14px}
@@ -544,6 +571,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
         <div class="ph" id="phUp">🖼<br>Tải ảnh</div>
       </div>
       <input type="file" id="fileIn" accept="image/*" capture="environment" hidden>
+      <input type="file" id="fileBB" accept="image/*" capture="environment" multiple hidden>
       <input type="file" id="fileUp" accept="image/*" multiple hidden>
     </div>
 
@@ -736,7 +764,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.9';
+const APP_VERSION = '3.10.10';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2744,6 +2772,13 @@ const doToDoi = x => x.lech > 0.01 && /tổ đội/i.test(String(x.nguyenNhan ||
 function theBaoToDoi(x){
   if (!doToDoi(x)) return '';
   const quyen = ['KT_NHAP','QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);
+  const anhBB = String(x.anhBB || '').split(',').map(s => s.trim()).filter(Boolean);
+  const bbRow = `<div class="tq-line"><span>Biên bản hiện trường</span><b style="color:${x.daKyBB ? 'var(--ok)' : 'var(--warn)'}">${x.daKyBB ? 'Đã ký ' + new Date(x.daKyBB).toLocaleDateString('vi-VN') + (x.nguoiKyBB ? ' · ' + x.nguoiKyBB : '') : 'Chưa lập'}</b></div>
+    ${x.ketLuanBB ? `<div class="meta">Kết luận: ${escA(x.ketLuanBB)}</div>` : ''}
+    ${anhBB.length ? `<div class="meta">Ảnh BB: ${anhBB.map((u, i) => '<a href="' + escA(u) + '" target="_blank" rel="noopener">ảnh ' + (i + 1) + '</a>').join(' · ')}</div>` : ''}
+    ${quyen ? `<div class="acts">
+      <button class="small" onclick="moBienBanHT('${x.id}')">🖨 In biên bản</button>
+      <button class="small ${x.daKyBB ? '' : 'ok'}" onclick="chupBienBan('${x.id}')">${x.daKyBB ? 'Thêm ảnh BB' : '✓ Đã ký BB + ảnh'}</button></div>` : ''}`;
   const da = x.daBaoTD ? 'Đã báo ' + (x.toDoiBao || 'tổ đội') + ' ' + new Date(x.daBaoTD).toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
   return `<div style="border-top:1px solid var(--line);margin-top:9px;padding-top:9px">
     <div class="tq-line"><span>Thông báo tổ đội</span><b style="color:${x.daBaoTD ? 'var(--ok)' : 'var(--alert)'}">${x.daBaoTD ? da : 'CHƯA BÁO — cần lập biên bản hiện trường'}</b></div>
@@ -2751,7 +2786,98 @@ function theBaoToDoi(x){
     ${quyen ? `<div class="acts">
       <button class="small ${x.daBaoTD ? '' : 'ok'}" onclick="soanTinToDoi('${x.id}','goi')">${x.daBaoTD ? 'Gọi lại tổ đội' : 'Gọi tổ đội'}</button>
       <button class="small ${x.daBaoTD ? '' : 'ok'}" onclick="soanTinToDoi('${x.id}','tin')">${x.daBaoTD ? 'Gửi thêm tin nhắn' : 'Soạn tin nhắn BB hiện trường'}</button></div>` : ''}
+    ${bbRow}
   </div>`;
+}
+/* ---------- 3.10.10: BIÊN BẢN HIỆN TRƯỜNG — điền sẵn từ phiếu đổ, sửa trực tiếp, In / Lưu PDF ---------- */
+const DIA_DIEM_DA = {'KTX-WNC':'Lô đất DV02, KCN Kim Bảng I, phường Lê Hồ, tỉnh Ninh Bình, Việt Nam'};   // dự phòng khi DU_AN chưa có cột dia_diem
+function moBienBanHT(id){
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  const da = S.duan.find(d => d.maDA === x.maDA) || {};
+  const ds = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  const to = ds.find(t => x.toDoiBao && (t.tenTo === x.toDoiBao || t.maTo === x.toDoiBao)) || null;
+  const hn = new Date(), p2 = n => String(n).padStart(2, '0');
+  const haoHut = Math.round(x.lech * 100) / 100, pct = x.klKH ? Math.round(x.lech / x.klKH * 1000) / 10 : 0;
+  const E = (v, w) => '<span contenteditable="true" style="min-width:' + (w || 40) + 'mm">' + escA(v || '') + '</span>';
+  const cu = document.getElementById('bb-print'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'bb-print';
+  div.innerHTML = `<div class="bb-bar"><b style="flex:1">BIÊN BẢN HIỆN TRƯỜNG — chạm vào chữ gạch đỏ để sửa</b>
+      <button style="background:#fff;color:var(--brand)" onclick="inBienBan()">🖨 In / Lưu PDF</button>
+      <button style="background:rgba(255,255,255,.2);color:#fff" onclick="dongBienBan()">Đóng</button></div>
+    <div class="bb-page">
+      <img class="bb-hd" src="./icons/bb-header.jpg" alt="LICOGI13FC" onerror="this.style.display='none'">
+      <p class="bb-date">${E('Hà Nam', 22)}, ngày ${E(p2(hn.getDate()), 8)} tháng ${E(p2(hn.getMonth() + 1), 8)} năm ${E(hn.getFullYear(), 12)}</p>
+      <h1>BIÊN BẢN HIỆN TRƯỜNG</h1>
+      <p class="bb-vv">V/v: Hao hụt bê tông mẻ đổ ngày ${escA(dmy(x.ngayDo))}${x.maPhieu ? ' · phiếu ' + escA(x.maPhieu) : ''} — ${escA([x.khoi, x.cauKien].filter(String).join(' · '))}</p>
+      <table class="bb-da"><tr><td>DỰ ÁN:</td><td>${E(String(da.tenDA || x.maDA).toUpperCase(), 120)}</td></tr>
+        <tr><td>ĐỊA ĐIỂM:</td><td>${E((da.diaDiem || DIA_DIEM_DA[x.maDA] || '').toUpperCase(), 120)}</td></tr></table>
+      <h3>1. Thành phần tham gia:</h3>
+      <div class="bb-tp">
+        <p><b>- Đại diện Bên A (Ban chỉ huy công trường LICOGI13FC):</b></p>
+        <p><span>Ông/Bà:</span>${E(S.user.hoTen, 55)}<span>Chức vụ:</span>${E(vaiTro(S.user.vaiTro), 45)}</p>
+        <p><span>Ông/Bà:</span>${E('', 55)}<span>Chức vụ:</span>${E('', 45)}</p>
+        <p><b>- Đại diện Bên B (${E(to ? ((/^(tổ|đội)/i.test(to.tenTo) ? '' : 'Tổ ') + to.tenTo) : 'Tổ đội thi công', 60)}):</b></p>
+        <p><span>Ông/Bà:</span>${E(to ? to.doiTruong : '', 55)}<span>Chức vụ:</span>${E(to ? 'Đội trưởng' : '', 45)}</p>
+        <p><span>Ông/Bà:</span>${E('', 55)}<span>Chức vụ:</span>${E('', 45)}</p>
+      </div>
+      <p style="font-style:italic;margin-top:6px">Hôm nay, vào hồi ${E(p2(hn.getHours()) + ':' + p2(hn.getMinutes()), 14)} ngày ${E(p2(hn.getDate()), 8)} tháng ${E(p2(hn.getMonth() + 1), 8)} năm ${E(hn.getFullYear(), 12)} tại hiện trường ${E([x.khoi, x.cauKien].filter(String).join(' · '), 80)}, các bên cùng tiến hành lập biên bản với các nội dung như sau:</p>
+      <h3>2. Nội dung:</h3>
+      <div class="nd">
+        <p>2.1. Sự việc: <span contenteditable="true">Mẻ đổ bê tông thương phẩm ngày ${escA(dmy(x.ngayDo))}${x.maPhieu ? ', phiếu ' + escA(x.maPhieu) : ''}, hạng mục ${escA([x.khoi, x.cauKien].filter(String).join(' · '))}${x.macBT ? ', mác ' + escA(x.macBT) : ''}${x.ncc ? ', nhà cung cấp ' + escA(x.ncc) : ''}.</span></p>
+        <p>2.2. Khối lượng: <span contenteditable="true">QS tính theo bản vẽ thiết kế ${num(x.klKH)} m³; thực tế đổ theo phiếu xe ${num(x.klTT)} m³${x.soXe ? ' (' + x.soXe + ' xe' + (x.klBom ? ', bơm ' + num(x.klBom) + ' m³' : '') + ')' : ''}; hao hụt ${num(haoHut)} m³, tương đương ${pct}% khối lượng thiết kế.</span></p>
+        <p>2.3. Nguyên nhân ghi nhận tại hiện trường: <span contenteditable="true">${escA([x.nguyenNhan, x.lyDo].filter(String).join(' — ') || '')}</span></p>
+        <p>2.4. Hiện trạng: <span contenteditable="true">Các bên đã kiểm tra thực tế tại vị trí đổ; hiện trạng cốp pha, mạch ngừng và phiếu xe được chụp ảnh lưu trong app BÁO CÁO CÔNG VIỆC BCH kèm phiếu ${escA(x.maPhieu || x.id)}.</span></p>
+        <p>2.5. Kết luận và xử lý: <span contenteditable="true">Các bên thống nhất phần hao hụt ${num(haoHut)} m³ bê tông nêu trên do tổ đội gây ra trong quá trình thi công. Khối lượng này (bê tông + bơm) được đối trừ vào giá trị thanh toán của tổ theo hợp đồng khoán, đơn giá theo hoá đơn nhà cung cấp. Tổ đội cam kết gia cố cốp pha, xử lý mạch ngừng và kiểm tra trước khi đổ cho các mẻ tiếp theo.</span></p>
+      </div>
+      <h3>3. Ý kiến khác:</h3>
+      <div class="yk" contenteditable="true"></div>
+      <p style="text-align:center;font-style:italic">Biên bản lập xong, thông qua và được các bên đồng ý.</p>
+      <table class="bb-ky"><tr><td><b>ĐẠI DIỆN BÊN A</b><i>(Ký, ghi rõ họ tên)</i><div class="kt"></div>${E(S.user.hoTen, 50)}</td>
+        <td><b>ĐẠI DIỆN BÊN B</b><i>(Ký, ghi rõ họ tên)</i><div class="kt"></div>${E(to ? to.doiTruong : '', 50)}</td></tr></table>
+    </div>`;
+  document.body.appendChild(div); document.body.classList.add('bb-in');
+}
+function dongBienBan(){ const d = document.getElementById('bb-print'); if (d) d.remove(); document.body.classList.remove('bb-in'); }
+function inBienBan(){
+  document.body.classList.add('bb-in');
+  try { window.print(); } catch(e){ toast('Máy không hỗ trợ in — chụp màn hình biên bản thay thế'); }
+}
+window.addEventListener('afterprint', () => { if (!document.getElementById('bb-print')) document.body.classList.remove('bb-in'); });
+/* Ảnh biên bản đã ký */
+let bbDangKy = '';
+function chupBienBan(id){ bbDangKy = id; S.anhBBKy = []; $('fileBB').click(); }
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'fileBB') return;
+  for (const f of e.target.files){ if (S.anhBBKy.length >= 4) break; const d = await nenAnh(f, 2000, .88); if (d) S.anhBBKy.push(d); }
+  e.target.value = '';
+  if (S.anhBBKy.length) moXacNhanBB(bbDangKy);
+});
+function moXacNhanBB(id){
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'bc-modal';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:16px';
+  div.innerHTML = `<div style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:90vh;display:flex;flex-direction:column;padding:14px;overflow:auto">
+      <div style="font-weight:800;color:var(--brand);margin-bottom:6px">BIÊN BẢN HIỆN TRƯỜNG ĐÃ KÝ</div>
+      <div class="photos">${S.anhBBKy.map(d => '<div class="ph filled"><img src="' + d + '"></div>').join('')}<div class="ph" onclick="$('fileBB').click()">＋<br>Thêm</div></div>
+      <label style="font-size:12px;font-weight:700;color:var(--ink-2)">Kết luận / khối lượng đối trừ</label>
+      <textarea id="bb-kl" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:10px;padding:9px;font-size:13px;font-family:inherit">Đối trừ ${num(Math.round(x.lech * 100) / 100)} m³ bê tông${x.toDoiBao ? ' cho ' + escA(x.toDoiBao) : ''} theo biên bản hiện trường ngày ${new Date().toLocaleDateString('vi-VN')}.</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="small ok" style="background:var(--ok);color:#fff;flex:1" onclick="guiBienBan('${x.id}')">✓ Lưu biên bản đã ký</button>
+        <button class="small" onclick="document.getElementById('bc-modal').remove()">Đóng</button></div></div>`;
+  document.body.appendChild(div);
+}
+async function guiBienBan(id){
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  if (!navigator.onLine){ toast('Cần có mạng để tải ảnh biên bản'); return; }
+  const kl = ($('bb-kl') || {}).value || '';
+  const nut = document.querySelector('#bc-modal .ok'); if (nut){ nut.disabled = true; nut.textContent = 'Đang tải ảnh…'; }
+  try {
+    const r = await api('kyBienBanBT', {id, anh:S.anhBBKy, ketLuan:kl}, 120);
+    x.anhBB = r.anh || ''; x.daKyBB = new Date().toISOString(); x.nguoiKyBB = S.user.hoTen; x.ketLuanBB = kl;
+    const m = document.getElementById('bc-modal'); if (m) m.remove();
+    S.anhBBKy = []; toast('Đã lưu ' + r.soAnh + ' ảnh biên bản — hồ sơ đối trừ đã khép'); renderBeTong();
+  } catch(e){ toast('Chưa lưu được: ' + e.message, 4000); if (nut){ nut.disabled = false; nut.textContent = '✓ Lưu biên bản đã ký'; } }
 }
 function tinToDoi(x, to){
   const da = S.duan.find(d => d.maDA === x.maDA) || {};
