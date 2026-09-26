@@ -736,7 +736,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.7';
+const APP_VERSION = '3.10.8';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2723,6 +2723,83 @@ function tt48(x){
   return {nhan:'Còn ' + (con >= 24 ? Math.floor(con/24) + ' ngày ' : '') + Math.floor(con%24) + ' giờ để báo NCC',
           mau: con < 12 ? 'var(--alert)' : 'var(--warn)', con:con};
 }
+/* 3.10.8: hao hụt do TỔ ĐỘI (hoặc tổ đội + NCC) → gọi tổ đội + nhắn tin mời lập biên bản hiện trường */
+const doToDoi = x => x.lech > 0.01 && /tổ đội/i.test(String(x.nguyenNhan || ''));
+function theBaoToDoi(x){
+  if (!doToDoi(x)) return '';
+  const quyen = ['KT_NHAP','QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);
+  const da = x.daBaoTD ? 'Đã báo ' + (x.toDoiBao || 'tổ đội') + ' ' + new Date(x.daBaoTD).toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
+  return `<div style="border-top:1px solid var(--line);margin-top:9px;padding-top:9px">
+    <div class="tq-line"><span>Thông báo tổ đội</span><b style="color:${x.daBaoTD ? 'var(--ok)' : 'var(--alert)'}">${x.daBaoTD ? da : 'CHƯA BÁO — cần lập biên bản hiện trường'}</b></div>
+    ${x.daBaoTD && x.hinhThucTD ? `<div class="meta">${x.hinhThucTD}${x.nguoiBaoTD ? ' · ' + x.nguoiBaoTD : ''}</div>` : ''}
+    ${quyen ? `<div class="acts">
+      <button class="small ${x.daBaoTD ? '' : 'ok'}" onclick="soanTinToDoi('${x.id}','goi')">${x.daBaoTD ? 'Gọi lại tổ đội' : 'Gọi tổ đội'}</button>
+      <button class="small ${x.daBaoTD ? '' : 'ok'}" onclick="soanTinToDoi('${x.id}','tin')">${x.daBaoTD ? 'Gửi thêm tin nhắn' : 'Soạn tin nhắn BB hiện trường'}</button></div>` : ''}
+  </div>`;
+}
+function tinToDoi(x, to){
+  const da = S.duan.find(d => d.maDA === x.maDA) || {};
+  const haoHut = Math.round(x.lech * 100) / 100, pct = x.klKH ? Math.round(x.lech / x.klKH * 1000) / 10 : 0;
+  const hn = new Date(), mai = new Date(hn.getTime() + 86400000);
+  return `[LICOGI13FC – BCH ${(da.tenDA || x.maDA).toUpperCase()}] THÔNG BÁO HAO HỤT BÊ TÔNG – MỜI XÁC NHẬN BIÊN BẢN HIỆN TRƯỜNG
+
+Gửi: ${to ? (/^(tổ|đội|nhà thầu)/i.test(String(to.tenTo)) ? '' : 'Tổ ') + to.tenTo + (to.doiTruong ? ' – anh ' + to.doiTruong : '') + (to.dienThoai ? ' (' + to.dienThoai + ')' : '') : 'Tổ đội thi công'}
+
+Mẻ đổ ngày ${x.ngayDo}${x.maPhieu ? ' · Phiếu ' + x.maPhieu : ''} · ${[x.khoi, x.cauKien].filter(String).join(' · ')}${x.macBT ? ' · Mác ' + x.macBT : ''}
+- QS tính theo bản vẽ: ${num(x.klKH)} m³ · Thực tế đổ: ${num(x.klTT)} m³${x.soXe ? ' (' + x.soXe + ' xe)' : ''}
+- HAO HỤT: +${num(haoHut)} m³ (${pct}%)
+- Nguyên nhân ghi nhận tại hiện trường: ${[x.nguyenNhan, x.lyDo].filter(String).join(' — ') || 'chưa ghi'}
+
+Đề nghị tổ cử đội trưởng/đại diện có mặt tại vị trí đổ TRƯỚC 17:00 ngày ${mai.toLocaleDateString('vi-VN')} để cùng CBKT và QS của BCH lập và ký BIÊN BẢN HIỆN TRƯỜNG về sự việc gây hao hụt (mô tả nguyên nhân, hiện trạng cốp pha/mạch ngừng, khối lượng, ảnh chụp).
+Phần hao hụt do tổ đội gây ra sẽ được đối trừ theo hợp đồng khoán sau khi biên bản được hai bên ký. Quá thời hạn trên nếu tổ không cử người, BCH lập biên bản đơn phương và đối trừ theo số liệu phiếu xe.
+
+Người thông báo: ${S.user.hoTen} · ${vaiTro(S.user.vaiTro)} · ${hn.toLocaleString('vi-VN', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})}
+(Ảnh phiếu xe / mặt bằng đổ lưu trong app BÁO CÁO CÔNG VIỆC BCH)`;
+}
+function soanTinToDoi(id, cheDo){
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  const ds = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  const uuTien = t => (/b[eê]\s*t[oô]ng|đổ|do bt|c[oố]p\s*pha|c[oố]t\s*th[eé]p/i.test(String(t.congViec || '') + ' ' + String(t.tenTo || '')) ? 0 : 1);
+  ds.sort((a, b) => uuTien(a) - uuTien(b) || String(a.tenTo).localeCompare(String(b.tenTo), 'vi'));
+  let chon = ds.find(t => x.toDoiBao && (t.tenTo === x.toDoiBao || t.maTo === x.toDoiBao)) || ds[0] || null;
+  const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'bc-modal';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:16px';
+  const veGoi = () => chon && chon.dienThoai ? `<a class="small" id="td-goi" href="tel:${escA(chon.dienThoai)}" style="text-decoration:none;display:inline-block;background:var(--brand);color:#fff;padding:8px 12px;border-radius:8px;font-weight:700">📞 Gọi ${escA(chon.doiTruong || chon.tenTo)} · ${escA(chon.dienThoai)}</a>` : '<span class="meta">Tổ này chưa có số điện thoại trong sheet TO_DOI</span>';
+  div.innerHTML = `<div style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:90vh;display:flex;flex-direction:column;padding:14px">
+      <div style="font-weight:800;color:var(--brand);margin-bottom:4px">THÔNG BÁO TỔ ĐỘI — BIÊN BẢN HIỆN TRƯỜNG</div>
+      <div class="hint" style="margin:0 0 6px">Chọn tổ gây hao hụt → Gọi hoặc Chia sẻ tin nhắn (Zalo) → bấm "Đã báo" để hệ thống ghi nhận giờ thông báo.</div>
+      <select id="td-sel" style="width:100%;border:1px solid #ddd;border-radius:10px;padding:9px;font-size:14px;font-family:inherit;margin-bottom:6px">
+        ${ds.length ? ds.map(t => '<option value="' + escA(t.maTo) + '"' + (chon && t.maTo === chon.maTo ? ' selected' : '') + '>' + escA(t.tenTo) + (t.doiTruong ? ' — ' + escA(t.doiTruong) : '') + (t.dienThoai ? ' · ' + escA(t.dienThoai) : '') + (t.congViec ? ' (' + escA(t.congViec) + ')' : '') + '</option>').join('') : '<option value="">— Dự án chưa khai báo tổ đội (sheet TO_DOI) —</option>'}
+      </select>
+      <div id="td-goi-box" style="margin-bottom:6px">${veGoi()}</div>
+      <textarea id="bc-text" style="flex:1;min-height:${cheDo === 'goi' ? '150' : '240'}px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:13px;line-height:1.45;white-space:pre-wrap">${tinToDoi(x, chon).replace(/</g, '&lt;')}</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="small" onclick="saoChepBC()">Sao chép</button>
+        <button class="small" onclick="chiaSeBC()">Chia sẻ Zalo</button>
+        <button class="small ok" style="background:var(--ok);color:#fff;flex:1" onclick="ghiBaoToDoi('${x.id}','Điện thoại')">✓ Đã gọi</button>
+        <button class="small ok" style="background:var(--ok);color:#fff;flex:1" onclick="ghiBaoToDoi('${x.id}','Tin nhắn (app)')">✓ Đã gửi tin</button>
+        <button class="small" onclick="document.getElementById('bc-modal').remove()">Đóng</button>
+      </div></div>`;
+  document.body.appendChild(div);
+  document.getElementById('td-sel').onchange = e => {
+    chon = ds.find(t => t.maTo === e.target.value) || null;
+    document.getElementById('td-goi-box').innerHTML = veGoi();
+    document.getElementById('bc-text').value = tinToDoi(x, chon);
+  };
+}
+async function ghiBaoToDoi(id, hinhThuc){
+  const x = S.doBT.find(v => v.id === id); if (!x) return;
+  const sel = document.getElementById('td-sel'); const maTo = sel ? sel.value : '';
+  const to = cuaDA(S.toDoi).find(t => t.maTo === maTo);
+  const nd = (document.getElementById('bc-text') || {}).value || '';
+  const cu = {toDoiBao:x.toDoiBao, daBaoTD:x.daBaoTD, hinhThucTD:x.hinhThucTD, nguoiBaoTD:x.nguoiBaoTD};
+  x.toDoiBao = to ? to.tenTo : (x.toDoiBao || ''); x.daBaoTD = new Date().toISOString(); x.hinhThucTD = hinhThuc; x.nguoiBaoTD = S.user.hoTen;
+  const m = document.getElementById('bc-modal'); if (m) m.remove();
+  renderBeTong(); toast('Đã ghi nhận thông báo tổ đội' + (to ? ' ' + to.tenTo : ''));
+  try { await api('baoToDoi', {id, maTo, tenTo: to ? to.tenTo : '', hinhThuc, noiDung: nd}, 30); }
+  catch(e){ Object.assign(x, cu); renderBeTong(); toast('Chưa gửi được: ' + e.message, 4000); }
+}
 function theBaoNCC(x){
   const t = tt48(x); if (!t) return '';
   const quyen = ['KT_NHAP','QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);      // 3.10.2: CBKT + QS cũng được báo NCC
@@ -2860,7 +2937,7 @@ function renderBeTong(){
         ${x.nguyenNhan ? `<div class="tq-line"><span>Nguyên nhân</span>
           <b style="color:var(--alert)">${x.nguyenNhan}</b></div>` : ''}
         ${x.lyDo ? `<div class="meta">⚠ ${x.lyDo}</div>` : ''}
-        ${theBaoNCC(x)}
+        ${theBaoToDoi(x)}${theBaoNCC(x)}
       </div>`;
     out += ds.length ? [...quaHan, ...trongHan, ...daBao].map(ve).join('')
       : empty('Không có mẻ đổ nào hao hụt so với khối lượng QS tính.');
@@ -2887,7 +2964,7 @@ function renderBeTong(){
         ${x.lyDo ? `<div class="meta">${x.lech > 0 ? '⚠' : 'ℹ'} ${x.lyDo}</div>` : ''}
         <div class="meta">${x.hoTen || ''}</div>
         <span class="badge ${st[0]}">${st[1]}</span>
-        ${theBaoNCC(x)}
+        ${theBaoToDoi(x)}${theBaoNCC(x)}
         ${(canDuyet && x.trangThai === 'CHO_DUYET') ? `<div class="acts">
           <button class="small ok" onclick="duyetBT('${x.id}','DA_DUYET')">Duyệt</button>
           <button class="small no" onclick="duyetBT('${x.id}','TU_CHOI')">Trả lại</button></div>` : ''}
