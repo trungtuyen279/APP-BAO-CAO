@@ -764,7 +764,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.10';
+const APP_VERSION = '3.10.11';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2943,6 +2943,7 @@ async function ghiBaoToDoi(id, hinhThuc){
   catch(e){ Object.assign(x, cu); renderBeTong(); toast('Chưa gửi được: ' + e.message, 4000); }
 }
 function theBaoNCC(x){
+  if (x.nguyenNhan === 'Do tổ đội') return '';                          // 3.10.11: chỉ do tổ đội → không hiện khối NCC (trừ tổ đội, không đòi NCC)
   const t = tt48(x); if (!t) return '';
   const quyen = ['KT_NHAP','QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);      // 3.10.2: CBKT + QS cũng được báo NCC
   const quyenKQ = ['QS','CHT_DUYET','ADMIN','QUAN_TRI'].includes(S.user.vaiTro);
