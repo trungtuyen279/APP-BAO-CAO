@@ -202,6 +202,24 @@ nav button{background:0;border:0;font-family:var(--font);font-size:11.5px;letter
 nav button:active{background:#F3F5F7}
 nav button svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 nav button.on{color:var(--brand)}
+/* 3.11.0: menu Báo cáo (sáng / hết ca) bật lên trên thanh điều hướng */
+#bc-menu{position:fixed;left:50%;bottom:74px;transform:translateX(-50%) translateY(12px);width:min(440px,calc(100% - 24px));background:#fff;border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);padding:8px;display:none;z-index:60;opacity:0;transition:.16s}
+#bc-menu.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}
+#bc-menu button{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;align-items:center;width:100%;border:0;background:#fff;text-align:left;
+  padding:10px 8px;border-radius:12px;font-family:inherit;cursor:pointer}
+#bc-menu button+button{border-top:1px solid var(--line)}
+#bc-menu button:active{background:#FFF5F5}
+#bc-menu span{grid-row:1/3;font-size:22px;width:36px;height:36px;border-radius:50%;background:#FFF0F0;color:var(--brand);display:flex;align-items:center;justify-content:center}
+#bc-menu b{font-size:15px;color:var(--brand)} #bc-menu i{font-style:normal;font-size:12px;color:var(--ink-2)}
+.bcs-to{display:grid;grid-template-columns:1fr 92px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.bcs-to .tt{font-size:14px;font-weight:700}.bcs-to .tt small{display:block;font-weight:400;color:var(--ink-2);font-size:11.5px}
+.bcs-to input{width:100%;box-sizing:border-box;text-align:right;font-size:16px;font-family:var(--mono);border:1px solid #D9DCE2;border-radius:8px;padding:8px}
+.bcs-to input.co{border-color:var(--brand);background:#FFF5F5}
+.bcs-tong{display:flex;justify-content:space-between;align-items:center;background:var(--brand);color:#fff;border-radius:10px;padding:10px 12px;margin:10px 0 14px;font-weight:700}
+.bcs-tong b{font-size:22px;font-family:var(--mono)}
+.bcs-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
+.bcs-item h5{margin:0 0 3px;font-size:14px;color:var(--brand)}
 nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:#fff;font-size:10.5px;
   font-weight:bold;border-radius:10px;padding:0 5px;line-height:18px;min-width:18px;text-align:center}
 .footer{background:var(--brand);color:#fff;text-align:center;font-size:10.5px;
@@ -589,6 +607,8 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
   </section>
 
   <!-- ---------- 2. NHẬT KÝ ---------- -->
+  <!-- ---------- 1b. BÁO CÁO SÁNG (3.11.0) ---------- -->
+  <section class="pane" id="p-sang"><div id="sangBody"></div></section>
   <section class="pane" id="p-log">
     <div id="logs"></div>
     <button class="ghost" id="btnFlush">GỬI CÁC BẢN GHI ĐANG CHỜ</button>
@@ -711,8 +731,8 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 </main>
 
 <nav>
-  <button data-p="p-nhap" data-t="I. NHẬP KHỐI LƯỢNG">
-    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nhập số</button>
+  <button data-p="p-nhap" data-t="I. BÁO CÁO HẾT CA">
+    <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 8h6M9 12h6M9 16h3"/></svg>Báo cáo</button>
   <button data-p="s-bt" data-t="ĐỔ BÊ TÔNG">
     <svg viewBox="0 0 24 24"><path d="M3 8l9-4 9 4v8l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v8"/></svg>Bê tông</button>
   <button data-p="p-log" data-t="II. NHẬT KÝ CA">
@@ -728,6 +748,9 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="bc-menu"><button onclick="chonBaoCao('sang')"><span>☀</span><b>Báo cáo sáng</b><i>Quân số tổ đội · công việc · ảnh đầu giờ</i></button>
+  <button onclick="chonBaoCao('ca')"><span>☾</span><b>Báo cáo hết ca</b><i>Khối lượng · nhân lực · ảnh — trước 18h</i></button></div>
+<input type="file" id="fileSang" accept="image/*" multiple hidden>
 <div id="ai-tip">Thắc mắc gì về dự án, app hay kỹ thuật? Hỏi trợ lý BCH ✦</div>
 <div id="ai-fab" title="Trợ lý AI"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7zM19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></div>
 <div id="ai-chat">
@@ -764,7 +787,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.10.11';
+const APP_VERSION = '3.11.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1607,7 +1630,7 @@ async function kiemTraNhac(){
   const d = document.createElement('div');
   d.className = 'nhacbar';
   d.innerHTML = (gio < 18
-    ? 'Còn <b>' + (60 - new Date().getMinutes()) + ' phút</b> để gửi báo cáo trước 18h. Vào <b>Nhập số</b> gửi ngay.'
+    ? 'Còn <b>' + (60 - new Date().getMinutes()) + ' phút</b> để gửi báo cáo trước 18h. Vào <b>Báo cáo → Báo cáo hết ca</b> gửi ngay.'
     : '<b>Đã quá 18h</b> — bạn chưa gửi báo cáo hôm nay. Gửi ngay để Ban chỉ huy nắm số liệu.')
     + '<i onclick="this.parentNode.remove()">✕</i>';
   document.body.appendChild(d);
@@ -1691,7 +1714,7 @@ async function renderLogs(){
            <img loading="lazy" src="https://drive.google.com/thumbnail?id=${id}&sz=w240" alt="ảnh" onerror="this.parentNode.style.display='none'"></a>`).join('')}</div>` : ''}
       <p>${r.hoTen || ''}</p>
       <span class="badge ${st[0]}">${st[1]}</span>${act}</div></div></div>`;
-  }).join('') : '<div class="empty">Chưa có bản ghi nào trong kỳ.<br>Vào tab <b>Nhập số</b> để ghi khối lượng ca.</div>';
+  }).join('') : '<div class="empty">Chưa có bản ghi nào trong kỳ.<br>Vào <b>Báo cáo → Báo cáo hết ca</b> để ghi khối lượng ca.</div>';
 }
 async function duyet(id, tt){
   const l = S.logs.find(x => x.id === id);
@@ -3784,16 +3807,130 @@ document.querySelectorAll('.sitem').forEach(b => b.onclick = () => {
 });
 
 /* ---------- 9. ĐIỀU HƯỚNG ---------- */
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+function vaoPane(b, pane, tieuDe){
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('.sitem').forEach(x => x.classList.remove('on'));
-  b.classList.add('on');
+  if (b) b.classList.add('on');
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('show'));
-  $(b.dataset.p).classList.add('show');
-  $('secbar').innerHTML = `<span>${b.dataset.t}</span>`;
-  if (b.dataset.p === 's-bt') renderBeTong();
+  $(pane).classList.add('show');
+  $('secbar').innerHTML = `<span>${tieuDe}</span>`;
+  if (pane === 's-bt') renderBeTong();
   document.querySelector('main').scrollTop = 0;
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  const m = $('bc-menu');
+  if (b.dataset.p === 'p-nhap'){ m.classList.toggle('show'); return; }         // 3.11.0: nút Báo cáo → chọn sáng / hết ca
+  m.classList.remove('show');
+  vaoPane(b, b.dataset.p, b.dataset.t);
 });
+document.addEventListener('click', e => { const m = $('bc-menu'); if (m && m.classList.contains('show') && !m.contains(e.target) && !e.target.closest('nav button[data-p="p-nhap"]')) m.classList.remove('show'); });
+function chonBaoCao(loai){
+  $('bc-menu').classList.remove('show');
+  const b = document.querySelector('nav button[data-p="p-nhap"]');
+  if (loai === 'ca') vaoPane(b, 'p-nhap', 'I. BÁO CÁO HẾT CA');
+  else { vaoPane(b, 'p-sang', 'I. BÁO CÁO SÁNG'); renderBaoCaoSang(); taiBaoCaoSangDS(); }
+}
+
+/* ---------- 3.11.0: BÁO CÁO SÁNG — quân số tổ đội + công việc + ảnh ---------- */
+S.sang = {qs:{}, them:[], anh:[], khu:'', cv:'', ds:null, dsNgay:''};
+const homNayISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+function renderBaoCaoSang(){
+  const g = S.sang, ma = daHienTai();
+  if (g.maDA !== ma){ g.maDA = ma; g.qs = {}; g.them = []; g.ds = null; try { Store.get('bcs-khu-' + ma).then(v => { if (v && !g.khu){ g.khu = v; const i = $('bcs-khu'); if (i && !i.value) i.value = v; } }); } catch(e){} }
+  const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  const khus = [...new Set(S.danhmuc.filter(x => x.maDA === ma).map(x => x.phanKhu).concat((S.tomTatKhu || []).filter(x => x.maDA === ma).map(x => x.khu)).filter(Boolean).filter(k => trongPhamVi(k)))];
+  const tong = tos.reduce((a, t) => a + (+g.qs[t.maTo] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
+  const hn = new Date();
+  $('sangBody').innerHTML = thanhChonDA('renderBaoCaoSang') + `
+    <div class="hint" style="margin:0 0 10px">☀ Gửi <b>đầu giờ sáng</b> (trước 8:00) · ${hn.toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'})}</div>
+    <div class="field"><label for="bcs-khu">Khu vực phụ trách</label>
+      <input id="bcs-khu" list="bcs-dskhu" value="${escA(g.khu)}" placeholder="VD: Toà D1, D2, WI" oninput="S.sang.khu=this.value" autocomplete="off">
+      <datalist id="bcs-dskhu">${khus.map(k => '<option value="' + escA(k) + '">').join('')}</datalist></div>
+    <label style="display:block;font-size:13px;font-weight:700;margin-bottom:2px">Quân số tổ đội (người)</label>
+    <div class="hint" style="margin:0 0 4px">Chỉ nhập tổ có mặt ở khu của bạn hôm nay — tổ để trống không được tính.</div>
+    ${tos.length ? tos.map(t => `<div class="bcs-to"><div class="tt">${escA(t.tenTo)}<small>${escA([t.doiTruong, t.congViec].filter(Boolean).join(' · '))}</small></div>
+      <input type="number" inputmode="numeric" min="0" class="${+g.qs[t.maTo] ? 'co' : ''}" value="${g.qs[t.maTo] || ''}" placeholder="0" oninput="S.sang.qs['${escA(t.maTo)}']=this.value;veTongSang()"></div>`).join('')
+      : '<div class="empty" style="padding:10px">Dự án chưa khai báo tổ đội (sheet TO_DOI) — dùng "+ Thêm tổ" bên dưới.</div>'}
+    ${g.them.map((t, i) => `<div class="bcs-to"><input style="text-align:left;font-family:inherit;font-size:14px" value="${escA(t.ten)}" placeholder="Tên tổ (VD: Tổ cp tăng cường Mrs. Tiên)" oninput="S.sang.them[${i}].ten=this.value">
+      <input type="number" inputmode="numeric" min="0" class="${+t.qs ? 'co' : ''}" value="${t.qs || ''}" placeholder="0" oninput="S.sang.them[${i}].qs=this.value;veTongSang()"></div>`).join('')}
+    <button class="ghost" style="margin-top:8px" onclick="S.sang.them.push({ten:'',qs:''});renderBaoCaoSang()">+ Thêm tổ ngoài danh sách</button>
+    <div class="bcs-tong"><span>TỔNG QUÂN SỐ</span><b id="bcs-tong">${tong}</b></div>
+    <div class="field"><label for="bcs-cv">Công việc triển khai hôm nay / vướng mắc</label>
+      <textarea id="bcs-cv" rows="3" placeholder="VD: Tổ thép Mr. Lực buộc thép sàn T4 D1; tổ cp Mr. Trụ lắp cốp pha cột T5 WI; chờ vật tư ống nhựa" oninput="S.sang.cv=this.value">${escA(g.cv)}</textarea></div>
+    <div class="field"><label>Ảnh hiện trường (tối đa 12)</label>
+      <div class="photos" id="bcs-anh">${g.anh.map((d, i) => '<div class="ph filled" onclick="S.sang.anh.splice(' + i + ',1);renderBaoCaoSang()"><img src="' + d + '"><b>✕</b></div>').join('')}
+        ${g.anh.length < 12 ? '<div class="ph" onclick="$(\'fileSang\').click()">＋<br>Ảnh</div>' : ''}</div></div>
+    <button class="primary" id="bcs-gui" onclick="guiBaoCaoSang()">GỬI BÁO CÁO SÁNG</button>
+    <p class="hint">Gửi xong app soạn sẵn tin nhắn để chia sẻ vào nhóm Zalo công trường. Cần có mạng để tải ảnh.</p>
+    <h3 style="margin:18px 0 8px;font-size:15px">Báo cáo sáng hôm nay của dự án</h3>
+    <div id="bcs-ds">${veDSSang()}</div>`;
+}
+function veTongSang(){
+  const g = S.sang, tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  const tong = tos.reduce((a, t) => a + (+g.qs[t.maTo] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
+  const e = $('bcs-tong'); if (e) e.textContent = tong;
+  document.querySelectorAll('#sangBody .bcs-to input[type=number]').forEach(i => i.classList.toggle('co', +i.value > 0));
+}
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'fileSang') return;
+  for (const f of e.target.files){ if (S.sang.anh.length >= 12){ toast('Tối đa 12 ảnh'); break; } const d = await nenAnh(f, 1280, .72); if (d) S.sang.anh.push(d); }
+  e.target.value = ''; renderBaoCaoSang();
+});
+function veDSSang(){
+  const g = S.sang;
+  if (!g.ds) return '<div class="empty" style="padding:10px">Đang tải…</div>';
+  if (!g.ds.length) return '<div class="empty" style="padding:10px">Chưa có báo cáo sáng nào hôm nay.</div>';
+  const tong = g.ds.reduce((a, x) => a + x.tong, 0);
+  return `<div class="tq-line"><span>${g.ds.length} báo cáo · tổng quân số</span><b>${tong} người</b></div>` + g.ds.map(x => `<div class="bcs-item">
+      <h5>${escA(x.khuVuc)} · ${x.tong} người</h5>
+      <div class="meta">${escA(x.hoTen)} · ${x.gio}${x.anh.length ? ' · ' + x.anh.map((u, i) => '<a href="' + escA(u) + '" target="_blank" rel="noopener">ảnh ' + (i + 1) + '</a>').join(' ') : ''}</div>
+      <div style="font-size:13px;margin-top:4px">${x.toDoi.map(t => escA(t.ten) + ': <b>' + t.qs + '</b>').join(' · ')}</div>
+      ${x.congViec ? '<div class="meta" style="margin-top:3px;white-space:pre-wrap">' + escA(x.congViec) + '</div>' : ''}</div>`).join('');
+}
+async function taiBaoCaoSangDS(){
+  if (!navigator.onLine){ S.sang.ds = S.sang.ds || []; const b = $('bcs-ds'); if (b) b.innerHTML = veDSSang(); return; }
+  try { const r = await api('baoCaoSangDS', {maDA: daHienTai()}, 40); S.sang.ds = r.ds || []; }
+  catch(e){ S.sang.ds = S.sang.ds || []; }
+  const b = $('bcs-ds'); if (b) b.innerHTML = veDSSang();
+}
+function tinBaoCaoSang(khu, dsTo, tong, cv){
+  return 'Báo cáo quân số ' + khu + ' — ' + new Date().toLocaleDateString('vi-VN') + '\n'
+    + dsTo.map(t => t.ten + ': ' + t.qs + ' ng').join('\n')
+    + '\nTổng: ' + tong + ' người' + (cv ? '\nCông việc: ' + cv : '')
+    + '\n(' + S.user.hoTen + ' · App BÁO CÁO CÔNG VIỆC BCH)';
+}
+async function guiBaoCaoSang(){
+  const g = S.sang, ma = daHienTai();
+  const khu = (($('bcs-khu') || {}).value || '').trim(); g.khu = khu;
+  const cv = (($('bcs-cv') || {}).value || '').trim(); g.cv = cv;
+  const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  const dsTo = tos.filter(t => +g.qs[t.maTo] > 0).map(t => ({ma:t.maTo, ten:t.tenTo, qs:+g.qs[t.maTo]}))
+    .concat(g.them.filter(t => String(t.ten || '').trim() && +t.qs > 0).map(t => ({ma:'', ten:t.ten.trim(), qs:+t.qs})));
+  if (!khu){ toast('Ghi khu vực phụ trách'); return; }
+  if (!dsTo.length){ toast('Nhập quân số ít nhất 1 tổ'); return; }
+  if (!navigator.onLine){ toast('Cần có mạng để gửi báo cáo sáng'); return; }
+  const tong = dsTo.reduce((a, t) => a + t.qs, 0);
+  const nut = $('bcs-gui'); nut.disabled = true; nut.textContent = 'Đang gửi' + (g.anh.length ? ' ' + g.anh.length + ' ảnh…' : '…');
+  try {
+    const r = await api('baoCaoSang', {id:'BCS' + Date.now() + Math.random().toString(36).slice(2, 6), maDA:ma, khuVuc:khu, toDoi:dsTo, congViec:cv, anh:g.anh}, 150);
+    try { await Store.set('bcs-khu-' + ma, khu); } catch(e){}
+    const tin = tinBaoCaoSang(khu, dsTo, tong, cv);
+    g.qs = {}; g.them = []; g.anh = []; g.cv = ''; g.ds = null;
+    renderBaoCaoSang(); taiBaoCaoSangDS();
+    const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
+    const div = document.createElement('div'); div.id = 'bc-modal';
+    div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:16px';
+    div.innerHTML = `<div style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:88vh;display:flex;flex-direction:column;padding:14px">
+      <div style="font-weight:800;color:var(--ok);margin-bottom:4px">✓ ĐÃ GỬI BÁO CÁO SÁNG · ${tong} người${r.soAnh ? ' · ' + r.soAnh + ' ảnh' : ''}</div>
+      <div class="hint" style="margin:0 0 8px">Chia sẻ tin nhắn vào nhóm Zalo công trường (ảnh đã lưu trên Drive dự án).</div>
+      <textarea id="bc-text" style="flex:1;min-height:200px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:13px;line-height:1.45">${tin.replace(/</g, '&lt;')}</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="small" onclick="saoChepBC()">Sao chép</button>
+        <button class="small ok" style="flex:1" onclick="chiaSeBC()">Chia sẻ Zalo</button>
+        <button class="small" onclick="document.getElementById('bc-modal').remove()">Đóng</button></div></div>`;
+    document.body.appendChild(div);
+  } catch(e){ toast('Chưa gửi được: ' + e.message, 4000); nut.disabled = false; nut.textContent = 'GỬI BÁO CÁO SÁNG'; }
+}
 
 let tt;
 function toast(m, ms){ const e=$('toast'); e.textContent=m; e.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('show'), ms || 2200); }
