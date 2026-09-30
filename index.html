@@ -439,6 +439,23 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .cx-sh-ai{font-size:12.5px;color:#666;text-align:center;padding:2px 6px}
 .cx-sh-nut{border:0;background:#F7F8FA;border-radius:12px;padding:13px;font-size:15px;font-weight:600;text-align:left;font-family:var(--font);color:#222}
 .cx-sh-nut.do{color:#C00000}.cx-sh-nut.dong{text-align:center;background:0;color:#666}
+/* 3.12.2: danh sách nhóm kiểu Zalo */
+#cx-lui{margin-left:0!important;font-size:34px!important;line-height:1;width:30px;padding:0 0 4px}
+#cx-ds{flex:1;overflow:auto;background:#fff;display:none}
+.cx-dsr{display:flex;align-items:center;gap:12px;width:100%;border:0;background:#fff;padding:10px 14px;text-align:left;font-family:var(--font);border-bottom:1px solid #F0F1F4}
+.cx-dsr:active{background:#F2F4F7}
+.cx-dsr>i{font-style:normal;width:50px;height:50px;border-radius:50%;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none;letter-spacing:.3px}
+.cx-dsm{flex:1;min-width:0}.cx-dsm b{display:block;font-size:15.5px;color:#222;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cx-dsm small{display:block;font-size:13.5px;color:#7A8290;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.cx-dsm em{font-style:normal;color:#C00000;font-weight:700}
+.cx-dsr.moi .cx-dsm b{font-weight:800}.cx-dsr.moi .cx-dsm small{color:#222;font-weight:600}
+.cx-dsp{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}.cx-dsp small{font-size:11.5px;color:#999}
+.cx-dsp u{text-decoration:none;background:#E5242B;color:#fff;border-radius:10px;min-width:20px;height:20px;padding:0 6px;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.cx-dsg{font-size:12px;color:#999;padding:14px 16px;line-height:1.5;margin:0}
+.cx-da{display:inline-block;border-radius:6px;padding:0 6px;font-size:10.5px;font-weight:800;color:#fff;margin-left:4px;vertical-align:1px}
+.cx-locda{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.cx-locda button{border:1px solid #D9DCE2;background:#fff;border-radius:14px;padding:4px 10px;font-size:12px;font-weight:700;color:#555;font-family:var(--font)}
+.cx-locda button.on{border-color:#1A5C96;color:#1A5C96;background:#EAF2FA}
 .ai-foot{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #eee;background:#fff;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 .ai-foot input{flex:1;border:1px solid #ddd;border-radius:24px;padding:11px 14px;font-size:14px;font-family:var(--font)}
 .ai-foot button{width:46px;height:46px;border-radius:50%;border:0;background:#C8102E;color:#fff;font-size:20px}
@@ -857,11 +874,13 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 <div id="ai-fab" title="Trợ lý AI"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7zM19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></div>
 <div id="ai-chat">
   <div class="ai-head">
-    <div class="av"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/></svg></div>
+    <button id="cx-lui" onclick="cxVeDSNhom()" aria-label="Về danh sách nhóm" style="display:none">‹</button>
+    <div class="av" id="cx-av"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/></svg></div>
     <div id="cx-tit"><b>Trợ lý BCH</b><small>AI kỹ thuật · LICOGI13FC</small></div>
     <button onclick="dongAI()" aria-label="Đóng">×</button>
   </div>
   <div id="cx-tabs"><button data-t="ai" class="on" onclick="cxTab('ai')">✦ Trợ lý AI</button><button data-t="nhom" onclick="cxTab('nhom')">💬 Nhóm <i></i></button><button data-t="viec" onclick="cxTab('viec')">📋 Việc giao <i></i></button></div>
+  <div id="cx-ds"></div>
   <div id="cx-nhom"><div id="cx-list"></div>
     <div id="cx-tl" class="cx-tlbar" hidden></div>
     <div id="cx-at" class="cx-atl" hidden></div>
@@ -905,7 +924,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.12.1';
+const APP_VERSION = '3.12.2';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -4028,7 +4047,7 @@ async function guiAI(cauHoi){
 function hienFabAI(){
   $('ai-fab').classList.add('show');
   setTimeout(cxKhoi, 5000);                                   // 3.12.0: nối chat nhóm sau khi app mở xong
-  const hs = location.hash.replace('#', ''); if (hs === 'chat' || hs === 'viec'){ history.replaceState(null, '', location.pathname + location.search); setTimeout(() => moAI(hs === 'chat' ? 'nhom' : 'viec'), 300); }
+  const hs = decodeURIComponent(location.hash.replace('#', '')); if (/^(chat|viec)(-|$)/.test(hs)) setTimeout(() => cxMoHash(hs), 300);
   Store.get('ai-tip-da-xem').then(v => { if (!v){ $('ai-tip').classList.add('show');
     setTimeout(() => $('ai-tip').classList.remove('show'), 8000); } }).catch(()=>{});
 }
@@ -4037,13 +4056,22 @@ function hienFabAI(){
    Bong bóng nổi có 3 thẻ: ✦ Trợ lý AI · 💬 Nhóm dự án · 📋 Việc giao.
    Đăng nhập Firebase bằng vé do máy chủ ký (chatVao) — không cần mật khẩu mới. Thư viện Firebase chỉ tải sau khi app mở xong 5 giây. */
 const FB_V = '10.12.2';
-S.cx = {nhac:[], tl:null, qt:false, atPos:0, tab:'ai', san:false, dang:false, uid:'', gv:false, tv:[], maDA:'', tin:[], viec:{}, dsViec:[], huy:[], them:false, loc:'toi', anhXong:[]};
+S.cx = {nhac:[], tl:null, qt:false, atPos:0, tab:'ai', san:false, dang:false, uid:'', gv:false, tv:[], dsDA:[], nghe:false,
+  maDA:'', tin:[], tinDA:{}, viecDA:{}, viec:{}, dsViec:[], huy:[], loc:'toi', locDA:'', anhXong:[]};
 const cxVT = v => ({KT_NHAP:'CBKT', QS:'QS', CHT_DUYET:'CHT', ADMIN:'QT', QUAN_TRI:'QT'})[v] || v || '';
 const cxGio = ms => { if (!ms) return ''; const d = new Date(ms), h = new Date(); const g = d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
   return d.toDateString() === h.toDateString() ? g : d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}) + ' ' + g; };
 const cxMs = t => t && t.toMillis ? t.toMillis() : (typeof t === 'number' ? t : Date.now());
 const cxDocDoc = ma => { try { return +localStorage.getItem('cx-doc-' + ma) || 0; } catch(e){ return 0; } };
 const cxDaDoc = ma => { try { localStorage.setItem('cx-doc-' + ma, String(Date.now())); } catch(e){} };
+/* 3.12.2: danh sách nhóm kiểu Zalo — nhóm chung BCH (CHUNG, mọi thành viên) + mỗi dự án một nhóm; không phải đổi dự án để chuyển nhóm */
+const CX_CHUNG = 'CHUNG';
+const cxTenNhom = ma => ma === CX_CHUNG ? 'BCH chung LICOGI13FC' : 'Nhóm ' + ma;
+const cxMoTaNhom = ma => ma === CX_CHUNG ? 'Ban chỉ huy tất cả dự án' : ((S.duan.find(d => d.maDA === ma) || {}).tenDA || ma);
+const cxMauNhom = ma => ma === CX_CHUNG ? '#C8102E' : ['#1A5C96', '#1E7A3C', '#8A5A00', '#6B3FA0', '#0E7C86'][Math.max(0, S.cx.dsDA.indexOf(ma)) % 5];
+const cxChuNhom = ma => ma === CX_CHUNG ? 'BCH' : ma.split('-').map(s => s[0]).join('').slice(0, 3);
+const cxNhoms = () => [CX_CHUNG].concat(S.cx.dsDA);
+const cxSoTV = ma => ma === CX_CHUNG ? S.cx.tv.length : S.cx.tv.filter(x => x.duAn.includes('TAT_CA') || x.duAn.includes(ma)).length;
 
 async function cxKhoi(){
   if (S.cx.san || S.cx.dang || !S.user || !navigator.onLine || (DEMO && !window.__cxThu)) return;
@@ -4055,49 +4083,64 @@ async function cxKhoi(){
     if (!firebase.apps.length) firebase.initializeApp(FCM.config);
     if (!S.cx.bo){ S.cx.bo = 1; try { await firebase.firestore().enablePersistence({synchronizeTabs:true}); } catch(e){} }   // đệm trên máy → mở lại app chỉ tải phần mới, đỡ lượt đọc
     const r = await api('chatVao', {}, 40);
-    S.cx.uid = r.uid; S.cx.gv = !!r.gv; S.cx.qt = !!r.qt; S.cx.tv = r.thanhVien || [];
+    S.cx.uid = r.uid; S.cx.gv = !!r.gv; S.cx.qt = !!r.qt; S.cx.tv = r.thanhVien || []; S.cx.dsDA = (r.duAn || []).filter(String);
     await firebase.auth().signInWithCustomToken(r.token);                                   // vé mới mỗi lần mở → quyền dự án luôn đúng theo NHAN_SU
     S.cx.san = true; cxNghe(); if ($('ai-chat').classList.contains('show') && S.cx.tab !== 'ai') cxTab(S.cx.tab);
   } catch(e){ console.warn('chat', e); S.cx.loi = e.message; if ($('ai-chat').classList.contains('show')) cxVe(); }
   S.cx.dang = false;
 }
+/* nghe tất cả nhóm cùng lúc (40 tin mới nhất / nhóm) + việc giao của mọi dự án được phân */
 function cxNghe(){
-  const ma = daHienTai(); if (!S.cx.san || !ma || S.cx.maDA === ma) return;
-  S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = [];
-  S.cx.maDA = ma; S.cx.tin = []; S.cx.viec = {}; S.cx.dsViec = [];
-  const db = firebase.firestore(), goc = db.collection('chat').doc(ma);
-  S.cx.huy.push(goc.collection('tin').orderBy('ts', 'desc').limit(60).onSnapshot(q => {
-    S.cx.tin = q.docs.map(d => Object.assign({id:d.id}, d.data())).reverse();
-    cxHuyHieu(); if (S.cx.tab === 'nhom' && $('ai-chat').classList.contains('show')){ cxDaDoc(ma); cxVeNhom(true); }
-  }, e => { S.cx.loi = 'Chat: ' + e.message; }));
-  S.cx.huy.push(goc.collection('viec').orderBy('ts', 'desc').limit(120).onSnapshot(q => {
-    S.cx.dsViec = q.docs.map(d => Object.assign({id:d.id}, d.data())); S.cx.viec = {}; S.cx.dsViec.forEach(v => S.cx.viec[v.id] = v);
-    cxHuyHieu(); if ($('ai-chat').classList.contains('show')){ if (S.cx.tab === 'viec') cxVeViec(); else if (S.cx.tab === 'nhom') cxVeNhom(false); }
-  }, e => { S.cx.loi = 'Việc: ' + e.message; }));
+  if (!S.cx.san || S.cx.nghe) return; S.cx.nghe = true;
+  const db = firebase.firestore();
+  cxNhoms().forEach(ma => {
+    const goc = db.collection('chat').doc(ma);
+    S.cx.huy.push(goc.collection('tin').orderBy('ts', 'desc').limit(40).onSnapshot(q => {
+      S.cx.tinDA[ma] = q.docs.map(d => Object.assign({id:d.id}, d.data())).reverse();
+      if (S.cx.maDA === ma) S.cx.tin = S.cx.tinDA[ma];
+      cxHuyHieu();
+      if (S.cx.tab === 'nhom' && $('ai-chat').classList.contains('show')){
+        if (S.cx.maDA === ma){ cxDaDoc(ma); cxHuyHieu(); cxVeNhom(true); } else if (!S.cx.maDA) cxVeDS();
+      }
+    }, e => { S.cx.loi = 'Chat ' + ma + ': ' + e.message; }));
+    if (ma === CX_CHUNG) return;
+    S.cx.huy.push(goc.collection('viec').orderBy('ts', 'desc').limit(120).onSnapshot(q => {
+      S.cx.viecDA[ma] = q.docs.map(d => Object.assign({id:d.id, da:ma}, d.data()));
+      S.cx.dsViec = [].concat(...Object.values(S.cx.viecDA)).sort((a, b) => cxMs(b.ts) - cxMs(a.ts));
+      S.cx.viec = {}; S.cx.dsViec.forEach(v => S.cx.viec[v.id] = v);
+      cxHuyHieu(); if ($('ai-chat').classList.contains('show')){ if (S.cx.tab === 'viec') cxVeViec(); else if (S.cx.tab === 'nhom' && S.cx.maDA) cxVeNhom(false); }
+    }, e => { S.cx.loi = 'Việc ' + ma + ': ' + e.message; }));
+  });
 }
-/* số chưa đọc + việc cần xử lý → chấm đỏ trên bong bóng và trên thẻ */
+/* số chưa đọc + việc cần xử lý → chấm trên bong bóng, trên thẻ và trên từng nhóm */
 function cxCanXL(v){ const me = S.cx.uid;
   return (v.nhan && v.nhan.uid === me && ['MOI', 'TRA_LAI', 'DANG_LAM'].includes(v.tt)) || (v.giao && v.giao.uid === me && v.tt === 'XONG'); }
+const cxChuaDoc = ma => { const doc = cxDocDoc(ma); return (S.cx.tinDA[ma] || []).filter(t => t.uid !== S.cx.uid && !t.xoa && cxMs(t.ts) > doc).length; };
 function cxHuyHieu(){
-  const ma = S.cx.maDA, doc = cxDocDoc(ma);
-  const moi = S.cx.tin.filter(t => t.uid !== S.cx.uid && cxMs(t.ts) > doc).length;
+  const moi = cxNhoms().reduce((s, ma) => s + cxChuaDoc(ma), 0);
   const viec = S.cx.dsViec.filter(v => cxCanXL(v) && v.tt !== 'DANG_LAM').length;
   const tong = moi + viec;
   let b = $('fab-n'); if (!b){ b = document.createElement('span'); b.id = 'fab-n'; $('ai-fab').appendChild(b); }
   b.textContent = tong > 99 ? '99+' : tong; b.style.display = tong ? 'flex' : 'none';
   const t1 = document.querySelector('#cx-tabs [data-t="nhom"] i'), t2 = document.querySelector('#cx-tabs [data-t="viec"] i');
-  if (t1){ t1.textContent = moi; t1.style.display = moi ? 'inline-flex' : 'none'; }
+  if (t1){ t1.textContent = moi > 99 ? '99+' : moi; t1.style.display = moi ? 'inline-flex' : 'none'; }
   if (t2){ t2.textContent = viec; t2.style.display = viec ? 'inline-flex' : 'none'; }
 }
 function cxTab(t){
   S.cx.tab = t;
   document.querySelectorAll('#cx-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   $('ai-body').style.display = $('ai-foot').style.display = t === 'ai' ? '' : 'none';
-  $('cx-nhom').style.display = t === 'nhom' ? 'flex' : 'none';
+  const moHT = t === 'nhom' && !!S.cx.maDA;
+  $('cx-ds').style.display = t === 'nhom' && !moHT ? 'block' : 'none';
+  $('cx-nhom').style.display = moHT ? 'flex' : 'none';
   $('cx-viec').style.display = t === 'viec' ? 'block' : 'none';
-  const da = S.duan.find(d => d.maDA === daHienTai()) || {};
+  const nDA = S.cx.dsDA.length;
   $('cx-tit').innerHTML = t === 'ai' ? '<b>Trợ lý BCH</b><small>AI kỹ thuật · LICOGI13FC</small>'
-    : '<b>' + (t === 'nhom' ? 'Nhóm ' : 'Việc giao · ') + escA(da.maDA || '') + '</b><small>' + escA(da.tenDA || '') + (t === 'nhom' ? ' · ' + S.cx.tv.filter(x => x.duAn.includes('TAT_CA') || x.duAn.includes(da.maDA)).length + ' thành viên' : '') + '</small>';
+    : moHT ? '<b>' + escA(cxTenNhom(S.cx.maDA)) + '</b><small>' + escA(cxMoTaNhom(S.cx.maDA)) + ' · ' + cxSoTV(S.cx.maDA) + ' thành viên</small>'
+    : t === 'nhom' ? '<b>Tin nhắn</b><small>' + (nDA + 1) + ' nhóm · chạm để mở</small>'
+    : '<b>Việc giao</b><small>' + (nDA > 1 ? nDA + ' dự án' : escA(cxMoTaNhom(S.cx.dsDA[0] || ''))) + '</small>';
+  $('cx-lui').style.display = moHT ? '' : 'none';
+  $('cx-av').style.display = moHT ? 'none' : '';
   const ng = $('cx-nut-gv'); if (ng) ng.style.display = S.cx.gv ? '' : 'none';
   if (t === 'ai') veAI(); else cxVe();
 }
@@ -4105,11 +4148,36 @@ function cxVe(){
   if (!S.cx.san){
     const html = '<div class="cx-cho">' + (S.cx.loi ? '⚠ Chưa kết nối được chat: ' + escA(S.cx.loi) + '<br><button class="small" onclick="S.cx.loi=\'\';cxKhoi()">Thử lại</button>'
       : navigator.onLine ? 'Đang kết nối nhóm dự án…' : 'Cần có mạng để dùng chat.') + '</div>';
-    $('cx-list').innerHTML = html; $('cx-viec').innerHTML = html; if (!S.cx.dang && !S.cx.loi) cxKhoi(); return;
+    $('cx-ds').innerHTML = html; $('cx-list').innerHTML = html; $('cx-viec').innerHTML = html; if (!S.cx.dang && !S.cx.loi) cxKhoi(); return;
   }
   cxNghe();
-  if (S.cx.tab === 'nhom'){ cxDaDoc(S.cx.maDA); cxHuyHieu(); cxVeNhom(true); } else cxVeViec();
+  if (S.cx.maDA && !cxNhoms().includes(S.cx.maDA)){ S.cx.maDA = ''; S.cx.tin = []; }
+  if (S.cx.tab === 'nhom'){ if (S.cx.maDA){ cxDaDoc(S.cx.maDA); cxHuyHieu(); cxVeNhom(true); } else cxVeDS(); } else cxVeViec();
 }
+/* ---------- DANH SÁCH NHÓM (kiểu Zalo) ---------- */
+function cxXemTruoc(t){
+  if (!t) return '<i>Chưa có tin nhắn</i>';
+  const ai = t.uid === S.cx.uid ? 'Bạn' : String(t.ten || '').split(' ').slice(-1)[0];
+  const nd = t.xoa ? 'đã thu hồi một tin nhắn' : t.text ? t.text : t.anh ? '[Hình ảnh]' : t.tep ? '[Tệp] ' + t.tep.ten : '';
+  return escA(ai + ': ' + nd);
+}
+function cxVeDS(){
+  const ds = cxNhoms().map(ma => { const ts = S.cx.tinDA[ma] || []; const cuoi = ts[ts.length - 1]; return {ma, cuoi, ms:cuoi ? cxMs(cuoi.ts) : 0, n:cxChuaDoc(ma)}; })
+    .sort((a, b) => (b.ma === CX_CHUNG) - (a.ma === CX_CHUNG) || b.ms - a.ms);
+  $('cx-ds').innerHTML = ds.map(x => {
+    const nt = x.n && (S.cx.tinDA[x.ma] || []).some(t => t.uid !== S.cx.uid && cxMs(t.ts) > cxDocDoc(x.ma) && (t.nhac || []).some(u => u === S.cx.uid || u === 'all'));
+    return '<button class="cx-dsr' + (x.n ? ' moi' : '') + '" onclick="cxMoNhom(\'' + x.ma + '\')">'
+      + '<i style="background:' + cxMauNhom(x.ma) + '">' + escA(cxChuNhom(x.ma)) + '</i>'
+      + '<span class="cx-dsm"><b>' + (x.ma === CX_CHUNG ? '📌 ' : '') + escA(cxTenNhom(x.ma)) + '</b><small>' + (nt ? '<em>[Có người nhắc bạn]</em> ' : '') + cxXemTruoc(x.cuoi) + '</small></span>'
+      + '<span class="cx-dsp"><small>' + (x.ms ? cxGio(x.ms) : '') + '</small>' + (x.n ? '<u>' + (x.n > 99 ? '99+' : x.n) + '</u>' : '') + '</span></button>';
+  }).join('') + '<p class="cx-dsg">Nhóm dự án theo phân quyền dự án trong danh sách nhân sự. Nhóm <b>BCH chung</b> gồm toàn bộ thành viên Ban chỉ huy các dự án.</p>';
+}
+function cxMoNhom(ma){
+  S.cx.maDA = ma; S.cx.tin = S.cx.tinDA[ma] || []; S.cx.nhac = []; if (S.cx.tl) cxBoTL();
+  $('cx-at').hidden = true; $('cx-emo').hidden = true;
+  cxTab('nhom');
+}
+function cxVeDSNhom(){ S.cx.maDA = ''; S.cx.tin = []; cxTab('nhom'); }
 /* ---------- NHÓM ---------- */
 /* ---------- NHÓM (3.12.1: kiểu Zalo — @nhắc tên, đính kèm tệp, emoji, bày tỏ cảm xúc, trả lời trích dẫn) ---------- */
 const CX_CAM = ['👍', '❤️', '😆', '😮', '😢', '😡'];
@@ -4117,7 +4185,7 @@ const CX_EMO = [['Hay dùng', '👍 👌 🙏 👏 💪 ✅ ❌ ⚠️ ❗ ❓ �
   ['Mặt cười', '😀 😃 😄 😁 😆 😅 😂 🤣 😊 🙂 😉 😍 😘 😎 🤔 😐 😑 🙄 😏 😮 😯 😲 😴 😪 😢 😭 😤 😡 🤬 😱 😰 🥲 🤗 🤭 😬 🥳'],
   ['Cử chỉ', '👍 👎 👌 ✌️ 🤞 🤙 👋 ✋ 👊 ✊ 👏 🙌 🙏 💪 👉 👈 👆 👇 ☝️ 🫡 ❤️ 💯 ⭐ 🌹']];
 const cxBoDau = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
-const cxTV = () => S.cx.tv.filter(x => (x.duAn.includes('TAT_CA') || x.duAn.includes(S.cx.maDA)) && x.uid !== S.cx.uid);
+const cxTV = () => S.cx.tv.filter(x => (S.cx.maDA === CX_CHUNG || x.duAn.includes('TAT_CA') || x.duAn.includes(S.cx.maDA)) && x.uid !== S.cx.uid);
 const cxTen = u => u === 'all' ? 'Tất cả' : ((S.cx.tv.find(x => x.uid === u) || {}).ten || '');
 function cxChu(t){
   let h = escA(t.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
@@ -4211,7 +4279,7 @@ function cxChep(id){
   const t = S.cx.tin.find(x => x.id === id); if (!t) return;
   (navigator.clipboard ? navigator.clipboard.writeText(t.text) : Promise.reject()).then(() => toast('Đã sao chép')).catch(() => toast('Máy không cho sao chép'));
 }
-function cxToi(id){ const e = document.getElementById('cxm-' + id); if (!e){ toast('Tin gốc đã cũ, không còn trong 60 tin gần nhất'); return; }
+function cxToi(id){ const e = document.getElementById('cxm-' + id); if (!e){ toast('Tin gốc đã cũ, không còn trong 40 tin gần nhất'); return; }
   e.scrollIntoView({block:'center', behavior:'smooth'}); e.classList.add('sang'); setTimeout(() => e.classList.remove('sang'), 1400); }
 /* ---- ô soạn tin: tự giãn, @nhắc tên, emoji ---- */
 function cxGo(el){
@@ -4226,7 +4294,7 @@ function cxGo(el){
   const tatCa = S.cx.gv && (!q || cxBoDau('tat ca').startsWith(q));
   if (!ds.length && !tatCa){ $('cx-at').hidden = true; return; }
   const chu = s => s.split(' ').slice(-2).map(w => w[0]).join('').toUpperCase();
-  $('cx-at').innerHTML = (tatCa ? '<button onclick="cxChonAt(\'all\')"><i style="background:#C8102E">@</i><span><b>Tất cả</b><small>Nhắc cả nhóm ' + escA(S.cx.maDA) + '</small></span></button>' : '')
+  $('cx-at').innerHTML = (tatCa ? '<button onclick="cxChonAt(\'all\')"><i style="background:#C8102E">@</i><span><b>Tất cả</b><small>Nhắc cả ' + escA(cxTenNhom(S.cx.maDA)) + '</small></span></button>' : '')
     + ds.map(x => '<button onclick="cxChonAt(\'' + x.uid + '\')"><i>' + escA(chu(x.ten)) + '</i><span><b>' + escA(x.ten) + '</b><small>' + escA(cxVT(x.vt)) + '</small></span></button>').join('');
   $('cx-at').hidden = false; $('cx-emo').hidden = true;
 }
@@ -4318,7 +4386,7 @@ function cxThe(v, gon){
   if (laNhan && v.tt === 'DANG_LAM') nut += '<button class="small ok" onclick="cxMoXong(\'' + v.id + '\')">🏁 Báo hoàn thành</button>';
   if (laGiao && v.tt === 'XONG') nut += '<button class="small ok" onclick="cxDoiTT(\'' + v.id + '\',\'DA_DUYET\')">✔ Nghiệm thu</button><button class="small no" onclick="cxTraLai(\'' + v.id + '\')">↩ Trả lại</button>';
   const ls = (v.lichSu || []).slice(-1)[0];
-  return '<div class="cx-the' + (qh ? ' qh' : '') + '"><div class="cx-the-h"><span>📋 VIỆC GIAO' + (v.uuTien === 'Gấp' ? ' · <b style="color:#C00000">GẤP</b>' : '') + '</span><span class="cx-pill" style="background:' + tt[1] + '">' + tt[0] + '</span></div>'
+  return '<div class="cx-the' + (qh ? ' qh' : '') + '"><div class="cx-the-h"><span>📋 VIỆC GIAO' + (v.uuTien === 'Gấp' ? ' · <b style="color:#C00000">GẤP</b>' : '') + (S.cx.dsDA.length > 1 && v.da ? '<span class="cx-da" style="background:' + cxMauNhom(v.da) + '">' + escA(v.da) + '</span>' : '') + '</span><span class="cx-pill" style="background:' + tt[1] + '">' + tt[0] + '</span></div>'
     + '<div class="cx-the-t">' + escA(v.tieuDe) + '</div>'
     + (v.moTa && !gon ? '<div class="cx-the-m">' + escA(v.moTa) + '</div>' : '')
     + '<div class="cx-the-i">👷 <b>' + escA((v.nhan || {}).ten || '') + '</b> · giao bởi ' + escA((v.giao || {}).ten || '') + (v.khu ? '<br>📍 ' + escA(v.khu) : '')
@@ -4330,10 +4398,11 @@ function cxThe(v, gon){
 }
 function cxVeViec(){
   const box = $('cx-viec'), me = S.cx.uid, loc = S.cx.loc;
-  let ds = S.cx.dsViec.filter(v => loc === 'toi' ? v.nhan && v.nhan.uid === me : loc === 'giao' ? v.giao && v.giao.uid === me : true);
+  let ds = S.cx.dsViec.filter(v => (!S.cx.locDA || v.da === S.cx.locDA) && (loc === 'toi' ? v.nhan && v.nhan.uid === me : loc === 'giao' ? v.giao && v.giao.uid === me : true));
   const nhom = [['Cần xử lý', v => v.tt !== 'DA_DUYET' && (cxQuaHan(v) || cxCanXL(v))], ['Đang thực hiện', v => ['MOI', 'DANG_LAM', 'TRA_LAI'].includes(v.tt)], ['Chờ nghiệm thu', v => v.tt === 'XONG'], ['Đã nghiệm thu', v => v.tt === 'DA_DUYET']];
   const da = new Set(); let html = '<div class="cx-loc">' + [['toi', 'Việc của tôi'], ['giao', 'Tôi đã giao'], ['tat', 'Tất cả']].filter(x => x[0] !== 'giao' || S.cx.gv)
     .map(x => '<button class="' + (loc === x[0] ? 'on' : '') + '" onclick="S.cx.loc=\'' + x[0] + '\';cxVeViec()">' + x[1] + '</button>').join('') + '</div>'
+    + (S.cx.dsDA.length > 1 ? '<div class="cx-locda">' + [''].concat(S.cx.dsDA).map(m => '<button class="' + (S.cx.locDA === m ? 'on' : '') + '" onclick="S.cx.locDA=\'' + m + '\';cxVeViec()">' + (m ? escA(m) + ' · ' + S.cx.dsViec.filter(v => v.da === m && cxCanXL(v) && v.tt !== 'DANG_LAM').length : 'Mọi dự án') + '</button>').join('') + '</div>' : '')
     + (S.cx.gv ? '<button class="primary" style="margin:0 0 12px" onclick="cxMoGiao()">+ GIAO VIỆC MỚI</button>' : '');
   nhom.forEach(([ten, f]) => { const g = ds.filter(v => !da.has(v.id) && f(v)); g.forEach(v => da.add(v.id)); if (!g.length) return;
     g.sort((a, b) => (a.han || '9') < (b.han || '9') ? -1 : 1);
@@ -4341,15 +4410,20 @@ function cxVeViec(){
   if (!ds.length) html += '<div class="cx-cho">' + (loc === 'toi' ? 'Bạn chưa được giao việc nào.' : 'Chưa có việc nào.') + '</div>';
   box.innerHTML = html;
 }
-function cxMoGiao(){
-  const ma = S.cx.maDA;
+function cxGvNguoi(ma){
   const tv = S.cx.tv.filter(x => (x.duAn.includes('TAT_CA') || x.duAn.includes(ma)) && x.uid !== S.cx.uid)
     .sort((a, b) => (a.vt === 'KT_NHAP' ? 0 : 1) - (b.vt === 'KT_NHAP' ? 0 : 1) || a.ten.localeCompare(b.ten, 'vi'));
+  return tv.map(x => '<option value="' + x.uid + '">' + escA(x.ten) + ' · ' + escA(cxVT(x.vt)) + '</option>').join('');
+}
+function cxMoGiao(){
+  const ds = S.cx.dsDA; if (!ds.length){ toast('Bạn chưa được phân dự án'); return; }
+  const ma = ds.includes(S.cx.maDA) ? S.cx.maDA : ds.includes(S.cx.locDA) ? S.cx.locDA : ds.includes(daHienTai()) ? daHienTai() : ds[0];
   const mai = new Date(Date.now() + 86400000), iso = mai.getFullYear() + '-' + String(mai.getMonth() + 1).padStart(2, '0') + '-' + String(mai.getDate()).padStart(2, '0');
   const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
   const div = document.createElement('div'); div.id = 'bc-modal'; div.className = 'sv-modal'; div.style.zIndex = 120;
-  div.innerHTML = '<div class="sv-box"><div style="font-weight:800;color:var(--brand)">📋 GIAO VIỆC · ' + escA(ma) + '</div>'
-    + '<label>Người nhận</label><select id="gv-nhan">' + tv.map(x => '<option value="' + x.uid + '">' + escA(x.ten) + ' · ' + escA(cxVT(x.vt)) + '</option>').join('') + '</select>'
+  div.innerHTML = '<div class="sv-box"><div style="font-weight:800;color:var(--brand)">📋 GIAO VIỆC</div>'
+    + '<label>Dự án</label><select id="gv-da" onchange="$(\'gv-nhan\').innerHTML=cxGvNguoi(this.value)"' + (ds.length < 2 ? ' disabled' : '') + '>' + ds.map(m => '<option value="' + escA(m) + '"' + (m === ma ? ' selected' : '') + '>' + escA(m) + ' · ' + escA(cxMoTaNhom(m)) + '</option>').join('') + '</select>'
+    + '<label>Người nhận</label><select id="gv-nhan">' + cxGvNguoi(ma) + '</select>'
     + '<label>Việc cần làm</label><input id="gv-td" maxlength="200" placeholder="VD: Kiểm tra cốt thép sàn T5 trục 1-7 trước khi mời TVGS">'
     + '<label>Chi tiết / yêu cầu (không bắt buộc)</label><textarea id="gv-mt" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #D9DCE2;border-radius:10px;padding:10px;font-family:inherit;font-size:14px" placeholder="Tiêu chuẩn, bản vẽ, số lượng, ghi chú…"></textarea>'
     + '<label>Khu vực / vị trí</label><input id="gv-khu" placeholder="VD: Tòa D2 · tầng 5">'
@@ -4363,7 +4437,7 @@ async function cxGiao(){
   const nhan = S.cx.tv.find(x => x.uid === $('gv-nhan').value), td = $('gv-td').value.trim();
   if (!nhan){ toast('Chọn người nhận'); return; } if (!td){ toast('Ghi việc cần làm'); return; }
   const nut = $('gv-gui'); nut.disabled = true; nut.textContent = 'Đang giao…';
-  const FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(S.cx.maDA);
+  const ma = $('gv-da').value, FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(ma);
   const v = {tieuDe:td, moTa:$('gv-mt').value.trim(), khu:$('gv-khu').value.trim(), han:$('gv-han').value, uuTien:$('gv-ut').value,
     giao:{uid:S.cx.uid, ten:S.user.hoTen, email:S.user.email}, nhan:{uid:nhan.uid, ten:nhan.ten, email:nhan.email},
     tt:'MOI', lichSu:[{tt:'MOI', ten:S.user.hoTen, luc:Date.now()}]};
@@ -4371,12 +4445,12 @@ async function cxGiao(){
     const ref = await goc.collection('viec').add(Object.assign({}, v, {ts:FV.serverTimestamp(), capNhat:FV.serverTimestamp()}));
     await goc.collection('tin').add({uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text:'📋 Giao việc cho ' + nhan.ten + ': ' + td, loai:'viec', viecId:ref.id, ts:FV.serverTimestamp()});
     document.getElementById('bc-modal').remove(); toast('Đã giao việc cho ' + nhan.ten);
-    api('viecGhi', {maDA:S.cx.maDA, viec:Object.assign({id:ref.id, maDA:S.cx.maDA}, v)}, 60).catch(() => {});
+    api('viecGhi', {maDA:ma, viec:Object.assign({id:ref.id, maDA:ma}, v)}, 60).catch(() => {});
   } catch(e){ nut.disabled = false; nut.textContent = 'GIAO VIỆC'; toast('Chưa giao được: ' + e.message, 4000); }
 }
 async function cxDoiTT(id, tt, them){
-  const v = S.cx.viec[id]; if (!v) return;
-  const FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(S.cx.maDA);
+  const v = S.cx.viec[id]; if (!v) return; const ma = v.da;
+  const FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(ma);
   const muc = {tt, ten:S.user.hoTen, luc:Date.now()}; if (them && them.gc) muc.gc = them.gc;
   const up = Object.assign({tt, capNhat:FV.serverTimestamp(), lichSu:FV.arrayUnion(muc)}, them && them.anhXong ? {anhXong:them.anhXong, ghiChuXong:them.ghiChuXong || ''} : {});
   try {
@@ -4384,7 +4458,7 @@ async function cxDoiTT(id, tt, them){
     const chu = {DANG_LAM:'✓ ' + S.user.hoTen + ' đã nhận việc', XONG:'🏁 ' + S.user.hoTen + ' báo hoàn thành', DA_DUYET:'✔ ' + S.user.hoTen + ' đã nghiệm thu', TRA_LAI:'↩ ' + S.user.hoTen + ' trả lại'}[tt] || tt;
     await goc.collection('tin').add({uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text:chu + ': ' + v.tieuDe, loai:'text', viecId:id, ts:FV.serverTimestamp()});
     const moi = Object.assign({}, v, {tt, lichSu:(v.lichSu || []).concat([muc])}, them && them.anhXong ? {anhXong:them.anhXong, ghiChuXong:them.ghiChuXong || ''} : {});
-    api('viecGhi', {maDA:S.cx.maDA, viec:Object.assign({maDA:S.cx.maDA}, moi, {id}), ghiChu:(them || {}).gc || ''}, 60).catch(() => {});
+    delete moi.da; api('viecGhi', {maDA:ma, viec:Object.assign({maDA:ma}, moi, {id}), ghiChu:(them || {}).gc || ''}, 60).catch(() => {});
     toast({DANG_LAM:'Đã nhận việc', XONG:'Đã báo hoàn thành', DA_DUYET:'Đã nghiệm thu', TRA_LAI:'Đã trả lại'}[tt] || 'Đã cập nhật');
   } catch(e){ toast('Chưa cập nhật được: ' + e.message, 4000); }
 }
@@ -4409,15 +4483,23 @@ async function cxGuiXong(id){
   const nut = $('xo-gui'); nut.disabled = true; nut.textContent = 'Đang gửi…';
   try {
     const urls = [];
-    for (const d of S.cx.anhXong){ const r = await api('chatAnh', {maDA:S.cx.maDA, anh:d}, 90); urls.push(r.url); }
+    const ma = (S.cx.viec[id] || {}).da;
+    for (const d of S.cx.anhXong){ const r = await api('chatAnh', {maDA:ma, anh:d}, 90); urls.push(r.url); }
     const gc = $('xo-gc').value.trim();
     document.getElementById('bc-modal').remove();
     await cxDoiTT(id, 'XONG', {anhXong:urls, ghiChuXong:gc, gc});
   } catch(e){ nut.disabled = false; nut.textContent = 'GỬI BÁO HOÀN THÀNH'; toast('Chưa gửi được: ' + e.message, 4000); }
 }
-function cxDangXuat(){ S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = []; S.cx.san = false; S.cx.maDA = '';
+function cxDangXuat(){ S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = []; S.cx.san = false; S.cx.nghe = false; S.cx.maDA = '';
+  S.cx.tin = []; S.cx.tinDA = {}; S.cx.viecDA = {}; S.cx.viec = {}; S.cx.dsViec = []; S.cx.dsDA = []; S.cx.locDA = '';
   try { if (window.firebase && firebase.auth) firebase.auth().signOut(); } catch(e){} }
-window.addEventListener('hashchange', () => { const hs = location.hash.replace('#', ''); if ((hs === 'chat' || hs === 'viec') && S.user){ history.replaceState(null, '', location.pathname + location.search); moAI(hs === 'chat' ? 'nhom' : 'viec'); } });
+function cxMoHash(hs){
+  if (!/^(chat|viec)(-|$)/.test(hs)) return false;
+  history.replaceState(null, '', location.pathname + location.search);
+  if (hs.indexOf('chat-') === 0){ S.cx.maDA = hs.slice(5); S.cx.tin = S.cx.tinDA[S.cx.maDA] || []; }
+  moAI(hs.indexOf('chat') === 0 ? 'nhom' : 'viec'); return true;
+}
+window.addEventListener('hashchange', () => { if (S.user) cxMoHash(decodeURIComponent(location.hash.replace('#', ''))); });
 document.querySelectorAll('.sitem').forEach(b => b.onclick = () => {
   document.querySelectorAll('.sitem').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
