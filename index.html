@@ -355,6 +355,44 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .ai-typing span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C8102E;margin-right:4px;animation:aiB 1s infinite}
 .ai-typing span:nth-child(2){animation-delay:.2s}.ai-typing span:nth-child(3){animation-delay:.4s}
 @keyframes aiB{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+/* ---- 3.12.0: Chat nhóm dự án + giao việc ---- */
+#fab-n{position:absolute;top:-3px;right:-3px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#FFD400;color:#7B0A1E;font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid #fff;box-sizing:border-box}
+#cx-tabs{display:flex;background:#fff;border-bottom:1px solid #eee}
+#cx-tabs button{flex:1;border:0;background:0;padding:11px 4px;font-size:13px;font-weight:700;color:#777;font-family:var(--font);border-bottom:3px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px}
+#cx-tabs button.on{color:#C8102E;border-bottom-color:#C8102E}
+#cx-tabs i{font-style:normal;background:#C8102E;color:#fff;border-radius:9px;min-width:18px;height:18px;font-size:10.5px;display:none;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box}
+#cx-nhom{flex:1;display:none;flex-direction:column;min-height:0}
+#cx-list{flex:1;overflow:auto;padding:12px;background:#F2F4F7}
+#cx-viec{flex:1;overflow:auto;padding:12px;background:#F2F4F7;display:none}
+.cx-cho{text-align:center;color:#777;font-size:13.5px;padding:40px 16px;line-height:1.6}
+.cx-ngay{text-align:center;margin:12px 0 8px;font-size:11px;color:#888}
+.cx-he{text-align:center;font-size:12px;color:#666;margin:6px auto;background:#E4E7EC;border-radius:12px;padding:5px 10px;width:fit-content;max-width:90%}
+.cx-row{display:flex;margin:4px 0}.cx-row.me{justify-content:flex-end}
+.cx-b{max-width:80%;background:#fff;border-radius:14px 14px 14px 4px;padding:7px 10px 5px;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.cx-row.me .cx-b{background:#FFE3E3;border-radius:14px 14px 4px 14px}
+.cx-ai{font-size:11.5px;font-weight:700;color:#C8102E;margin-bottom:2px}.cx-ai span{color:#888;font-weight:600}
+.cx-tx{font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;color:#222}
+.cx-tx a{color:#1A5C96}
+.cx-b img{display:block;max-width:100%;max-height:260px;border-radius:10px;margin:3px 0}
+.cx-t{font-size:10.5px;color:#999;text-align:right;margin-top:2px}.cx-t a{color:#999}
+.cx-foot{display:flex;align-items:flex-end;gap:6px;padding:8px 8px;border-top:1px solid #eee;background:#fff;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+.cx-foot textarea{flex:1;border:1px solid #ddd;border-radius:20px;padding:10px 14px;font-size:14.5px;font-family:var(--font);resize:none;max-height:110px;line-height:1.35}
+.cx-foot .ic{width:40px;height:40px;border-radius:50%;border:0;background:#F2F4F7;font-size:18px;flex:none}
+.cx-foot .gui{width:44px;height:44px;border-radius:50%;border:0;background:#C8102E;color:#fff;font-size:19px;flex:none}
+.cx-the{background:#fff;border:1px solid #E3E6EB;border-left:4px solid #1A5C96;border-radius:12px;padding:10px 12px;margin:0 0 10px;width:100%;max-width:340px;box-sizing:border-box}
+.cx-row .cx-the{margin:2px 0}
+.cx-the.qh{border-left-color:#C00000;background:#FFF8F8}
+.cx-the-h{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:#555;letter-spacing:.3px}
+.cx-pill{color:#fff;border-radius:10px;padding:2px 8px;font-size:10.5px;font-weight:700}
+.cx-the-t{font-size:15px;font-weight:700;color:#222;margin:6px 0 4px;line-height:1.4}
+.cx-the-m{font-size:13px;color:#444;margin:4px 0;white-space:pre-wrap}
+.cx-the-i{font-size:12.5px;color:#555;line-height:1.55}
+.cx-the-a{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.cx-the-a img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+.cx-the .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.cx-loc{display:flex;gap:6px;margin-bottom:12px}
+.cx-loc button{flex:1;border:1px solid #D9DCE2;background:#fff;border-radius:18px;padding:8px 4px;font-size:12.5px;font-weight:700;color:#555;font-family:var(--font)}
+.cx-loc button.on{background:#C8102E;border-color:#C8102E;color:#fff}
+.cx-nh{font-size:11.5px;font-weight:800;color:#C8102E;letter-spacing:.4px;margin:12px 0 6px;text-transform:uppercase}
 .ai-foot{display:flex;gap:8px;padding:10px 12px;border-top:1px solid #eee;background:#fff;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 .ai-foot input{flex:1;border:1px solid #ddd;border-radius:24px;padding:11px 14px;font-size:14px;font-family:var(--font)}
 .ai-foot button{width:46px;height:46px;border-radius:50%;border:0;background:#C8102E;color:#fff;font-size:20px}
@@ -769,16 +807,24 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 <div id="bc-menu"><button onclick="chonBaoCao('sang')"><span>☀</span><b>Báo cáo sáng</b><i>Quân số tổ đội · công việc · ảnh đầu giờ</i></button>
   <button onclick="chonBaoCao('ca')"><span>☾</span><b>Báo cáo hết ca</b><i>Khối lượng · nhân lực · ảnh — trước 18h</i></button></div>
 <input type="file" id="fileSang" accept="image/*" multiple hidden>
-<div id="ai-tip">Thắc mắc gì về dự án, app hay kỹ thuật? Hỏi trợ lý BCH ✦</div>
+<div id="ai-tip">Hỏi trợ lý AI ✦ · nhắn nhóm dự án 💬 · nhận việc giao 📋 — tất cả ở bong bóng này</div>
 <div id="ai-fab" title="Trợ lý AI"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7zM19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></div>
 <div id="ai-chat">
   <div class="ai-head">
     <div class="av"><svg viewBox="0 0 24 24"><path d="M12 3l1.7 4.3L18 9l-4.3 1.7L12 15l-1.7-4.3L6 9l4.3-1.7z"/></svg></div>
-    <div><b>Trợ lý BCH</b><small>AI kỹ thuật · LICOGI13FC</small></div>
+    <div id="cx-tit"><b>Trợ lý BCH</b><small>AI kỹ thuật · LICOGI13FC</small></div>
     <button onclick="dongAI()" aria-label="Đóng">×</button>
   </div>
+  <div id="cx-tabs"><button data-t="ai" class="on" onclick="cxTab('ai')">✦ Trợ lý AI</button><button data-t="nhom" onclick="cxTab('nhom')">💬 Nhóm <i></i></button><button data-t="viec" onclick="cxTab('viec')">📋 Việc giao <i></i></button></div>
+  <div id="cx-nhom"><div id="cx-list"></div>
+    <div class="cx-foot"><button class="ic" onclick="$('cx-file').click()" aria-label="Gửi ảnh">📷</button><button class="ic" id="cx-nut-gv" style="display:none" onclick="cxTab('viec');cxMoGiao()" aria-label="Giao việc">📋</button>
+      <textarea id="cx-in" rows="1" placeholder="Nhắn nhóm dự án…" oninput="this.style.height='';this.style.height=Math.min(this.scrollHeight,110)+'px'"></textarea>
+      <button class="gui" onclick="cxGui()" aria-label="Gửi">➤</button></div></div>
+  <div id="cx-viec"></div>
+  <input type="file" id="cx-file" accept="image/*" multiple hidden onchange="cxGuiAnh(this.files);this.value=''">
+  <input type="file" id="cx-file-xong" accept="image/*" multiple hidden onchange="cxThemAnhXong(this.files);this.value=''">
   <div class="ai-body" id="ai-body"></div>
-  <div class="ai-foot">
+  <div class="ai-foot" id="ai-foot">
     <input id="ai-in" placeholder="Hỏi trợ lý BCH…" autocomplete="off" onkeydown="if(event.key==='Enter')guiAI()">
     <button onclick="guiAI()" aria-label="Gửi">➤</button>
   </div>
@@ -805,7 +851,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.11.1';
+const APP_VERSION = '3.12.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1615,6 +1661,7 @@ async function batThongBaoDay(){
     trangThaiDay();
     toast('Đã bật — máy sẽ rung khi có thông báo khẩn');
     ms.onMessage(p => { const d = p.data || {};
+      if (String(d.url || '').indexOf('#chat') > -1 && S.cx.san) return;          // tin nhóm: đã có chấm đỏ thời gian thực, không bật toast
       toast((d.tieuDe || '') + ' — ' + (d.noiDung || '')); });
   } catch(e){ toast('Chưa bật được: ' + e.message); }
 }
@@ -2033,7 +2080,7 @@ $('btnLogout').onclick = async () => {
   for (const r of q) await Store.drop(r.id);
   await Store.del('auth'); await Store.del('cache');
   S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = []; S.kpi = null;
-  $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show');
+  $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show'); cxDangXuat();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
   $('lgEmail').value = ''; $('lgPin').value = '';
@@ -2127,6 +2174,7 @@ function thanhChonDA(veLai){
 }
 function doiDuAn(ma, veLai){
   S.maDA = ma;
+  if (S.cx && S.cx.san){ cxNghe(); if ($('ai-chat').classList.contains('show') && S.cx.tab !== 'ai') cxTab(S.cx.tab); }
   const sel = $('f-da');
   if (sel && sel.value !== ma) { sel.value = ma; onProject(); }
   if (window[veLai]) window[veLai]();
@@ -3908,7 +3956,7 @@ async function moNguonAI(i, j){
   S.sub['ch_' + idCh] = true;
   docMuc(idCh, Math.max(0, viTri));
 }
-function moAI(){ $('ai-chat').classList.add('show'); $('ai-tip').classList.remove('show'); Store.set('ai-tip-da-xem', 1).catch(()=>{}); veAI(); }
+function moAI(tab){ $('ai-chat').classList.add('show'); $('ai-tip').classList.remove('show'); Store.set('ai-tip-da-xem', 1).catch(()=>{}); cxTab(tab || S.cx.tab || 'ai'); }
 function dongAI(){ $('ai-chat').classList.remove('show'); }
 async function guiAI(cauHoi){
   const q = (cauHoi || $('ai-in').value).trim();
@@ -3925,9 +3973,246 @@ async function guiAI(cauHoi){
 }
 function hienFabAI(){
   $('ai-fab').classList.add('show');
+  setTimeout(cxKhoi, 5000);                                   // 3.12.0: nối chat nhóm sau khi app mở xong
+  const hs = location.hash.replace('#', ''); if (hs === 'chat' || hs === 'viec'){ history.replaceState(null, '', location.pathname + location.search); setTimeout(() => moAI(hs === 'chat' ? 'nhom' : 'viec'), 300); }
   Store.get('ai-tip-da-xem').then(v => { if (!v){ $('ai-tip').classList.add('show');
     setTimeout(() => $('ai-tip').classList.remove('show'), 8000); } }).catch(()=>{});
 }
+
+/* ================= 3.12.0: CHAT NHÓM DỰ ÁN + GIAO VIỆC (Firebase Firestore, thời gian thực) =================
+   Bong bóng nổi có 3 thẻ: ✦ Trợ lý AI · 💬 Nhóm dự án · 📋 Việc giao.
+   Đăng nhập Firebase bằng vé do máy chủ ký (chatVao) — không cần mật khẩu mới. Thư viện Firebase chỉ tải sau khi app mở xong 5 giây. */
+const FB_V = '10.12.2';
+S.cx = {tab:'ai', san:false, dang:false, uid:'', gv:false, tv:[], maDA:'', tin:[], viec:{}, dsViec:[], huy:[], them:false, loc:'toi', anhXong:[]};
+const cxVT = v => ({KT_NHAP:'CBKT', QS:'QS', CHT_DUYET:'CHT', ADMIN:'QT', QUAN_TRI:'QT'})[v] || v || '';
+const cxGio = ms => { if (!ms) return ''; const d = new Date(ms), h = new Date(); const g = d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+  return d.toDateString() === h.toDateString() ? g : d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}) + ' ' + g; };
+const cxMs = t => t && t.toMillis ? t.toMillis() : (typeof t === 'number' ? t : Date.now());
+const cxDocDoc = ma => { try { return +localStorage.getItem('cx-doc-' + ma) || 0; } catch(e){ return 0; } };
+const cxDaDoc = ma => { try { localStorage.setItem('cx-doc-' + ma, String(Date.now())); } catch(e){} };
+
+async function cxKhoi(){
+  if (S.cx.san || S.cx.dang || !S.user || !navigator.onLine || (DEMO && !window.__cxThu)) return;
+  S.cx.dang = true;
+  try {
+    await napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-app-compat.js');
+    await napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-auth-compat.js');
+    await napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-firestore-compat.js');
+    if (!firebase.apps.length) firebase.initializeApp(FCM.config);
+    if (!S.cx.bo){ S.cx.bo = 1; try { await firebase.firestore().enablePersistence({synchronizeTabs:true}); } catch(e){} }   // đệm trên máy → mở lại app chỉ tải phần mới, đỡ lượt đọc
+    const r = await api('chatVao', {}, 40);
+    S.cx.uid = r.uid; S.cx.gv = !!r.gv; S.cx.tv = r.thanhVien || [];
+    await firebase.auth().signInWithCustomToken(r.token);                                   // vé mới mỗi lần mở → quyền dự án luôn đúng theo NHAN_SU
+    S.cx.san = true; cxNghe(); if ($('ai-chat').classList.contains('show') && S.cx.tab !== 'ai') cxTab(S.cx.tab);
+  } catch(e){ console.warn('chat', e); S.cx.loi = e.message; if ($('ai-chat').classList.contains('show')) cxVe(); }
+  S.cx.dang = false;
+}
+function cxNghe(){
+  const ma = daHienTai(); if (!S.cx.san || !ma || S.cx.maDA === ma) return;
+  S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = [];
+  S.cx.maDA = ma; S.cx.tin = []; S.cx.viec = {}; S.cx.dsViec = [];
+  const db = firebase.firestore(), goc = db.collection('chat').doc(ma);
+  S.cx.huy.push(goc.collection('tin').orderBy('ts', 'desc').limit(60).onSnapshot(q => {
+    S.cx.tin = q.docs.map(d => Object.assign({id:d.id}, d.data())).reverse();
+    cxHuyHieu(); if (S.cx.tab === 'nhom' && $('ai-chat').classList.contains('show')){ cxDaDoc(ma); cxVeNhom(true); }
+  }, e => { S.cx.loi = 'Chat: ' + e.message; }));
+  S.cx.huy.push(goc.collection('viec').orderBy('ts', 'desc').limit(120).onSnapshot(q => {
+    S.cx.dsViec = q.docs.map(d => Object.assign({id:d.id}, d.data())); S.cx.viec = {}; S.cx.dsViec.forEach(v => S.cx.viec[v.id] = v);
+    cxHuyHieu(); if ($('ai-chat').classList.contains('show')){ if (S.cx.tab === 'viec') cxVeViec(); else if (S.cx.tab === 'nhom') cxVeNhom(false); }
+  }, e => { S.cx.loi = 'Việc: ' + e.message; }));
+}
+/* số chưa đọc + việc cần xử lý → chấm đỏ trên bong bóng và trên thẻ */
+function cxCanXL(v){ const me = S.cx.uid;
+  return (v.nhan && v.nhan.uid === me && ['MOI', 'TRA_LAI', 'DANG_LAM'].includes(v.tt)) || (v.giao && v.giao.uid === me && v.tt === 'XONG'); }
+function cxHuyHieu(){
+  const ma = S.cx.maDA, doc = cxDocDoc(ma);
+  const moi = S.cx.tin.filter(t => t.uid !== S.cx.uid && cxMs(t.ts) > doc).length;
+  const viec = S.cx.dsViec.filter(v => cxCanXL(v) && v.tt !== 'DANG_LAM').length;
+  const tong = moi + viec;
+  let b = $('fab-n'); if (!b){ b = document.createElement('span'); b.id = 'fab-n'; $('ai-fab').appendChild(b); }
+  b.textContent = tong > 99 ? '99+' : tong; b.style.display = tong ? 'flex' : 'none';
+  const t1 = document.querySelector('#cx-tabs [data-t="nhom"] i'), t2 = document.querySelector('#cx-tabs [data-t="viec"] i');
+  if (t1){ t1.textContent = moi; t1.style.display = moi ? 'inline-flex' : 'none'; }
+  if (t2){ t2.textContent = viec; t2.style.display = viec ? 'inline-flex' : 'none'; }
+}
+function cxTab(t){
+  S.cx.tab = t;
+  document.querySelectorAll('#cx-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $('ai-body').style.display = $('ai-foot').style.display = t === 'ai' ? '' : 'none';
+  $('cx-nhom').style.display = t === 'nhom' ? 'flex' : 'none';
+  $('cx-viec').style.display = t === 'viec' ? 'block' : 'none';
+  const da = S.duan.find(d => d.maDA === daHienTai()) || {};
+  $('cx-tit').innerHTML = t === 'ai' ? '<b>Trợ lý BCH</b><small>AI kỹ thuật · LICOGI13FC</small>'
+    : '<b>' + (t === 'nhom' ? 'Nhóm ' : 'Việc giao · ') + escA(da.maDA || '') + '</b><small>' + escA(da.tenDA || '') + (t === 'nhom' ? ' · ' + S.cx.tv.filter(x => x.duAn.includes('TAT_CA') || x.duAn.includes(da.maDA)).length + ' thành viên' : '') + '</small>';
+  const ng = $('cx-nut-gv'); if (ng) ng.style.display = S.cx.gv ? '' : 'none';
+  if (t === 'ai') veAI(); else cxVe();
+}
+function cxVe(){
+  if (!S.cx.san){
+    const html = '<div class="cx-cho">' + (S.cx.loi ? '⚠ Chưa kết nối được chat: ' + escA(S.cx.loi) + '<br><button class="small" onclick="S.cx.loi=\'\';cxKhoi()">Thử lại</button>'
+      : navigator.onLine ? 'Đang kết nối nhóm dự án…' : 'Cần có mạng để dùng chat.') + '</div>';
+    $('cx-list').innerHTML = html; $('cx-viec').innerHTML = html; if (!S.cx.dang && !S.cx.loi) cxKhoi(); return;
+  }
+  cxNghe();
+  if (S.cx.tab === 'nhom'){ cxDaDoc(S.cx.maDA); cxHuyHieu(); cxVeNhom(true); } else cxVeViec();
+}
+/* ---------- NHÓM ---------- */
+function cxVeNhom(cuoi){
+  const box = $('cx-list'); const gan = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+  if (!S.cx.tin.length){ box.innerHTML = '<div class="cx-cho">Chưa có tin nhắn. Gửi lời chào đầu tiên cho nhóm dự án 👋</div>'; }
+  else {
+    let truoc = null;
+    box.innerHTML = S.cx.tin.map(t => {
+      const me = t.uid === S.cx.uid, ms = cxMs(t.ts);
+      const ngay = new Date(ms).toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit'});
+      let tieu = ''; if (ngay !== truoc){ tieu = '<div class="cx-ngay">' + ngay + '</div>'; truoc = ngay; }
+      if (t.xoa) return tieu + '<div class="cx-he">Tin nhắn đã thu hồi</div>';
+      if (t.loai === 'viec' && t.viecId && S.cx.viec[t.viecId]) return tieu + '<div class="cx-row ' + (me ? 'me' : '') + '">' + cxThe(S.cx.viec[t.viecId], true) + '</div>';
+      if (t.viecId) return tieu + '<div class="cx-he" onclick="cxTab(\'viec\')">' + escA(t.text) + ' · ' + cxGio(ms) + '</div>';
+      return tieu + '<div class="cx-row ' + (me ? 'me' : '') + '"><div class="cx-b">' + (me ? '' : '<div class="cx-ai">' + escA(t.ten) + ' <span>' + escA(cxVT(t.vt)) + '</span></div>')
+        + (t.anh ? '<img src="' + escA(t.anh) + '" loading="lazy" onclick="window.open(this.src.replace(\'sz=w1200\',\'sz=w2400\'),\'_blank\')">' : '')
+        + (t.text ? '<div class="cx-tx">' + escA(t.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>') + '</div>' : '')
+        + '<div class="cx-t">' + cxGio(ms) + (me && Date.now() - ms < 3600000 ? ' · <a href="#" onclick="cxThuHoi(\'' + t.id + '\');return false">thu hồi</a>' : '') + '</div></div></div>';
+    }).join('');
+  }
+  if (cuoi || gan) box.scrollTop = box.scrollHeight;
+}
+async function cxGui(){
+  const i = $('cx-in'), text = i.value.trim(); if (!text) return;
+  if (!S.cx.san){ toast('Chat chưa kết nối'); return; }
+  i.value = ''; i.style.height = '';
+  try {
+    await firebase.firestore().collection('chat').doc(S.cx.maDA).collection('tin').add({uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text, loai:'text', ts:firebase.firestore.FieldValue.serverTimestamp()});
+    api('chatDay', {maDA:S.cx.maDA, noiDung:text}, 30).catch(() => {});
+  } catch(e){ i.value = text; toast('Chưa gửi được: ' + e.message, 4000); }
+}
+async function cxGuiAnh(files){
+  if (!files || !files.length) return;
+  for (const f of [...files].slice(0, 4)){
+    const d = await nenAnh(f, 1600, .8); if (!d) continue;
+    toast('Đang gửi ảnh…');
+    try {
+      const r = await api('chatAnh', {maDA:S.cx.maDA, anh:d}, 90);
+      await firebase.firestore().collection('chat').doc(S.cx.maDA).collection('tin').add({uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text:'', anh:r.url, loai:'anh', ts:firebase.firestore.FieldValue.serverTimestamp()});
+      api('chatDay', {maDA:S.cx.maDA, noiDung:'📷 Ảnh'}, 30).catch(() => {});
+    } catch(e){ toast('Chưa gửi được ảnh: ' + e.message, 4000); }
+  }
+}
+async function cxThuHoi(id){
+  if (!confirm('Thu hồi tin nhắn này?')) return;
+  try { await firebase.firestore().collection('chat').doc(S.cx.maDA).collection('tin').doc(id).update({xoa:true}); } catch(e){ toast('Không thu hồi được: ' + e.message); }
+}
+/* ---------- VIỆC GIAO ---------- */
+const TT_V = {MOI:['Mới giao', '#1A5C96'], DANG_LAM:['Đang làm', '#8A5A00'], XONG:['Chờ nghiệm thu', '#6B3FA0'], DA_DUYET:['Đã nghiệm thu', '#1E7A3C'], TRA_LAI:['Trả lại', '#C00000']};
+function cxQuaHan(v){ if (!v.han || ['XONG', 'DA_DUYET'].includes(v.tt)) return 0; const h = new Date(v.han + 'T23:59:59'); return h < new Date() ? Math.ceil((Date.now() - h) / 86400000) : 0; }
+function cxThe(v, gon){
+  const me = S.cx.uid, tt = TT_V[v.tt] || [v.tt, '#555'], qh = cxQuaHan(v);
+  const laNhan = v.nhan && v.nhan.uid === me, laGiao = v.giao && v.giao.uid === me;
+  let nut = '';
+  if (laNhan && ['MOI', 'TRA_LAI'].includes(v.tt)) nut += '<button class="small ok" onclick="cxDoiTT(\'' + v.id + '\',\'DANG_LAM\')">✓ Nhận việc</button>';
+  if (laNhan && v.tt === 'DANG_LAM') nut += '<button class="small ok" onclick="cxMoXong(\'' + v.id + '\')">🏁 Báo hoàn thành</button>';
+  if (laGiao && v.tt === 'XONG') nut += '<button class="small ok" onclick="cxDoiTT(\'' + v.id + '\',\'DA_DUYET\')">✔ Nghiệm thu</button><button class="small no" onclick="cxTraLai(\'' + v.id + '\')">↩ Trả lại</button>';
+  const ls = (v.lichSu || []).slice(-1)[0];
+  return '<div class="cx-the' + (qh ? ' qh' : '') + '"><div class="cx-the-h"><span>📋 VIỆC GIAO' + (v.uuTien === 'Gấp' ? ' · <b style="color:#C00000">GẤP</b>' : '') + '</span><span class="cx-pill" style="background:' + tt[1] + '">' + tt[0] + '</span></div>'
+    + '<div class="cx-the-t">' + escA(v.tieuDe) + '</div>'
+    + (v.moTa && !gon ? '<div class="cx-the-m">' + escA(v.moTa) + '</div>' : '')
+    + '<div class="cx-the-i">👷 <b>' + escA((v.nhan || {}).ten || '') + '</b> · giao bởi ' + escA((v.giao || {}).ten || '') + (v.khu ? '<br>📍 ' + escA(v.khu) : '')
+    + (v.han ? '<br>⏰ Hạn ' + v.han.split('-').reverse().join('/') + (qh ? ' · <b style="color:#C00000">QUÁ HẠN ' + qh + ' ngày</b>' : '') : '') + '</div>'
+    + (v.ghiChuXong ? '<div class="cx-the-m">🏁 ' + escA(v.ghiChuXong) + '</div>' : '')
+    + ((v.anhXong || []).length ? '<div class="cx-the-a">' + v.anhXong.map(u => '<img src="' + escA(u) + '" onclick="window.open(this.src,\'_blank\')">').join('') + '</div>' : '')
+    + (ls && !gon ? '<div class="cx-t">Cập nhật: ' + escA(ls.ten || '') + ' · ' + cxGio(ls.luc) + (ls.gc ? ' — ' + escA(ls.gc) : '') + '</div>' : '')
+    + (nut ? '<div class="acts">' + nut + '</div>' : '') + '</div>';
+}
+function cxVeViec(){
+  const box = $('cx-viec'), me = S.cx.uid, loc = S.cx.loc;
+  let ds = S.cx.dsViec.filter(v => loc === 'toi' ? v.nhan && v.nhan.uid === me : loc === 'giao' ? v.giao && v.giao.uid === me : true);
+  const nhom = [['Cần xử lý', v => v.tt !== 'DA_DUYET' && (cxQuaHan(v) || cxCanXL(v))], ['Đang thực hiện', v => ['MOI', 'DANG_LAM', 'TRA_LAI'].includes(v.tt)], ['Chờ nghiệm thu', v => v.tt === 'XONG'], ['Đã nghiệm thu', v => v.tt === 'DA_DUYET']];
+  const da = new Set(); let html = '<div class="cx-loc">' + [['toi', 'Việc của tôi'], ['giao', 'Tôi đã giao'], ['tat', 'Tất cả']].filter(x => x[0] !== 'giao' || S.cx.gv)
+    .map(x => '<button class="' + (loc === x[0] ? 'on' : '') + '" onclick="S.cx.loc=\'' + x[0] + '\';cxVeViec()">' + x[1] + '</button>').join('') + '</div>'
+    + (S.cx.gv ? '<button class="primary" style="margin:0 0 12px" onclick="cxMoGiao()">+ GIAO VIỆC MỚI</button>' : '');
+  nhom.forEach(([ten, f]) => { const g = ds.filter(v => !da.has(v.id) && f(v)); g.forEach(v => da.add(v.id)); if (!g.length) return;
+    g.sort((a, b) => (a.han || '9') < (b.han || '9') ? -1 : 1);
+    html += '<div class="cx-nh">' + ten + ' · ' + g.length + '</div>' + g.slice(0, ten === 'Đã nghiệm thu' ? 20 : 100).map(v => cxThe(v, false)).join(''); });
+  if (!ds.length) html += '<div class="cx-cho">' + (loc === 'toi' ? 'Bạn chưa được giao việc nào.' : 'Chưa có việc nào.') + '</div>';
+  box.innerHTML = html;
+}
+function cxMoGiao(){
+  const ma = S.cx.maDA;
+  const tv = S.cx.tv.filter(x => (x.duAn.includes('TAT_CA') || x.duAn.includes(ma)) && x.uid !== S.cx.uid)
+    .sort((a, b) => (a.vt === 'KT_NHAP' ? 0 : 1) - (b.vt === 'KT_NHAP' ? 0 : 1) || a.ten.localeCompare(b.ten, 'vi'));
+  const mai = new Date(Date.now() + 86400000), iso = mai.getFullYear() + '-' + String(mai.getMonth() + 1).padStart(2, '0') + '-' + String(mai.getDate()).padStart(2, '0');
+  const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'bc-modal'; div.className = 'sv-modal'; div.style.zIndex = 120;
+  div.innerHTML = '<div class="sv-box"><div style="font-weight:800;color:var(--brand)">📋 GIAO VIỆC · ' + escA(ma) + '</div>'
+    + '<label>Người nhận</label><select id="gv-nhan">' + tv.map(x => '<option value="' + x.uid + '">' + escA(x.ten) + ' · ' + escA(cxVT(x.vt)) + '</option>').join('') + '</select>'
+    + '<label>Việc cần làm</label><input id="gv-td" maxlength="200" placeholder="VD: Kiểm tra cốt thép sàn T5 trục 1-7 trước khi mời TVGS">'
+    + '<label>Chi tiết / yêu cầu (không bắt buộc)</label><textarea id="gv-mt" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #D9DCE2;border-radius:10px;padding:10px;font-family:inherit;font-size:14px" placeholder="Tiêu chuẩn, bản vẽ, số lượng, ghi chú…"></textarea>'
+    + '<label>Khu vực / vị trí</label><input id="gv-khu" placeholder="VD: Tòa D2 · tầng 5">'
+    + '<div class="hai"><div><label>Hạn hoàn thành</label><input type="date" id="gv-han" value="' + iso + '"></div><div><label>Mức độ</label><select id="gv-ut"><option>Thường</option><option>Gấp</option></select></div></div>'
+    + '<div style="display:flex;gap:8px;margin-top:16px"><button class="primary" style="flex:1" id="gv-gui" onclick="cxGiao()">GIAO VIỆC</button>'
+    + '<button class="ghost" style="width:auto;padding:0 18px" onclick="document.getElementById(\'bc-modal\').remove()">Đóng</button></div></div>';
+  div.onclick = e => { if (e.target === div) div.remove(); };
+  document.body.appendChild(div);
+}
+async function cxGiao(){
+  const nhan = S.cx.tv.find(x => x.uid === $('gv-nhan').value), td = $('gv-td').value.trim();
+  if (!nhan){ toast('Chọn người nhận'); return; } if (!td){ toast('Ghi việc cần làm'); return; }
+  const nut = $('gv-gui'); nut.disabled = true; nut.textContent = 'Đang giao…';
+  const FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(S.cx.maDA);
+  const v = {tieuDe:td, moTa:$('gv-mt').value.trim(), khu:$('gv-khu').value.trim(), han:$('gv-han').value, uuTien:$('gv-ut').value,
+    giao:{uid:S.cx.uid, ten:S.user.hoTen, email:S.user.email}, nhan:{uid:nhan.uid, ten:nhan.ten, email:nhan.email},
+    tt:'MOI', lichSu:[{tt:'MOI', ten:S.user.hoTen, luc:Date.now()}]};
+  try {
+    const ref = await goc.collection('viec').add(Object.assign({}, v, {ts:FV.serverTimestamp(), capNhat:FV.serverTimestamp()}));
+    await goc.collection('tin').add({uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text:'📋 Giao việc cho ' + nhan.ten + ': ' + td, loai:'viec', viecId:ref.id, ts:FV.serverTimestamp()});
+    document.getElementById('bc-modal').remove(); toast('Đã giao việc cho ' + nhan.ten);
+    api('viecGhi', {maDA:S.cx.maDA, viec:Object.assign({id:ref.id, maDA:S.cx.maDA}, v)}, 60).catch(() => {});
+  } catch(e){ nut.disabled = false; nut.textContent = 'GIAO VIỆC'; toast('Chưa giao được: ' + e.message, 4000); }
+}
+async function cxDoiTT(id, tt, them){
+  const v = S.cx.viec[id]; if (!v) return;
+  const FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(S.cx.maDA);
+  const muc = {tt, ten:S.user.hoTen, luc:Date.now()}; if (them && them.gc) muc.gc = them.gc;
+  const up = Object.assign({tt, capNhat:FV.serverTimestamp(), lichSu:FV.arrayUnion(muc)}, them && them.anhXong ? {anhXong:them.anhXong, ghiChuXong:them.ghiChuXong || ''} : {});
+  try {
+    await goc.collection('viec').doc(id).update(up);
+    const chu = {DANG_LAM:'✓ ' + S.user.hoTen + ' đã nhận việc', XONG:'🏁 ' + S.user.hoTen + ' báo hoàn thành', DA_DUYET:'✔ ' + S.user.hoTen + ' đã nghiệm thu', TRA_LAI:'↩ ' + S.user.hoTen + ' trả lại'}[tt] || tt;
+    await goc.collection('tin').add({uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text:chu + ': ' + v.tieuDe, loai:'text', viecId:id, ts:FV.serverTimestamp()});
+    const moi = Object.assign({}, v, {tt, lichSu:(v.lichSu || []).concat([muc])}, them && them.anhXong ? {anhXong:them.anhXong, ghiChuXong:them.ghiChuXong || ''} : {});
+    api('viecGhi', {maDA:S.cx.maDA, viec:Object.assign({maDA:S.cx.maDA}, moi, {id}), ghiChu:(them || {}).gc || ''}, 60).catch(() => {});
+    toast({DANG_LAM:'Đã nhận việc', XONG:'Đã báo hoàn thành', DA_DUYET:'Đã nghiệm thu', TRA_LAI:'Đã trả lại'}[tt] || 'Đã cập nhật');
+  } catch(e){ toast('Chưa cập nhật được: ' + e.message, 4000); }
+}
+function cxTraLai(id){ const gc = prompt('Lý do trả lại / cần làm thêm gì:', ''); if (gc === null) return; cxDoiTT(id, 'TRA_LAI', {gc}); }
+function cxMoXong(id){
+  const v = S.cx.viec[id]; if (!v) return; S.cx.anhXong = [];
+  const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
+  const div = document.createElement('div'); div.id = 'bc-modal'; div.className = 'sv-modal'; div.style.zIndex = 120;
+  div.innerHTML = '<div class="sv-box"><div style="font-weight:800;color:var(--brand)">🏁 BÁO HOÀN THÀNH</div><div class="meta" style="margin-top:4px">' + escA(v.tieuDe) + '</div>'
+    + '<label>Kết quả / ghi chú</label><textarea id="xo-gc" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #D9DCE2;border-radius:10px;padding:10px;font-family:inherit;font-size:14px" placeholder="Đã làm gì, còn tồn tại gì"></textarea>'
+    + '<label>Ảnh minh chứng (tối đa 4)</label><div class="photos" id="xo-anh"><div class="ph" onclick="$(\'cx-file-xong\').click()">＋<br>Ảnh</div></div>'
+    + '<div style="display:flex;gap:8px;margin-top:16px"><button class="primary" style="flex:1" id="xo-gui" onclick="cxGuiXong(\'' + id + '\')">GỬI BÁO HOÀN THÀNH</button>'
+    + '<button class="ghost" style="width:auto;padding:0 18px" onclick="document.getElementById(\'bc-modal\').remove()">Đóng</button></div></div>';
+  document.body.appendChild(div);
+}
+async function cxThemAnhXong(files){
+  for (const f of [...files]){ if (S.cx.anhXong.length >= 4) break; const d = await nenAnh(f, 1600, .8); if (d) S.cx.anhXong.push(d); }
+  const box = $('xo-anh'); if (!box) return;
+  box.innerHTML = S.cx.anhXong.map(d => '<div class="ph filled"><img src="' + d + '"></div>').join('') + (S.cx.anhXong.length < 4 ? '<div class="ph" onclick="$(\'cx-file-xong\').click()">＋<br>Ảnh</div>' : '');
+}
+async function cxGuiXong(id){
+  const nut = $('xo-gui'); nut.disabled = true; nut.textContent = 'Đang gửi…';
+  try {
+    const urls = [];
+    for (const d of S.cx.anhXong){ const r = await api('chatAnh', {maDA:S.cx.maDA, anh:d}, 90); urls.push(r.url); }
+    const gc = $('xo-gc').value.trim();
+    document.getElementById('bc-modal').remove();
+    await cxDoiTT(id, 'XONG', {anhXong:urls, ghiChuXong:gc, gc});
+  } catch(e){ nut.disabled = false; nut.textContent = 'GỬI BÁO HOÀN THÀNH'; toast('Chưa gửi được: ' + e.message, 4000); }
+}
+function cxDangXuat(){ S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = []; S.cx.san = false; S.cx.maDA = '';
+  try { if (window.firebase && firebase.auth) firebase.auth().signOut(); } catch(e){} }
+window.addEventListener('hashchange', () => { const hs = location.hash.replace('#', ''); if ((hs === 'chat' || hs === 'viec') && S.user){ history.replaceState(null, '', location.pathname + location.search); moAI(hs === 'chat' ? 'nhom' : 'viec'); } });
 document.querySelectorAll('.sitem').forEach(b => b.onclick = () => {
   document.querySelectorAll('.sitem').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
