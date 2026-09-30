@@ -443,6 +443,24 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .tq-box h5{font-size:12px;color:var(--ink-2);margin-bottom:7px}
 .tq-big{font-family:var(--mono);font-size:30px;font-weight:bold}
 .tq-sub{font-size:12px;color:var(--ink-2);margin-top:3px}
+/* 3.11.1: NHÂN LỰC — biểu đồ từ báo cáo sáng */
+.nl-ky{display:flex;gap:6px;margin:0 0 10px}
+.nl-ky button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-2)}
+.nl-ky button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.nl-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
+.nl-tiles div{border:1.5px solid var(--line);border-radius:7px;padding:9px 8px}
+.nl-tiles b{display:block;font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums;line-height:1.1}
+.nl-tiles span{font-size:11.5px;color:var(--ink-2)}
+.nl-svg{width:100%;height:auto;display:block}
+.nl-svg .bar{fill:var(--brand)} .nl-svg .bar.trong{fill:#E4E7EA} .nl-svg .bar.sel{fill:#7A0000}
+.nl-svg text{font-family:var(--mono);font-size:9.5px;fill:var(--ink-2)} .nl-svg .gl{stroke:#E8EBEE;stroke-width:1}
+.nl-tip{font-size:12.5px;min-height:18px;margin-top:4px;color:var(--ink)}
+.nl-to{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:3px 8px;align-items:center;font-size:12.5px;margin-bottom:6px}
+.nl-to .ten{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nl-to .so{font-family:var(--mono);font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.nl-to .tr{grid-column:1/3;height:8px;background:#F0F2F4;border-radius:4px;overflow:hidden}
+.nl-to .tr i{display:block;height:100%;background:var(--brand);border-radius:0 4px 4px 0}
+.nl-to small{grid-column:1/3;color:var(--ink-2);font-size:11px;margin-top:-2px}
 .tq-line{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line)}
 .tq-line:last-child{border-bottom:0}
 .tq-line b{font-family:var(--mono)}
@@ -787,7 +805,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.11.0';
+const APP_VERSION = '3.11.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2304,7 +2322,8 @@ function renderTongQuan(){
           <b>${Math.round(p)}%</b></div>`).join('') + `</div>`;
   }
 
-  if (muc === 'Nhân lực'){
+  if (muc === 'Nhân lực'){ $('tqBody').innerHTML = thanhChonDA('renderTongQuan') + '<div id="nlBody"></div>'; renderNhanLuc(maDA); return; }
+  if (muc === '__nhan_luc_cu__'){
     const hnay = new Date().toLocaleDateString('vi-VN');
     const congHomNay = S.logs.filter(r => r.ngay === hnay).reduce((s,r) => s + (r.nhanCong||0), 0);
     const cong14 = S.logs.reduce((s,r) => s + (r.nhanCong||0), 0);
@@ -2320,6 +2339,120 @@ function renderTongQuan(){
         Nếu bỏ trống ô này thì số liệu nhân lực sẽ thiếu.</div></div>`;
   }
   $('tqBody').innerHTML = thanhChonDA('renderTongQuan') + out;
+}
+
+/* ---------- 3.11.1: NHÂN LỰC — tổng hợp từ BÁO CÁO SÁNG: Ngày / Tuần / Tháng / Dự án · theo tổ và cả công trường ----------
+   Dữ liệu 1 lần gọi nhanLucTH (gộp sẵn theo ngày × tổ) → đệm trong máy, mở lại hiện ngay, 5 phút làm mới ngầm. */
+S.nl = {};
+const NL_KY = ['Ngày', 'Tuần', 'Tháng', 'Dự án'];
+const isoN = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const ddmm = n => n.slice(8, 10) + '/' + n.slice(5, 7);
+async function renderNhanLuc(maDA){
+  let c = S.nl[maDA];
+  if (!c){ try { c = await Store.get('nl3:' + maDA); if (c) S.nl[maDA] = c; } catch(e){} }
+  veNhanLuc(maDA);
+  if (!c || Date.now() - (c._luc || 0) > 5 * 60000){
+    if (!navigator.onLine){ if (!c) $('nlBody').innerHTML = empty('Cần có mạng để tải số liệu nhân lực lần đầu.'); return; }
+    try {
+      const r = await api('nhanLucTH', {maDA}, 60); r._luc = Date.now(); S.nl[maDA] = r;
+      try { await Store.set('nl3:' + maDA, r); } catch(e){}
+      if (daHienTai() === maDA && $('nlBody')) veNhanLuc(maDA);
+    } catch(e){ if (!c && $('nlBody')) $('nlBody').innerHTML = empty('Chưa tải được số liệu: ' + escA(e.message)); }
+  }
+}
+function veNhanLuc(maDA){
+  const box = $('nlBody'); if (!box) return;
+  const c = S.nl[maDA];
+  if (!c){ box.innerHTML = '<div class="tq-box"><div class="tq-sub">Đang tải số liệu nhân lực…</div></div>'; return; }
+  const ky = S.sub.nlKy || 'Tuần';
+  const tab = '<div class="nl-ky">' + NL_KY.map(k => '<button class="' + (k === ky ? 'on' : '') + '" onclick="S.sub.nlKy=\'' + k + '\';veNhanLuc(\'' + maDA + '\')">' + k + '</button>').join('') + '</div>';
+  const cu = c._luc ? '<div class="tq-sub" style="margin:-4px 0 8px">Nguồn: báo cáo sáng của CBKT · cập nhật ' + new Date(c._luc).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) + ' <a href="#" onclick="S.nl[\'' + maDA + '\']._luc=0;renderNhanLuc(\'' + maDA + '\');return false">làm mới</a></div>' : '';
+  if (!c.ngay.length){ box.innerHTML = tab + cu + empty('Chưa có báo cáo sáng nào cho dự án này.<br>CBKT vào <b>Báo cáo → Báo cáo sáng</b> để gửi quân số hằng ngày.'); return; }
+  const map = {}; c.ngay.forEach(o => map[o.n] = o);
+  const hn = new Date(); hn.setHours(0,0,0,0); const hnN = isoN(hn);
+  const cong = (a, b) => a + b;
+  let html = '';
+  if (ky === 'Ngày'){
+    const sel = S.sub.nlNgay && map[S.sub.nlNgay] ? S.sub.nlNgay : (map[hnN] ? hnN : c.ngay[c.ngay.length - 1].n);
+    const o = map[sel];
+    const ds = o.q.map(([i, q]) => ({ten: c.to[i], q})).sort((a, b) => b.q - a.q);
+    const idx = c.ngay.findIndex(x => x.n === sel);
+    const truoc = idx > 0 ? c.ngay[idx - 1] : null, sau = idx < c.ngay.length - 1 ? c.ngay[idx + 1] : null;
+    html += `<div class="tq-box" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
+      <button class="small" ${truoc ? 'onclick="S.sub.nlNgay=\'' + truoc.n + '\';veNhanLuc(\'' + maDA + '\')"' : 'disabled'}>‹</button>
+      <b style="flex:1;text-align:center">${sel === hnN ? 'Hôm nay · ' : ''}${new Date(sel + 'T00:00').toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'})}</b>
+      <button class="small" ${sau ? 'onclick="S.sub.nlNgay=\'' + sau.n + '\';veNhanLuc(\'' + maDA + '\')"' : 'disabled'}>›</button></div>
+      <div class="nl-tiles"><div><b>${o.t}</b><span>người cả công trường</span></div><div><b>${ds.length}</b><span>tổ có mặt</span></div><div><b>${o.r}</b><span>báo cáo sáng</span></div></div>
+      <div class="tq-box"><h5>QUÂN SỐ THEO TỔ</h5>${veThanhTo(ds.map(x => ({ten:x.ten, v:x.q})), 'người')}</div>
+      <div class="tq-box"><h5>THEO KHU VỰC</h5>${o.k.map(k => '<div class="tq-line"><span>' + escA(k[0]) + '<small style="display:block;color:var(--ink-2)">' + escA(k[2]) + (k[3] ? ' · ' + k[3] : '') + '</small></span><b>' + k[1] + ' người</b></div>').join('')}</div>`;
+  } else {
+    let bd;
+    if (ky === 'Tuần'){ bd = new Date(hn.getTime() - 6 * 86400000); }
+    else if (ky === 'Tháng'){ bd = new Date(hn.getFullYear(), hn.getMonth(), 1); }
+    else { bd = new Date(c.ngay[0].n + 'T00:00'); }                  // Dự án: từ ngày có báo cáo sáng đầu tiên
+    const ngs = []; for (let d = new Date(bd); d <= hn; d = new Date(d.getTime() + 86400000)) ngs.push(isoN(d));
+    const coBC = ngs.filter(n => map[n]);
+    const tongCong = coBC.map(n => map[n].t).reduce(cong, 0);
+    const binhQuan = coBC.length ? Math.round(tongCong / coBC.length) : 0;
+    const dinh = coBC.reduce((m, n) => map[n].t > (m ? map[m].t : -1) ? n : m, '');
+    /* cột: Tuần/Tháng theo ngày; Dự án > 45 ngày thì gộp theo tuần (bình quân người/ngày có báo cáo) */
+    let cot;
+    if (ky === 'Dự án' && ngs.length > 45){
+      const tuan = {};
+      ngs.forEach(n => { const d = new Date(n + 'T00:00'); const t2 = new Date(d.getTime() - ((d.getDay() + 6) % 7) * 86400000); const k = isoN(t2);
+        const o = tuan[k] = tuan[k] || {n:k, s:0, c:0}; if (map[n]){ o.s += map[n].t; o.c++; } });
+      cot = Object.values(tuan).map(o => ({n:o.n, v:o.c ? Math.round(o.s / o.c) : 0, nhan:'Tuần ' + ddmm(o.n), trong:!o.c, ghi:o.c ? 'bình quân ' + Math.round(o.s / o.c) + ' người/ngày · ' + o.c + ' ngày có báo cáo' : 'không có báo cáo'}));
+    } else {
+      cot = ngs.map(n => ({n, v:map[n] ? map[n].t : 0, nhan:ddmm(n), trong:!map[n], ghi:map[n] ? map[n].t + ' người · ' + map[n].r + ' báo cáo' : 'chưa có báo cáo sáng'}));
+    }
+    const theoTo = {};
+    coBC.forEach(n => map[n].q.forEach(([i, q]) => { const o = theoTo[i] = theoTo[i] || {cong:0, ngay:0}; o.cong += q; o.ngay++; }));
+    const dsTo = Object.keys(theoTo).map(i => ({ten:c.to[i], v:theoTo[i].cong, ghi:theoTo[i].ngay + ' ngày · bình quân ' + Math.round(theoTo[i].cong / theoTo[i].ngay) + ' người'})).sort((a, b) => b.v - a.v);
+    html += `<div class="nl-tiles"><div><b>${binhQuan}</b><span>người/ngày bình quân</span></div>
+        <div><b>${dinh ? map[dinh].t : 0}</b><span>đỉnh${dinh ? ' · ' + ddmm(dinh) : ''}</span></div>
+        <div><b>${tongCong.toLocaleString('vi-VN')}</b><span>công trong kỳ</span></div></div>
+      <div class="tq-box"><h5>CẢ CÔNG TRƯỜNG · ${ky === 'Dự án' && ngs.length > 45 ? 'BÌNH QUÂN NGƯỜI/NGÀY THEO TUẦN' : 'QUÂN SỐ THEO NGÀY'}</h5>
+        ${veCot(cot, maDA)}<div class="nl-tip" id="nl-tip">Chạm vào cột để xem số.</div>
+        <div class="tq-sub">${coBC.length}/${ngs.length} ngày có báo cáo sáng${ngs.length - coBC.length ? ' — cột xám là ngày chưa có báo cáo' : ''}.</div></div>
+      <div class="tq-box"><h5>THEO TỔ · TỔNG CÔNG TRONG KỲ</h5>${veThanhTo(dsTo, 'công')}</div>`;
+  }
+  const qs = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  html += `<div class="tq-box"><div class="tq-line"><span>Tổ đội khai báo (sheet TO_DOI)</span><b>${qs.length} tổ · ${qs.reduce((s, t) => s + (+t.quanSo || 0), 0)} người</b></div></div>`;
+  box.innerHTML = tab + cu + html;
+}
+function veThanhTo(ds, dv){
+  if (!ds.length) return '<div class="tq-sub">Không có số liệu.</div>';
+  let hien = ds;
+  if (ds.length > 15){ const khac = ds.slice(14); hien = ds.slice(0, 14).concat([{ten:'Khác (' + khac.length + ' tổ)', v:khac.reduce((s, x) => s + x.v, 0)}]); }
+  const max = Math.max(...hien.map(x => x.v)) || 1;
+  return hien.map(x => `<div class="nl-to"><span class="ten">${escA(x.ten)}</span><span class="so">${x.v.toLocaleString('vi-VN')}</span>
+    <div class="tr"><i style="width:${Math.max(2, x.v / max * 100)}%"></i></div>${x.ghi ? '<small>' + x.ghi + '</small>' : ''}</div>`).join('') + '<div class="tq-sub">Đơn vị: ' + dv + '</div>';
+}
+function veCot(cot, maDA){
+  const W = 340, H = 170, T = 14, B = 22, L = 30, R = 6;
+  const max = Math.max(10, ...cot.map(x => x.v));
+  const buoc = [10, 20, 25, 50, 100, 200, 250, 500, 1000].find(s => max / s <= 4) || 1000;
+  const top = Math.ceil(max / buoc) * buoc;
+  const y = v => T + (H - T - B) * (1 - v / top);
+  const bw = (W - L - R) / cot.length, gap = Math.min(4, bw * 0.25);
+  let s = '<svg class="nl-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Biểu đồ quân số">';
+  for (let v = 0; v <= top; v += buoc) s += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text x="' + (L - 4) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + v + '</text>';
+  const moi = Math.ceil(cot.length / 8);
+  const iMax = cot.reduce((m, x, i) => x.v > cot[m].v ? i : m, 0);
+  cot.forEach((x, i) => {
+    const bx = L + i * bw + gap / 2, w = Math.max(1, bw - gap), h = x.trong ? 3 : Math.max(2, y(0) - y(x.v));
+    const yy = y(0) - h, r = Math.min(3, w / 2);
+    s += '<path class="bar' + (x.trong ? ' trong' : '') + '" d="M' + bx + ',' + y(0) + 'V' + (yy + r) + 'Q' + bx + ',' + yy + ' ' + (bx + r) + ',' + yy + 'H' + (bx + w - r) + 'Q' + (bx + w) + ',' + yy + ' ' + (bx + w) + ',' + (yy + r) + 'V' + y(0) + 'Z"/>';
+    s += '<rect x="' + (L + i * bw) + '" y="' + T + '" width="' + bw + '" height="' + (H - T - B) + '" fill="transparent" style="cursor:pointer" onclick="nlChon(this,\'' + escA(x.nhan + ': ' + x.ghi) + '\')"><title>' + escA(x.nhan + ': ' + x.ghi) + '</title></rect>';
+    if ((i % moi === 0 && cot.length - 1 - i >= moi * 0.7) || i === cot.length - 1) s += '<text x="' + (bx + w / 2) + '" y="' + (H - 7) + '" text-anchor="middle">' + x.nhan.replace('Tuần ', '') + '</text>';
+    if ((i === iMax || i === cot.length - 1) && !x.trong) s += '<text x="' + (bx + w / 2) + '" y="' + (yy - 3) + '" text-anchor="middle" style="fill:var(--ink);font-weight:700">' + x.v + '</text>';
+  });
+  return s + '</svg>';
+}
+function nlChon(el, txt){
+  const svg = el.closest('svg'); svg.querySelectorAll('.bar.sel').forEach(b => b.classList.remove('sel'));
+  const b = el.previousElementSibling; if (b && b.classList.contains('bar') && !b.classList.contains('trong')) b.classList.add('sel');
+  const t = $('nl-tip'); if (t) t.textContent = txt;
 }
 
 /* ---------- 3.10.5: SỬA ĐẦU VIỆC TỪ MÀN TIẾN ĐỘ — bấm dòng việc → sửa mốc, người phụ trách, tình trạng ---------- */
