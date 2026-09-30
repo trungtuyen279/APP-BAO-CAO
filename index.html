@@ -925,7 +925,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.12.3';
+const APP_VERSION = '3.12.4';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1722,23 +1722,45 @@ async function batThongBaoDay(){
         ? 'Máy đang CHẶN thông báo của app. Mở Cài đặt điện thoại → Ứng dụng → BÁO CÁO BCH → Thông báo → Cho phép, rồi quay lại bật.'
         : 'Bạn chưa đồng ý nhận thông báo.', 6000);
     }
-    await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
-    await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
-    if (!firebase.apps.length) firebase.initializeApp(FCM.config);
-    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
-    const ms = firebase.messaging();
-    const token = await ms.getToken({vapidKey: FCM.vapid, serviceWorkerRegistration: reg});
-    if (!token) throw new Error('Không lấy được mã thiết bị');
-    await api('dangKyThietBi', {token,
-      thietBi: (navigator.userAgent.match(/\((.*?)\)/) || [,''])[1].slice(0,60)}, 30);
+    await fcmNoi(true);
     localStorage.setItem('fcm_ok', '1');
     trangThaiDay();
-    toast('Đã bật — máy sẽ rung khi có thông báo khẩn');
-    ms.onMessage(p => { const d = p.data || {};
-      if (String(d.url || '').indexOf('#chat') > -1 && S.cx.san) return;          // tin nhóm: đã có chấm đỏ thời gian thực, không bật toast
-      toast((d.tieuDe || '') + ' — ' + (d.noiDung || '')); });
+    toast('Đã bật — máy sẽ rung khi có tin nhắn, việc giao, thông báo khẩn');
   } catch(e){ toast('Chưa bật được: ' + e.message); }
 }
+
+/* 3.12.4: nối thông báo đẩy qua CHÍNH sw.js (một service worker duy nhất). Gọi khi bấm Bật và mỗi lần mở app
+   (nếu đã bật): lấy mã thiết bị mới nhất, đăng ký lại lên máy chủ khi mã đổi hoặc quá 1 ngày → không bị 'NGUNG' âm thầm. */
+let fcmDaNghe = false;
+async function fcmNoi(ep){
+  await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+  await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+  if (!firebase.apps.length) firebase.initializeApp(FCM.config);
+  await navigator.serviceWorker.register('sw.js');
+  const reg = await navigator.serviceWorker.ready;
+  const ms = firebase.messaging();
+  const token = await ms.getToken({vapidKey: FCM.vapid, serviceWorkerRegistration: reg});
+  if (!token) throw new Error('Không lấy được mã thiết bị');
+  let cu = '', luc = 0; try { cu = localStorage.getItem('fcm_tk') || ''; luc = +localStorage.getItem('fcm_luc') || 0; } catch(e){}
+  if (ep || token !== cu || Date.now() - luc > 86400000){
+    await api('dangKyThietBi', {token, thietBi: (navigator.userAgent.match(/\((.*?)\)/) || [,''])[1].slice(0,60)}, 30);
+    try { localStorage.setItem('fcm_tk', token); localStorage.setItem('fcm_luc', String(Date.now())); } catch(e){}
+  }
+  if (!fcmDaNghe){ fcmDaNghe = true;
+    ms.onMessage(p => { const d = p.data || {};                                     // app đang mở trên màn hình
+      if (String(d.url || '').indexOf('#chat') > -1 && S.cx.san && $('ai-chat').classList.contains('show')) return;
+      toast((d.tieuDe || '') + ' — ' + (d.noiDung || ''), 4000); });
+  }
+}
+function fcmTuNoi(){
+  try { if (!('Notification' in window) || Notification.permission !== 'granted' || !localStorage.getItem('fcm_ok') || !navigator.onLine || DEMO) return; } catch(e){ return; }
+  fcmNoi(false).catch(e => console.warn('FCM', e));
+}
+/* bấm thông báo khi app đang mở → sw.js gửi địa chỉ, app mở đúng nhóm / việc */
+if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
+  const u = e.data && e.data.moTB; if (!u || !S.user) return;
+  try { const hs = decodeURIComponent(new URL(u).hash.replace('#', '')); if (hs && typeof cxMoHash === 'function') cxMoHash(hs); } catch(x){}
+});
 
 /* ---------- lời cảm ơn khi báo cáo đúng giờ (mỗi ngày 1 lần) ---------- */
 function hienCamOn(){
@@ -4047,7 +4069,7 @@ async function guiAI(cauHoi){
 }
 function hienFabAI(){
   $('ai-fab').classList.add('show');
-  cxNap(); setTimeout(cxKhoi, 1200);                          // 3.12.3: hiện tin đã lưu ngay, nối chat sau 1,2 giây
+  cxNap(); setTimeout(cxKhoi, 1200); setTimeout(fcmTuNoi, 4000);                          // 3.12.3: hiện tin đã lưu ngay, nối chat sau 1,2 giây
   const hs = decodeURIComponent(location.hash.replace('#', '')); if (/^(chat|viec)(-|$)/.test(hs)) setTimeout(() => cxMoHash(hs), 300);
   Store.get('ai-tip-da-xem').then(v => { if (!v){ $('ai-tip').classList.add('show');
     setTimeout(() => $('ai-tip').classList.remove('show'), 8000); } }).catch(()=>{});
