@@ -451,6 +451,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .cx-dsr.moi .cx-dsm b{font-weight:800}.cx-dsr.moi .cx-dsm small{color:#222;font-weight:600}
 .cx-dsp{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}.cx-dsp small{font-size:11.5px;color:#999}
 .cx-dsp u{text-decoration:none;background:#E5242B;color:#fff;border-radius:10px;min-width:20px;height:20px;padding:0 6px;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.cx-dong{background:#FFF8E1;color:#7A5A00;font-size:12.5px;padding:7px 14px;border-bottom:1px solid #F3E3B0}.cx-dong a{color:#1A5C96;font-weight:700}
 .cx-dsg{font-size:12px;color:#999;padding:14px 16px;line-height:1.5;margin:0}
 .cx-da{display:inline-block;border-radius:6px;padding:0 6px;font-size:10.5px;font-weight:800;color:#fff;margin-left:4px;vertical-align:1px}
 .cx-locda{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
@@ -924,7 +925,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.12.2';
+const APP_VERSION = '3.12.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1691,13 +1692,13 @@ $('btnSave').onclick = async () => {
 
 /* ---------- 7. HÀNG CHỜ & ĐỒNG BỘ ---------- */
 /* ---------- THÔNG BÁO ĐẨY: rung máy cả khi app đã đóng ---------- */
-function napJS(src){
-  return new Promise((ok, loi) => {
-    if (document.querySelector('script[src="' + src + '"]')) return ok();
+const _napJS = {};
+function napJS(src){          /* 3.12.3: nhớ lời hứa theo địa chỉ — lần gọi sau chờ đúng lần tải đang chạy, không trả về sớm */
+  return _napJS[src] || (_napJS[src] = new Promise((ok, loi) => {
     const s = document.createElement('script');
-    s.src = src; s.onload = ok; s.onerror = () => loi(new Error('Không tải được thư viện Firebase'));
+    s.src = src; s.onload = ok; s.onerror = () => { delete _napJS[src]; s.remove(); loi(new Error('Không tải được thư viện Firebase')); };
     document.head.appendChild(s);
-  });
+  }));
 }
 function trangThaiDay(){
   const e = $('a-day-tt'); if (!e) return;
@@ -4046,7 +4047,7 @@ async function guiAI(cauHoi){
 }
 function hienFabAI(){
   $('ai-fab').classList.add('show');
-  setTimeout(cxKhoi, 5000);                                   // 3.12.0: nối chat nhóm sau khi app mở xong
+  cxNap(); setTimeout(cxKhoi, 1200);                          // 3.12.3: hiện tin đã lưu ngay, nối chat sau 1,2 giây
   const hs = decodeURIComponent(location.hash.replace('#', '')); if (/^(chat|viec)(-|$)/.test(hs)) setTimeout(() => cxMoHash(hs), 300);
   Store.get('ai-tip-da-xem').then(v => { if (!v){ $('ai-tip').classList.add('show');
     setTimeout(() => $('ai-tip').classList.remove('show'), 8000); } }).catch(()=>{});
@@ -4073,19 +4074,58 @@ const cxChuNhom = ma => ma === CX_CHUNG ? 'BCH' : ma.split('-').map(s => s[0]).j
 const cxNhoms = () => [CX_CHUNG].concat(S.cx.dsDA);
 const cxSoTV = ma => ma === CX_CHUNG ? S.cx.tv.length : S.cx.tv.filter(x => x.duAn.includes('TAT_CA') || x.duAn.includes(ma)).length;
 
+/* 3.12.3: MỞ CHAT NHANH
+   - Đệm trên máy (IndexedDB 'cx-bo'): danh sách nhóm, 40 tin/nhóm, việc giao, thành viên → mở bong bóng là thấy ngay, kể cả mất sóng.
+   - Phiên Firebase còn hạn (đã lưu trên máy) → nghe tin ngay, KHÔNG chờ máy chủ Apps Script; vé mới lấy ngầm phía sau.
+   - Thư viện Firebase: tải app trước, auth + firestore song song; sw.js giữ sẵn trong máy (không tải lại mỗi lần mở). */
+let cxHenLuu = null;
+function cxLuuBo(){ clearTimeout(cxHenLuu); cxHenLuu = setTimeout(() => {
+  if (!S.user || !S.cx.uid) return;
+  const ms = o => Object.assign({}, o, {ts:cxMs(o.ts), capNhat:o.capNhat ? cxMs(o.capNhat) : 0});
+  const tin = {}; Object.keys(S.cx.tinDA).forEach(m => tin[m] = (S.cx.tinDA[m] || []).map(ms));
+  Store.set('cx-bo', {email:S.user.email, uid:S.cx.uid, gv:S.cx.gv, qt:S.cx.qt, dsDA:S.cx.dsDA, tv:S.cx.tv, tin, viec:S.cx.dsViec.map(ms), luc:Date.now()}).catch(() => {});
+}, 1500); }
+async function cxNap(){
+  if (S.cx.coBo || S.cx.san || !S.user) return;
+  try {
+    const b = await Store.get('cx-bo'); if (!b || b.email !== S.user.email || S.cx.san) return;
+    Object.assign(S.cx, {uid:b.uid, gv:!!b.gv, qt:!!b.qt, dsDA:b.dsDA || [], tv:b.tv || [], tinDA:b.tin || {}, coBo:true});
+    S.cx.viecDA = {}; (b.viec || []).forEach(v => (S.cx.viecDA[v.da] = S.cx.viecDA[v.da] || []).push(v));
+    S.cx.dsViec = b.viec || []; S.cx.viec = {}; S.cx.dsViec.forEach(v => S.cx.viec[v.id] = v);
+    if (S.cx.maDA) S.cx.tin = S.cx.tinDA[S.cx.maDA] || [];
+    cxHuyHieu(); cxVeLai();
+  } catch(e){}
+}
+function cxVeLai(){ if ($('ai-chat').classList.contains('show') && S.cx.tab !== 'ai') cxTab(S.cx.tab); }
+function cxBoNghe(){ S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = []; S.cx.nghe = false; }
+async function cxVaoNen(cho){
+  try {
+    const r = await api('chatVao', {}, 40);
+    const dsMoi = (r.duAn || []).filter(String), doiDA = dsMoi.join('|') !== S.cx.dsDA.join('|') || r.uid !== S.cx.uid;
+    S.cx.uid = r.uid; S.cx.gv = !!r.gv; S.cx.qt = !!r.qt; S.cx.tv = r.thanhVien || []; S.cx.dsDA = dsMoi;
+    await firebase.auth().signInWithCustomToken(r.token);                                   // vé mới → quyền dự án đúng theo NHAN_SU hiện tại
+    if (doiDA && S.cx.nghe){ cxBoNghe(); cxNghe(); }
+    cxLuuBo(); cxHuyHieu(); if (doiDA || cho) cxVeLai();
+  } catch(e){ if (cho) throw e; console.warn('chatVao nền', e); }
+}
 async function cxKhoi(){
   if (S.cx.san || S.cx.dang || !S.user || !navigator.onLine || (DEMO && !window.__cxThu)) return;
   S.cx.dang = true;
   try {
     await napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-app-compat.js');
-    await napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-auth-compat.js');
-    await napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-firestore-compat.js');
+    await Promise.all([napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-auth-compat.js'),
+      napJS('https://www.gstatic.com/firebasejs/' + FB_V + '/firebase-firestore-compat.js')]);
     if (!firebase.apps.length) firebase.initializeApp(FCM.config);
-    if (!S.cx.bo){ S.cx.bo = 1; try { await firebase.firestore().enablePersistence({synchronizeTabs:true}); } catch(e){} }   // đệm trên máy → mở lại app chỉ tải phần mới, đỡ lượt đọc
-    const r = await api('chatVao', {}, 40);
-    S.cx.uid = r.uid; S.cx.gv = !!r.gv; S.cx.qt = !!r.qt; S.cx.tv = r.thanhVien || []; S.cx.dsDA = (r.duAn || []).filter(String);
-    await firebase.auth().signInWithCustomToken(r.token);                                   // vé mới mỗi lần mở → quyền dự án luôn đúng theo NHAN_SU
-    S.cx.san = true; cxNghe(); if ($('ai-chat').classList.contains('show') && S.cx.tab !== 'ai') cxTab(S.cx.tab);
+    if (!S.cx.bo){ S.cx.bo = 1; try { await firebase.firestore().enablePersistence({synchronizeTabs:true}); } catch(e){} }
+    const cu = await new Promise(ok => { const t = setTimeout(() => ok(null), 4000);
+      const h = firebase.auth().onAuthStateChanged(u => { clearTimeout(t); h(); ok(u); }); });
+    if (cu && S.cx.coBo && cu.uid === S.cx.uid && S.cx.dsDA.length){
+      S.cx.san = true; S.cx.loi = ''; cxNghe(); cxVeLai();        // đường nhanh: dùng phiên còn hạn
+      cxVaoNen(false);                                           // làm mới vé + danh sách thành viên phía sau
+    } else {
+      await cxVaoNen(true);
+      S.cx.san = true; S.cx.loi = ''; cxNghe(); cxVeLai();
+    }
   } catch(e){ console.warn('chat', e); S.cx.loi = e.message; if ($('ai-chat').classList.contains('show')) cxVe(); }
   S.cx.dang = false;
 }
@@ -4096,7 +4136,7 @@ function cxNghe(){
   cxNhoms().forEach(ma => {
     const goc = db.collection('chat').doc(ma);
     S.cx.huy.push(goc.collection('tin').orderBy('ts', 'desc').limit(40).onSnapshot(q => {
-      S.cx.tinDA[ma] = q.docs.map(d => Object.assign({id:d.id}, d.data())).reverse();
+      S.cx.tinDA[ma] = q.docs.map(d => Object.assign({id:d.id}, d.data())).reverse(); cxLuuBo();
       if (S.cx.maDA === ma) S.cx.tin = S.cx.tinDA[ma];
       cxHuyHieu();
       if (S.cx.tab === 'nhom' && $('ai-chat').classList.contains('show')){
@@ -4107,7 +4147,7 @@ function cxNghe(){
     S.cx.huy.push(goc.collection('viec').orderBy('ts', 'desc').limit(120).onSnapshot(q => {
       S.cx.viecDA[ma] = q.docs.map(d => Object.assign({id:d.id, da:ma}, d.data()));
       S.cx.dsViec = [].concat(...Object.values(S.cx.viecDA)).sort((a, b) => cxMs(b.ts) - cxMs(a.ts));
-      S.cx.viec = {}; S.cx.dsViec.forEach(v => S.cx.viec[v.id] = v);
+      S.cx.viec = {}; S.cx.dsViec.forEach(v => S.cx.viec[v.id] = v); cxLuuBo();
       cxHuyHieu(); if ($('ai-chat').classList.contains('show')){ if (S.cx.tab === 'viec') cxVeViec(); else if (S.cx.tab === 'nhom' && S.cx.maDA) cxVeNhom(false); }
     }, e => { S.cx.loi = 'Việc ' + ma + ': ' + e.message; }));
   });
@@ -4145,15 +4185,18 @@ function cxTab(t){
   if (t === 'ai') veAI(); else cxVe();
 }
 function cxVe(){
-  if (!S.cx.san){
+  if (!S.cx.san && !S.cx.dang && !S.cx.loi) cxKhoi();
+  if (!S.cx.san && !S.cx.coBo){
     const html = '<div class="cx-cho">' + (S.cx.loi ? '⚠ Chưa kết nối được chat: ' + escA(S.cx.loi) + '<br><button class="small" onclick="S.cx.loi=\'\';cxKhoi()">Thử lại</button>'
       : navigator.onLine ? 'Đang kết nối nhóm dự án…' : 'Cần có mạng để dùng chat.') + '</div>';
-    $('cx-ds').innerHTML = html; $('cx-list').innerHTML = html; $('cx-viec').innerHTML = html; if (!S.cx.dang && !S.cx.loi) cxKhoi(); return;
+    $('cx-ds').innerHTML = html; $('cx-list').innerHTML = html; $('cx-viec').innerHTML = html; return;
   }
-  cxNghe();
+  if (S.cx.san) cxNghe();
   if (S.cx.maDA && !cxNhoms().includes(S.cx.maDA)){ S.cx.maDA = ''; S.cx.tin = []; }
   if (S.cx.tab === 'nhom'){ if (S.cx.maDA){ cxDaDoc(S.cx.maDA); cxHuyHieu(); cxVeNhom(true); } else cxVeDS(); } else cxVeViec();
 }
+const cxTrangThai = () => S.cx.san ? '' : '<div class="cx-dong">' + (S.cx.loi ? '⚠ Chưa kết nối: ' + escA(S.cx.loi) + ' · <a href="#" onclick="S.cx.loi=\'\';cxKhoi();return false">Thử lại</a>'
+  : navigator.onLine ? '↻ Đang cập nhật tin mới…' : 'Mất sóng — đang xem tin đã lưu trên máy') + '</div>';
 /* ---------- DANH SÁCH NHÓM (kiểu Zalo) ---------- */
 function cxXemTruoc(t){
   if (!t) return '<i>Chưa có tin nhắn</i>';
@@ -4164,7 +4207,7 @@ function cxXemTruoc(t){
 function cxVeDS(){
   const ds = cxNhoms().map(ma => { const ts = S.cx.tinDA[ma] || []; const cuoi = ts[ts.length - 1]; return {ma, cuoi, ms:cuoi ? cxMs(cuoi.ts) : 0, n:cxChuaDoc(ma)}; })
     .sort((a, b) => (b.ma === CX_CHUNG) - (a.ma === CX_CHUNG) || b.ms - a.ms);
-  $('cx-ds').innerHTML = ds.map(x => {
+  $('cx-ds').innerHTML = cxTrangThai() + ds.map(x => {
     const nt = x.n && (S.cx.tinDA[x.ma] || []).some(t => t.uid !== S.cx.uid && cxMs(t.ts) > cxDocDoc(x.ma) && (t.nhac || []).some(u => u === S.cx.uid || u === 'all'));
     return '<button class="cx-dsr' + (x.n ? ' moi' : '') + '" onclick="cxMoNhom(\'' + x.ma + '\')">'
       + '<i style="background:' + cxMauNhom(x.ma) + '">' + escA(cxChuNhom(x.ma)) + '</i>'
@@ -4208,6 +4251,9 @@ function cxVeCam(t){
 }
 function cxVeNhom(cuoi){
   const box = $('cx-list'); const gan = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+  const tt = cxTrangThai(); let bar = $('cx-dong-nhom');
+  if (tt && !bar){ bar = document.createElement('div'); bar.id = 'cx-dong-nhom'; $('cx-nhom').insertBefore(bar, box); }
+  if (bar){ bar.innerHTML = tt; bar.style.display = tt ? '' : 'none'; }
   if (!S.cx.tin.length){ box.innerHTML = '<div class="cx-cho">Chưa có tin nhắn. Gửi lời chào đầu tiên cho nhóm dự án 👋</div>'; }
   else {
     let truoc = null;
@@ -4331,7 +4377,7 @@ function cxThem(doc){
 }
 async function cxGui(){
   const i = $('cx-in'), text = i.value.trim(); if (!text) return;
-  if (!S.cx.san){ toast('Chat chưa kết nối'); return; }
+  if (!S.cx.san){ toast('Đang kết nối chat, gửi lại sau vài giây'); return; }
   const doc = {uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text, loai:'text', ts:firebase.firestore.FieldValue.serverTimestamp()};
   const tl = S.cx.tl, nhac = cxThem(doc);
   i.value = ''; S.cx.nhac = []; cxGo(i); $('cx-emo').hidden = true;
@@ -4356,7 +4402,7 @@ async function cxGuiAnh(files){
 /* đính kèm tệp (PDF, Word, Excel, bản vẽ…) → Drive dự án/Chat/<ngày>, tối đa 15 MB/tệp */
 async function cxGuiTep(files){
   if (!files || !files.length) return;
-  if (!S.cx.san){ toast('Chat chưa kết nối'); return; }
+  if (!S.cx.san){ toast('Đang kết nối chat, gửi lại sau vài giây'); return; }
   for (const f of [...files].slice(0, 5)){
     if (f.size > 15 * 1024 * 1024){ toast(f.name + ': quá 15 MB — gửi link Drive thay cho tệp', 4000); continue; }
     toast('Đang tải lên ' + f.name + '…', 60000);
@@ -4491,7 +4537,8 @@ async function cxGuiXong(id){
   } catch(e){ nut.disabled = false; nut.textContent = 'GỬI BÁO HOÀN THÀNH'; toast('Chưa gửi được: ' + e.message, 4000); }
 }
 function cxDangXuat(){ S.cx.huy.forEach(f => { try { f(); } catch(e){} }); S.cx.huy = []; S.cx.san = false; S.cx.nghe = false; S.cx.maDA = '';
-  S.cx.tin = []; S.cx.tinDA = {}; S.cx.viecDA = {}; S.cx.viec = {}; S.cx.dsViec = []; S.cx.dsDA = []; S.cx.locDA = '';
+  S.cx.tin = []; S.cx.tinDA = {}; S.cx.viecDA = {}; S.cx.viec = {}; S.cx.dsViec = []; S.cx.dsDA = []; S.cx.locDA = ''; S.cx.coBo = false; S.cx.uid = '';
+  clearTimeout(cxHenLuu); Store.set('cx-bo', null).catch(() => {});
   try { if (window.firebase && firebase.auth) firebase.auth().signOut(); } catch(e){} }
 function cxMoHash(hs){
   if (!/^(chat|viec)(-|$)/.test(hs)) return false;
