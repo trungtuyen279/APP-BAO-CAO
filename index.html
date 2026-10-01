@@ -220,6 +220,10 @@ nav button.on{color:var(--brand)}
 .bcs-tong b{font-size:22px;font-family:var(--mono)}
 .bcs-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
 .bcs-item h5{margin:0 0 3px;font-size:14px;color:var(--brand)}
+.bcs-item.sua{cursor:pointer}.bcs-item.cu{background:#f4f4f4;opacity:.75}.bcs-item.cu h5{color:#777;text-decoration:line-through}
+.bcs-nut{display:flex;gap:8px;margin-top:8px}.bcs-nut button{flex:1;padding:7px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:13px}.bcs-nut .xoa{color:#C00000;border-color:#f3b4b4}
+.bcs-dangsua{background:#FFF4D6;border:1px solid #F0C040;border-radius:10px;padding:9px 10px;margin:0 0 10px;font-size:13px;display:flex;align-items:center;gap:8px}.bcs-dangsua b{flex:1}
+.ph.cu{display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:11px;color:#555;background:#eef3ff}
 nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:#fff;font-size:10.5px;
   font-weight:bold;border-radius:10px;padding:0 5px;line-height:18px;min-width:18px;text-align:center}
 .footer{background:var(--brand);color:#fff;text-align:center;font-size:10.5px;
@@ -925,7 +929,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.12.4';
+const APP_VERSION = '3.12.5';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -4606,17 +4610,18 @@ function chonBaoCao(loai){
 }
 
 /* ---------- 3.11.0: BÁO CÁO SÁNG — quân số tổ đội + công việc + ảnh ---------- */
-S.sang = {qs:{}, them:[], anh:[], khu:'', cv:'', ds:null, dsNgay:''};
+S.sang = {qs:{}, them:[], anh:[], khu:'', cv:'', ds:null, dsNgay:'', sua:null, quyenSua:false};
 const homNayISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 function renderBaoCaoSang(){
   const g = S.sang, ma = daHienTai();
-  if (g.maDA !== ma){ g.maDA = ma; g.qs = {}; g.them = []; g.ds = null; try { Store.get('bcs-khu-' + ma).then(v => { if (v && !g.khu){ g.khu = v; const i = $('bcs-khu'); if (i && !i.value) i.value = v; } }); } catch(e){} }
+  if (g.maDA !== ma){ g.maDA = ma; g.qs = {}; g.them = []; g.ds = null; g.sua = null; try { Store.get('bcs-khu-' + ma).then(v => { if (v && !g.khu){ g.khu = v; const i = $('bcs-khu'); if (i && !i.value) i.value = v; } }); } catch(e){} }
   const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
   const khus = [...new Set(S.danhmuc.filter(x => x.maDA === ma).map(x => x.phanKhu).concat((S.tomTatKhu || []).filter(x => x.maDA === ma).map(x => x.khu)).filter(Boolean).filter(k => trongPhamVi(k)))];
   const tong = tos.reduce((a, t) => a + (+g.qs[t.maTo] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
   const hn = new Date();
   $('sangBody').innerHTML = thanhChonDA('renderBaoCaoSang') + `
     <div class="hint" style="margin:0 0 10px">☀ Gửi <b>đầu giờ sáng</b> (trước 8:00) · ${hn.toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'})}</div>
+    ${g.sua ? '<div class="bcs-dangsua">✎ <b>Đang sửa báo cáo ' + escA(g.sua.khuVuc) + ' · ' + escA(g.sua.hoTen) + ' gửi lúc ' + escA(g.sua.gio) + '</b><button class="small" onclick="huySuaSang()">Huỷ sửa</button></div>' : ''}
     <div class="field"><label for="bcs-khu">Khu vực phụ trách</label>
       <input id="bcs-khu" list="bcs-dskhu" value="${escA(g.khu)}" placeholder="VD: Toà D1, D2, WI" oninput="S.sang.khu=this.value" autocomplete="off">
       <datalist id="bcs-dskhu">${khus.map(k => '<option value="' + escA(k) + '">').join('')}</datalist></div>
@@ -4632,11 +4637,12 @@ function renderBaoCaoSang(){
     <div class="field"><label for="bcs-cv">Công việc triển khai hôm nay / vướng mắc</label>
       <textarea id="bcs-cv" rows="3" placeholder="VD: Tổ thép Mr. Lực buộc thép sàn T4 D1; tổ cp Mr. Trụ lắp cốp pha cột T5 WI; chờ vật tư ống nhựa" oninput="S.sang.cv=this.value">${escA(g.cv)}</textarea></div>
     <div class="field"><label>Ảnh hiện trường (tối đa 12)</label>
-      <div class="photos" id="bcs-anh">${g.anh.map((d, i) => '<div class="ph filled" onclick="S.sang.anh.splice(' + i + ',1);renderBaoCaoSang()"><img src="' + d + '"><b>✕</b></div>').join('')}
-        ${g.anh.length < 12 ? '<div class="ph" onclick="$(\'fileSang\').click()">＋<br>Ảnh</div>' : ''}</div></div>
-    <button class="primary" id="bcs-gui" onclick="guiBaoCaoSang()">GỬI BÁO CÁO SÁNG</button>
+      <div class="photos" id="bcs-anh">${(g.sua ? g.sua.anhGiu : []).map((u, i) => '<div class="ph filled cu" onclick="S.sang.sua.anhGiu.splice(' + i + ',1);renderBaoCaoSang()">📷<br>Ảnh đã gửi ' + (i + 1) + '<b>✕</b></div>').join('')}${g.anh.map((d, i) => '<div class="ph filled" onclick="S.sang.anh.splice(' + i + ',1);renderBaoCaoSang()"><img src="' + d + '"><b>✕</b></div>').join('')}
+        ${g.anh.length + (g.sua ? g.sua.anhGiu.length : 0) < 12 ? '<div class="ph" onclick="$(\'fileSang\').click()">＋<br>Ảnh</div>' : ''}</div></div>
+    <button class="primary" id="bcs-gui" onclick="guiBaoCaoSang()">${g.sua ? 'CẬP NHẬT BÁO CÁO SÁNG' : 'GỬI BÁO CÁO SÁNG'}</button>
     <p class="hint">Gửi xong app soạn sẵn tin nhắn để chia sẻ vào nhóm Zalo công trường. Cần có mạng để tải ảnh.</p>
     <h3 style="margin:18px 0 8px;font-size:15px">Báo cáo sáng hôm nay của dự án</h3>
+    <div class="hint" style="margin:-4px 0 8px">Gửi nhầm? Bấm vào thẻ báo cáo của mình để <b>sửa</b> hoặc <b>xoá</b> (trong ngày).</div>
     <div id="bcs-ds">${veDSSang()}</div>`;
 }
 function veTongSang(){
@@ -4647,23 +4653,59 @@ function veTongSang(){
 }
 document.addEventListener('change', async e => {
   if (e.target.id !== 'fileSang') return;
-  for (const f of e.target.files){ if (S.sang.anh.length >= 12){ toast('Tối đa 12 ảnh'); break; } const d = await nenAnh(f, 1280, .72); if (d) S.sang.anh.push(d); }
+  for (const f of e.target.files){ if (S.sang.anh.length + (S.sang.sua ? S.sang.sua.anhGiu.length : 0) >= 12){ toast('Tối đa 12 ảnh'); break; } const d = await nenAnh(f, 1280, .72); if (d) S.sang.anh.push(d); }
   e.target.value = ''; renderBaoCaoSang();
 });
+function duocSuaSang(x){
+  return !!(S.sang.quyenSua || (String(x.email).toLowerCase() === String(S.user.email || '').toLowerCase() && x.ngay === homNayISO()));
+}
 function veDSSang(){
   const g = S.sang;
   if (!g.ds) return '<div class="empty" style="padding:10px">Đang tải…</div>';
   if (!g.ds.length) return '<div class="empty" style="padding:10px">Chưa có báo cáo sáng nào hôm nay.</div>';
-  const tong = g.ds.reduce((a, x) => a + x.tong, 0);
-  return `<div class="tq-line"><span>${g.ds.length} báo cáo · tổng quân số</span><b>${tong} người</b></div>` + g.ds.map(x => `<div class="bcs-item">
+  const tinh = g.ds.filter(x => !x.cu), soCu = g.ds.length - tinh.length;
+  const tong = tinh.reduce((a, x) => a + x.tong, 0);
+  return `<div class="tq-line"><span>${tinh.length} báo cáo${soCu ? ' (+' + soCu + ' bản cũ không tính)' : ''} · tổng quân số</span><b>${tong} người</b></div>` + g.ds.map(x => { const q = duocSuaSang(x);
+    return `<div class="bcs-item${q && !x.cu ? ' sua' : ''}${x.cu ? ' cu' : ''}"${q && !x.cu ? ' onclick="if(!event.target.closest(\'a,button\'))suaSang(\'' + escA(x.id) + '\')"' : ''}>
       <h5>${escA(x.khuVuc)} · ${x.tong} người</h5>
-      <div class="meta">${escA(x.hoTen)} · ${x.gio}${x.anh.length ? ' · ' + x.anh.map((u, i) => '<a href="' + escA(u) + '" target="_blank" rel="noopener">ảnh ' + (i + 1) + '</a>').join(' ') : ''}</div>
+      ${x.cu ? '<div class="meta" style="color:#C00000;font-weight:700">Bản cũ — không tính (cùng người, cùng khu đã gửi lại sau). Nên xoá.</div>' : ''}
+      <div class="meta">${escA(x.hoTen)} · ${x.gio}${x.nguoiSua ? ' · ✎ sửa ' + escA(x.gioSua) + ' bởi ' + escA(x.nguoiSua) : ''}${x.anh.length ? ' · ' + x.anh.map((u, i) => '<a href="' + escA(u) + '" target="_blank" rel="noopener">ảnh ' + (i + 1) + '</a>').join(' ') : ''}</div>
       <div style="font-size:13px;margin-top:4px">${x.toDoi.map(t => escA(t.ten) + ': <b>' + t.qs + '</b>').join(' · ')}</div>
-      ${x.congViec ? '<div class="meta" style="margin-top:3px;white-space:pre-wrap">' + escA(x.congViec) + '</div>' : ''}</div>`).join('');
+      ${x.congViec ? '<div class="meta" style="margin-top:3px;white-space:pre-wrap">' + escA(x.congViec) + '</div>' : ''}
+      ${q ? '<div class="bcs-nut">' + (x.cu ? '' : '<button onclick="suaSang(\'' + escA(x.id) + '\')">✎ Sửa</button>') + '<button class="xoa" onclick="xoaSang(\'' + escA(x.id) + '\')">🗑 Xoá</button></div>' : ''}</div>`; }).join('');
+}
+/* 3.12.5: mở lại biểu mẫu với số liệu báo cáo đã gửi */
+function suaSang(id){
+  const g = S.sang, x = (g.ds || []).find(r => r.id === id); if (!x) return;
+  if (!duocSuaSang(x)){ toast('Bạn chỉ sửa được báo cáo của mình trong ngày'); return; }
+  if ((g.anh.length || Object.keys(g.qs).some(k => +g.qs[k]) || g.them.length) && !g.sua && !confirm('Biểu mẫu đang có số liệu chưa gửi. Bỏ số liệu đó để sửa báo cáo đã gửi?')) return;
+  const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI'), coMa = {};
+  tos.forEach(t => coMa[t.maTo] = 1);
+  const tenMa = {}; tos.forEach(t => tenMa[String(t.tenTo).trim().toLowerCase()] = t.maTo);
+  g.qs = {}; g.them = []; g.anh = [];
+  x.toDoi.forEach(t => { const m = (t.ma && coMa[t.ma]) ? t.ma : tenMa[String(t.ten || '').trim().toLowerCase()];
+    if (m) g.qs[m] = (+g.qs[m] || 0) + (+t.qs || 0); else g.them.push({ten:t.ten, qs:t.qs}); });
+  g.khu = x.khuVuc; g.cv = x.congViec;
+  g.sua = {id:x.id, khuVuc:x.khuVuc, hoTen:x.hoTen, gio:x.gio, anhGiu:x.anh.slice()};
+  renderBaoCaoSang();
+  const p = $('p-sang'); if (p) p.scrollTop = 0; window.scrollTo(0, 0);
+  toast('Sửa số liệu rồi bấm CẬP NHẬT');
+}
+function huySuaSang(){ const g = S.sang; g.sua = null; g.qs = {}; g.them = []; g.anh = []; g.cv = ''; renderBaoCaoSang(); }
+async function xoaSang(id){
+  const g = S.sang, x = (g.ds || []).find(r => r.id === id); if (!x) return;
+  if (!navigator.onLine){ toast('Cần có mạng để xoá'); return; }
+  if (!confirm('XOÁ báo cáo sáng ' + x.khuVuc + ' (' + x.tong + ' người) của ' + x.hoTen + ' gửi lúc ' + x.gio + '?\nKhông khôi phục được — app ghi lại người xoá.')) return;
+  try {
+    await api('xoaBaoCaoSang', {maDA:daHienTai(), id:id}, 40);
+    if (g.sua && g.sua.id === id) huySuaSang();
+    toast('Đã xoá báo cáo'); g.ds = g.ds.filter(r => r.id !== id);
+    const b = $('bcs-ds'); if (b) b.innerHTML = veDSSang(); taiBaoCaoSangDS();
+  } catch(e){ toast('Chưa xoá được: ' + e.message, 4000); }
 }
 async function taiBaoCaoSangDS(){
   if (!navigator.onLine){ S.sang.ds = S.sang.ds || []; const b = $('bcs-ds'); if (b) b.innerHTML = veDSSang(); return; }
-  try { const r = await api('baoCaoSangDS', {maDA: daHienTai()}, 40); S.sang.ds = r.ds || []; }
+  try { const r = await api('baoCaoSangDS', {maDA: daHienTai()}, 40); S.sang.ds = r.ds || []; S.sang.quyenSua = !!r.quyenSua; }
   catch(e){ S.sang.ds = S.sang.ds || []; }
   const b = $('bcs-ds'); if (b) b.innerHTML = veDSSang();
 }
@@ -4686,16 +4728,24 @@ async function guiBaoCaoSang(){
   const tong = dsTo.reduce((a, t) => a + t.qs, 0);
   const nut = $('bcs-gui'); nut.disabled = true; nut.textContent = 'Đang gửi' + (g.anh.length ? ' ' + g.anh.length + ' ảnh…' : '…');
   try {
-    const r = await api('baoCaoSang', {id:'BCS' + Date.now() + Math.random().toString(36).slice(2, 6), maDA:ma, khuVuc:khu, toDoi:dsTo, congViec:cv, anh:g.anh}, 150);
+    const goi = {id:'BCS' + Date.now() + Math.random().toString(36).slice(2, 6), maDA:ma, khuVuc:khu, toDoi:dsTo, congViec:cv, anh:g.anh};
+    if (g.sua){ goi.suaId = g.sua.id; goi.anhGiu = g.sua.anhGiu; }
+    let r = await api('baoCaoSang', goi, 150);
+    if (r && r.trungKhu){
+      if (!confirm('Bạn đã gửi báo cáo sáng ' + r.trungKhu.khuVuc + ' lúc ' + r.trungKhu.gio + ' (' + r.trungKhu.tong + ' người).\nCập nhật báo cáo đó bằng số liệu mới (' + tong + ' người)?\n\nOK = cập nhật · Huỷ = không gửi')){
+        nut.disabled = false; nut.textContent = 'GỬI BÁO CÁO SÁNG'; toast('Chưa gửi — báo cáo lúc ' + r.trungKhu.gio + ' giữ nguyên'); return; }
+      goi.suaId = r.trungKhu.id; nut.textContent = 'Đang cập nhật…';
+      r = await api('baoCaoSang', goi, 150);
+    }
     try { await Store.set('bcs-khu-' + ma, khu); } catch(e){}
     const tin = tinBaoCaoSang(khu, dsTo, tong, cv);
-    g.qs = {}; g.them = []; g.anh = []; g.cv = ''; g.ds = null;
+    g.qs = {}; g.them = []; g.anh = []; g.cv = ''; g.ds = null; g.sua = null;
     renderBaoCaoSang(); taiBaoCaoSangDS();
     const cu = document.getElementById('bc-modal'); if (cu) cu.remove();
     const div = document.createElement('div'); div.id = 'bc-modal';
     div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:flex;align-items:center;justify-content:center;padding:16px';
     div.innerHTML = `<div style="background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:88vh;display:flex;flex-direction:column;padding:14px">
-      <div style="font-weight:800;color:var(--ok);margin-bottom:4px">✓ ĐÃ GỬI BÁO CÁO SÁNG · ${tong} người${r.soAnh ? ' · ' + r.soAnh + ' ảnh' : ''}</div>
+      <div style="font-weight:800;color:var(--ok);margin-bottom:4px">✓ ${r.sua ? 'ĐÃ CẬP NHẬT' : 'ĐÃ GỬI'} BÁO CÁO SÁNG · ${tong} người${r.soAnh ? ' · ' + r.soAnh + ' ảnh' : ''}</div>
       <div class="hint" style="margin:0 0 8px">Chia sẻ tin nhắn vào nhóm Zalo công trường (ảnh đã lưu trên Drive dự án).</div>
       <textarea id="bc-text" style="flex:1;min-height:200px;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:13px;line-height:1.45">${tin.replace(/</g, '&lt;')}</textarea>
       <div style="display:flex;gap:8px;margin-top:10px">
@@ -4703,7 +4753,7 @@ async function guiBaoCaoSang(){
         <button class="small ok" style="flex:1" onclick="chiaSeBC()">Chia sẻ Zalo</button>
         <button class="small" onclick="document.getElementById('bc-modal').remove()">Đóng</button></div></div>`;
     document.body.appendChild(div);
-  } catch(e){ toast('Chưa gửi được: ' + e.message, 4000); nut.disabled = false; nut.textContent = 'GỬI BÁO CÁO SÁNG'; }
+  } catch(e){ toast('Chưa gửi được: ' + e.message, 4000); nut.disabled = false; nut.textContent = g.sua ? 'CẬP NHẬT BÁO CÁO SÁNG' : 'GỬI BÁO CÁO SÁNG'; }
 }
 
 let tt;
