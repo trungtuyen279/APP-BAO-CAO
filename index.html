@@ -929,7 +929,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.12.5';
+const APP_VERSION = '3.12.6';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -4612,12 +4612,19 @@ function chonBaoCao(loai){
 /* ---------- 3.11.0: BÁO CÁO SÁNG — quân số tổ đội + công việc + ảnh ---------- */
 S.sang = {qs:{}, them:[], anh:[], khu:'', cv:'', ds:null, dsNgay:'', sua:null, quyenSua:false};
 const homNayISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+/* 3.12.6: danh sách tổ cho báo cáo sáng — khoá theo TÊN TỔ (không theo ma_to): sheet TO_DOI có thể trùng/đảo mã
+   (KTX-WNC 01/10: Thảo & Thi cùng mã 30.TĐ và 31.TĐ → nhập Thi tự nhảy sang Thảo, tổng bị nhân đôi). Trùng tên → chỉ giữ 1 dòng. */
+const tenToK = t => String(t.tenTo || t.maTo || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/\s+/g, ' ').trim();
+function tosSang(){
+  const da = {};
+  return cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI').map(t => Object.assign({}, t, {k:tenToK(t)})).filter(t => t.k && !da[t.k] && (da[t.k] = 1));
+}
 function renderBaoCaoSang(){
   const g = S.sang, ma = daHienTai();
   if (g.maDA !== ma){ g.maDA = ma; g.qs = {}; g.them = []; g.ds = null; g.sua = null; try { Store.get('bcs-khu-' + ma).then(v => { if (v && !g.khu){ g.khu = v; const i = $('bcs-khu'); if (i && !i.value) i.value = v; } }); } catch(e){} }
-  const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
+  const tos = tosSang();
   const khus = [...new Set(S.danhmuc.filter(x => x.maDA === ma).map(x => x.phanKhu).concat((S.tomTatKhu || []).filter(x => x.maDA === ma).map(x => x.khu)).filter(Boolean).filter(k => trongPhamVi(k)))];
-  const tong = tos.reduce((a, t) => a + (+g.qs[t.maTo] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
+  const tong = tos.reduce((a, t) => a + (+g.qs[t.k] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
   const hn = new Date();
   $('sangBody').innerHTML = thanhChonDA('renderBaoCaoSang') + `
     <div class="hint" style="margin:0 0 10px">☀ Gửi <b>đầu giờ sáng</b> (trước 8:00) · ${hn.toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'})}</div>
@@ -4628,7 +4635,7 @@ function renderBaoCaoSang(){
     <label style="display:block;font-size:13px;font-weight:700;margin-bottom:2px">Quân số tổ đội (người)</label>
     <div class="hint" style="margin:0 0 4px">Chỉ nhập tổ có mặt ở khu của bạn hôm nay — tổ để trống không được tính.</div>
     ${tos.length ? tos.map(t => `<div class="bcs-to"><div class="tt">${escA(t.tenTo)}<small>${escA([t.doiTruong, t.congViec].filter(Boolean).join(' · '))}</small></div>
-      <input type="number" inputmode="numeric" min="0" class="${+g.qs[t.maTo] ? 'co' : ''}" value="${g.qs[t.maTo] || ''}" placeholder="0" oninput="S.sang.qs['${escA(t.maTo)}']=this.value;veTongSang()"></div>`).join('')
+      <input type="number" inputmode="numeric" min="0" class="${+g.qs[t.k] ? 'co' : ''}" value="${g.qs[t.k] || ''}" placeholder="0" oninput="S.sang.qs['${escA(t.k)}']=this.value;veTongSang()"></div>`).join('')
       : '<div class="empty" style="padding:10px">Dự án chưa khai báo tổ đội (sheet TO_DOI) — dùng "+ Thêm tổ" bên dưới.</div>'}
     ${g.them.map((t, i) => `<div class="bcs-to"><input style="text-align:left;font-family:inherit;font-size:14px" value="${escA(t.ten)}" placeholder="Tên tổ (VD: Tổ cp tăng cường Mrs. Tiên)" oninput="S.sang.them[${i}].ten=this.value">
       <input type="number" inputmode="numeric" min="0" class="${+t.qs ? 'co' : ''}" value="${t.qs || ''}" placeholder="0" oninput="S.sang.them[${i}].qs=this.value;veTongSang()"></div>`).join('')}
@@ -4646,8 +4653,8 @@ function renderBaoCaoSang(){
     <div id="bcs-ds">${veDSSang()}</div>`;
 }
 function veTongSang(){
-  const g = S.sang, tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
-  const tong = tos.reduce((a, t) => a + (+g.qs[t.maTo] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
+  const g = S.sang, tos = tosSang();
+  const tong = tos.reduce((a, t) => a + (+g.qs[t.k] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
   const e = $('bcs-tong'); if (e) e.textContent = tong;
   document.querySelectorAll('#sangBody .bcs-to input[type=number]').forEach(i => i.classList.toggle('co', +i.value > 0));
 }
@@ -4679,11 +4686,10 @@ function suaSang(id){
   const g = S.sang, x = (g.ds || []).find(r => r.id === id); if (!x) return;
   if (!duocSuaSang(x)){ toast('Bạn chỉ sửa được báo cáo của mình trong ngày'); return; }
   if ((g.anh.length || Object.keys(g.qs).some(k => +g.qs[k]) || g.them.length) && !g.sua && !confirm('Biểu mẫu đang có số liệu chưa gửi. Bỏ số liệu đó để sửa báo cáo đã gửi?')) return;
-  const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI'), coMa = {};
-  tos.forEach(t => coMa[t.maTo] = 1);
-  const tenMa = {}; tos.forEach(t => tenMa[String(t.tenTo).trim().toLowerCase()] = t.maTo);
+  const tos = tosSang(), coMa = {};
+  tos.forEach(t => coMa[t.k] = 1);
   g.qs = {}; g.them = []; g.anh = [];
-  x.toDoi.forEach(t => { const m = (t.ma && coMa[t.ma]) ? t.ma : tenMa[String(t.ten || '').trim().toLowerCase()];
+  x.toDoi.forEach(t => { const kk = tenToK({tenTo:t.ten, maTo:t.ma}), m = coMa[kk] ? kk : '';
     if (m) g.qs[m] = (+g.qs[m] || 0) + (+t.qs || 0); else g.them.push({ten:t.ten, qs:t.qs}); });
   g.khu = x.khuVuc; g.cv = x.congViec;
   g.sua = {id:x.id, khuVuc:x.khuVuc, hoTen:x.hoTen, gio:x.gio, anhGiu:x.anh.slice()};
@@ -4719,8 +4725,8 @@ async function guiBaoCaoSang(){
   const g = S.sang, ma = daHienTai();
   const khu = (($('bcs-khu') || {}).value || '').trim(); g.khu = khu;
   const cv = (($('bcs-cv') || {}).value || '').trim(); g.cv = cv;
-  const tos = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
-  const dsTo = tos.filter(t => +g.qs[t.maTo] > 0).map(t => ({ma:t.maTo, ten:t.tenTo, qs:+g.qs[t.maTo]}))
+  const tos = tosSang();
+  const dsTo = tos.filter(t => +g.qs[t.k] > 0).map(t => ({ma:t.maTo, ten:t.tenTo, qs:+g.qs[t.k]}))
     .concat(g.them.filter(t => String(t.ten || '').trim() && +t.qs > 0).map(t => ({ma:'', ten:t.ten.trim(), qs:+t.qs})));
   if (!khu){ toast('Ghi khu vực phụ trách'); return; }
   if (!dsTo.length){ toast('Nhập quân số ít nhất 1 tổ'); return; }
