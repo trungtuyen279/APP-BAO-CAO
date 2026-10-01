@@ -1,6 +1,6 @@
 /* Service worker — cho phép mở app khi không có mạng.
    Đổi CACHE mỗi lần phát hành bản mới để máy anh em tự nạp bản mới. */
-const CACHE = 'l13fc-ht-v3.12.6';
+const CACHE = 'l13fc-ht-v3.13.0';
 const THU_VIEN = 'l13fc-thuvien';   // 3.12.3: thư viện Firebase (đường dẫn có số phiên bản) — giữ lâu dài, không xoá khi đổi bản
 const FILES = ['./', './index.html', './config.js', './huong-dan-cai-dat.html', './manifest.webmanifest',
   './icons/logo.png', './icons/logo-login.png', './icons/icon-192.png', './icons/icon-512.png', './icons/bb-header.jpg'];

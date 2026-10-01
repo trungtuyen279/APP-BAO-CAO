@@ -219,6 +219,39 @@ nav button.on{color:var(--brand)}
 .bcs-tong{display:flex;justify-content:space-between;align-items:center;background:var(--brand);color:#fff;border-radius:10px;padding:10px 12px;margin:10px 0 14px;font-weight:700}
 .bcs-tong b{font-size:22px;font-family:var(--mono)}
 .bcs-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
+/* 3.13.0 phiếu lương */
+#lg-modal{position:fixed;inset:0;z-index:120;background:var(--paper);display:flex;flex-direction:column}
+#lg-modal .lg-top{background:var(--brand);color:#fff;display:flex;align-items:center;gap:8px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top))}
+#lg-modal .lg-top button{background:none;border:0;color:#fff;font-size:28px;line-height:1;padding:0 8px 0 0}
+#lg-modal .lg-top b{flex:1;font-size:15px;letter-spacing:.3px}
+#lg-modal .lg-body{flex:1;overflow:auto;padding:14px 14px 40px;-webkit-overflow-scrolling:touch}
+.lg-pin{max-width:360px;margin:30px auto 0;text-align:center}.lg-khoa{font-size:42px}
+.lg-pin input{width:100%;font-size:26px;letter-spacing:10px;text-align:center;padding:12px;border:1.5px solid var(--line);border-radius:12px;margin:12px 0}
+.lg-ten{display:flex;flex-direction:column;margin-bottom:8px}.lg-ten b{font-size:17px}.lg-ten span{font-size:12px;color:var(--ink-2)}
+.lg-thanh{display:flex;gap:8px;margin-bottom:10px}.lg-sel{flex:1;padding:9px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff;min-width:0}
+.lg-tabs{display:flex;background:#fff;border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:10px}
+.lg-tabs button{flex:1;border:0;background:none;padding:9px 4px;border-radius:9px;font-weight:700;font-size:13px;color:var(--ink-2)}.lg-tabs button.on{background:var(--brand);color:#fff}
+.lg-chip{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px}.lg-chip button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:6px 12px;font-weight:700;font-size:13px;flex:0 0 auto}.lg-chip button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lg-the{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.lg-tdau{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.lg-tdau b{font-size:15px}.lg-tdau span{font-size:12px;color:var(--ink-2);text-align:right}
+.lg-tl{background:linear-gradient(135deg,#C00000,#8E0000);color:#fff;border-radius:12px;padding:12px;margin:10px 0 4px;text-align:center}
+.lg-tl small{display:block;font-size:11px;letter-spacing:1px;opacity:.85}.lg-tl b{font-size:26px;color:#FFFF00}
+.lg-nhom{font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--brand);margin:12px 0 2px}
+.lg-d{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed #E3E6E9;font-size:13.5px}
+.lg-d span small{display:block;font-size:11px;color:var(--ink-2)}.lg-d b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.lg-d.tong{border-bottom:0;border-top:1.5px solid var(--ink);font-weight:800}.lg-d.tl{border:0;background:#FFF4D6;border-radius:8px;padding:9px 8px;font-weight:800;font-size:15px}
+.lg-tongthang{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;font-size:14px}
+.lg-o4{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lg-o{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.lg-o small{display:block;font-size:11px;color:var(--ink-2)}.lg-o b{font-size:15px;font-variant-numeric:tabular-nums}
+.lg-o.big{grid-column:1/-1;background:linear-gradient(135deg,#C00000,#8E0000);color:#fff;border:0}.lg-o.big small,.lg-o.big span{color:#fff;opacity:.85;font-size:11px}.lg-o.big b{display:block;font-size:24px;color:#FFFF00;margin:2px 0}
+.lg-bang{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:12.5px;margin-top:8px}
+.lg-bang th{background:var(--ink);color:#fff;padding:7px 5px;font-weight:700;text-align:right}.lg-bang th:first-child,.lg-bang td:first-child{text-align:left}
+.lg-bang td{padding:7px 5px;border-bottom:1px solid #EEF0F2;text-align:right;font-variant-numeric:tabular-nums}.lg-bang tr.tong td{font-weight:800;background:#FFF4D6}
+.lg-qt{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.lg-qt button{flex:1 1 140px}
+.lg-ghep{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
+.lg-ghep div{grid-column:1/-1}.lg-ghep small{display:block;color:var(--ink-2);font-size:11px}.lg-ghep select{padding:8px;border:1px solid var(--line);border-radius:8px;min-width:0;font-size:13px}
+.lg-cb{background:#FFF4D6;border:1px solid #F0C040;border-radius:8px;padding:7px 9px;font-size:12px;margin-top:8px}
+.lg-ok{background:#E6F4EC;border:1px solid #9BD3B4;color:var(--ok);border-radius:8px;padding:8px;margin-top:8px;font-weight:700;font-size:13px}
 .bcs-item h5{margin:0 0 3px;font-size:14px;color:var(--brand)}
 .bcs-item.sua{cursor:pointer}.bcs-item.cu{background:#f4f4f4;opacity:.75}.bcs-item.cu h5{color:#777;text-decoration:line-through}
 .bcs-nut{display:flex;gap:8px;margin-top:8px}.bcs-nut button{flex:1;padding:7px;border-radius:8px;border:1px solid var(--line);background:#fff;font-weight:700;font-size:13px}.bcs-nut .xoa{color:#C00000;border-color:#f3b4b4}
@@ -831,6 +864,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
     <div class="alist">
       <div class="arow"><b>Dự án được gán</b><span id="a-da">—</span></div>
       <div class="arow"><b>Phạm vi phụ trách</b><span id="a-pv">—</span></div>
+      <button class="arow" id="btnLuong" onclick="moLuong()"><b>Phiếu lương &amp; thu nhập năm</b><span class="go">🔒 ›</span></button>
       <div class="arow" id="a-day" onclick="batThongBaoDay()" style="cursor:pointer">
         <b>Thông báo đẩy (rung máy)</b><span id="a-day-tt">Chưa bật ›</span></div>
       <div class="arow"><b>Trạng thái đồng bộ</b><span id="a-db">—</span></div>
@@ -929,7 +963,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.12.6';
+const APP_VERSION = '3.13.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2142,6 +2176,7 @@ async function renderAcct(){
   $('a-da').textContent   = (S.user.duAn || []).map(m => m === 'TAT_CA' ? 'Tất cả dự án'
                             : (S.duan.find(d => d.maDA === m) || {}).tenDA || m).join(', ') || '—';
   $('a-pv').textContent   = (S.user.phamVi || []).length ? S.user.phamVi.join(' · ') : 'Toàn dự án';
+  const nl = $('btnLuong'); if (nl) nl.querySelector('b').innerHTML = lgQT() ? 'Phiếu lương &amp; nạp bảng lương' : 'Phiếu lương &amp; thu nhập năm';
   trangThaiDay();
   const q = await Store.all();
   $('a-db').textContent   = q.length ? q.length + ' bản ghi chờ gửi' : 'Đã đồng bộ';
@@ -2179,7 +2214,7 @@ $('btnLogout').onclick = async () => {
   if (!confirm('Đăng xuất khỏi thiết bị này?')) return;
   for (const r of q) await Store.drop(r.id);
   await Store.del('auth'); await Store.del('cache');
-  S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = []; S.kpi = null;
+  lgDong(); S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = []; S.kpi = null;
   $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show'); cxDangXuat();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login').style.display = 'flex';
@@ -4760,6 +4795,292 @@ async function guiBaoCaoSang(){
         <button class="small" onclick="document.getElementById('bc-modal').remove()">Đóng</button></div></div>`;
     document.body.appendChild(div);
   } catch(e){ toast('Chưa gửi được: ' + e.message, 4000); nut.disabled = false; nut.textContent = g.sua ? 'CẬP NHẬT BÁO CÁO SÁNG' : 'GỬI BÁO CÁO SÁNG'; }
+}
+
+/* 3.13.0: đọc BẢNG THANH TOÁN LƯƠNG – khối GIÁN TIẾP (mẫu chung 23 cột của Đội Thi Công Xây Lắp).
+   Dò cột theo DÒNG ĐÁNH SỐ (1, 2, 3, 4, 5 … 8=(4+5)*6/7 … 23) nên chịu được cột chèn thêm / bỏ bớt giữa các tháng. */
+const LUONG_COT = {4:'lcb', 5:'pc', 6:'ncTT', 7:'ncQD', 8:'tienNC', 9:'ngayLe', 10:'tienLe', 11:'tnDK', 12:'hsHT', 13:'hsHQ',
+  14:'ncHQ', 15:'tienHQ', 16:'gioLT', 17:'tienLT', 18:'bsQuy', 19:'tienBH', 20:'truBH', 21:'thucLinh', 22:'doanPhi'};
+const LUONG_KD = s => String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/\s+/g, ' ').trim();
+function luongSo(v){
+  if (v === '' || v == null) return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  const s = String(v).replace(/\s/g, '');
+  if (/^-?[\d.]+,\d+$/.test(s)) return +s.replace(/\./g, '').replace(',', '.') || 0;   // 1.234.567,89
+  if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) return +s.replace(/\./g, '') || 0;            // 1.234.567
+  return +s.replace(/,/g, '') || 0;
+}
+function luongThangTuTen(ten){
+  const m = String(ten).match(/(20\d\d)\s*[.\-_ ]\s*T?\s*(\d{1,2})(?!\d)/i);
+  return m && +m[2] >= 1 && +m[2] <= 12 ? m[1] + '-' + String(+m[2]).padStart(2, '0') : '';
+}
+function luongDATuTen(ten){
+  const k = LUONG_KD(ten);
+  if (/mitac/.test(k)) return 'KTX-MITAC';
+  if (/\bf5\b/.test(k)) return 'F5-WNC';
+  if (/wnc|ktx|ha nam/.test(k)) return 'KTX-WNC';
+  return '';
+}
+/* sheets: [{name, hidden, aoa}] — trả {sheet, ds:[...], tongFile, tongDoc, canhBao[]} */
+function luongDocBang(sheets){
+  const cands = sheets.filter(s => /gian tiep/.test(LUONG_KD(s.name)));
+  cands.sort((a, b) => (a.hidden ? 1 : 0) - (b.hidden ? 1 : 0));
+  let loi = 'Không thấy sheet "Gián tiếp" trong file';
+  for (const sh of cands){
+    const r = luongDocSheet(sh);
+    if (r.ds && r.ds.length) return r;
+    loi = r.loi || ('Sheet ' + sh.name + ' có khung bảng lương nhưng không có họ tên người nào (file có thể chỉ còn công thức/liên kết) — kiểm tra lại file');
+  }
+  return {loi:loi};
+}
+function luongDocSheet(sh){
+  const A = sh.aoa || [];
+  /* dòng đánh số: ô = 1,2,3 ở 3 cột đầu tiên có giá trị và có ô bắt đầu bằng "21" */
+  let iSo = -1;
+  for (let i = 0; i < Math.min(A.length, 60); i++){
+    const r = A[i] || [];
+    const vals = r.map(x => String(x == null ? '' : x).trim());
+    const c1 = vals.findIndex(v => v === '1');
+    if (c1 > -1 && vals[c1 + 1] === '2' && vals[c1 + 2] === '3' && vals.some(v => /^21\s*=/.test(v) || v === '21')){ iSo = i; break; }
+  }
+  if (iSo < 0) return {loi:'Sheet ' + sh.name + ': không tìm thấy dòng đánh số cột (1, 2, 3 … 21)'};
+  const so = A[iSo].map(x => { const m = String(x == null ? '' : x).trim().match(/^(\d{1,2})(?![\d.,])/); return m ? +m[1] : 0; });
+  const cot = {}; so.forEach((n, c) => { if (n && cot[n] === undefined) cot[n] = c; });
+  if (cot[2] === undefined || cot[21] === undefined) return {loi:'Sheet ' + sh.name + ': thiếu cột Họ tên hoặc Lương thực lĩnh'};
+  /* cột KHÔNG đánh số (mẫu cũ T1–T5 có: Ngày công nội bộ, Lương nội bộ / xử lý / chênh lệch, Số giờ làm đêm + Thành tiền, giờ OT, Khoản bổ sung khác) */
+  const oTren = (i, c) => { for (let k = c; k >= 0; k--){ const v = String((A[i] || [])[k] == null ? '' : A[i][k]).trim(); if (v) return v; if (so[k]) return ''; } return ''; };
+  const nhom2 = c => oTren(iSo - 2, c), con = c => String((A[iSo - 1] || [])[c] == null ? '' : A[iSo - 1][c]).trim();
+  const cCuoi = cot[21];
+  const khongSo = [];
+  for (let c = cot[3] + 1; c < cCuoi; c++) if (!so[c]) khongSo.push({c:c, nhom:nhom2(c), con:con(c)});
+  const cHS = khongSo.find(x => /he so bhxh/.test(LUONG_KD(x.nhom + ' ' + x.con)) || x.c === cot[3] + 1);
+  const cNB = khongSo.find(x => /cong noi bo/.test(LUONG_KD(x.con)));
+  /* khoản tiền thêm: cột "Thành tiền" của nhóm không đánh số (VD làm đêm) hoặc cột "Khoản bổ sung …" không có tiêu đề con */
+  const khac = khongSo.filter(x => x !== cHS && x !== cNB && (/thanh tien/.test(LUONG_KD(x.con)) || (!x.con && /^khoan bo sung/.test(LUONG_KD(x.nhom)))))
+    .map(x => Object.assign(x, {nhan:/thanh tien/.test(LUONG_KD(x.con)) ? x.nhom.replace(/\s+/g, ' ') : x.nhom.replace(/\s+/g, ' ')}));
+  const ds = []; let tongFile = null, nhom = '';
+  for (let i = iSo + 1; i < A.length; i++){
+    const r = A[i] || []; const stt = String(r[cot[1]] == null ? '' : r[cot[1]]).trim(); const ten = String(r[cot[2]] == null ? '' : r[cot[2]]).trim();
+    if (/^[IVX]+$/i.test(stt)){ nhom = ten; tongFile = (tongFile || 0) + luongSo(r[cot[21]]); continue; }
+    if (/^(tong|cong)/.test(LUONG_KD(stt + ' ' + ten)) && !/^\d/.test(stt)) break;
+    if (!/^\d+$/.test(stt) || !ten || /^\d+$/.test(ten)) continue;
+    const o = {stt:+stt, hoTen:ten.replace(/\s+/g, ' '), chucDanh:String(r[cot[3]] == null ? '' : r[cot[3]]).trim(), nhom:nhom,
+      hsBH:cHS ? luongSo(r[cHS.c]) : 0, ncNB:cNB ? luongSo(r[cNB.c]) : 0, khac:[]};
+    Object.keys(LUONG_COT).forEach(n => { o[LUONG_COT[n]] = cot[n] !== undefined ? luongSo(r[cot[n]]) : 0; });
+    khac.forEach(x => { const v = luongSo(r[x.c]); if (v) o.khac.push([x.nhan || 'Khoản bổ sung khác', Math.round(v)]); });
+    /* thu nhập = thực lĩnh + BHXH trích; phần chưa giải thích được bởi các cột → 1 dòng điều chỉnh để phiếu luôn khớp thực lĩnh */
+    const coBan = o.tienNC + o.tienLe + o.tienHQ + o.tienLT + o.bsQuy + o.tienBH;
+    const du = Math.round(o.thucLinh + o.truBH - coBan - o.khac.reduce((a, x) => a + x[1], 0));
+    if (Math.abs(du) > 1000){ o.khac.push(['Điều chỉnh khác theo bảng lương', du]); o.dieuChinh = du; }
+    o.bsKhac = o.khac.reduce((a, x) => a + x[1], 0);
+    o.tongTN = Math.round(o.thucLinh + o.truBH);
+    ds.push(o);
+  }
+  const tongDoc = ds.reduce((a, x) => a + x.thucLinh, 0);
+  const canhBao = [];
+  if (tongFile !== null && Math.abs(tongFile - tongDoc) > 1000) canhBao.push('Tổng thực lĩnh đọc được ' + Math.round(tongDoc).toLocaleString('vi-VN') + ' ≠ dòng tổng Gián tiếp ' + Math.round(tongFile).toLocaleString('vi-VN'));
+  ds.forEach(x => { if (x.dieuChinh) canhBao.push(x.hoTen + ': có khoản điều chỉnh ' + x.dieuChinh.toLocaleString('vi-VN') + ' đ không nằm ở cột nào — đối chiếu kế toán'); });
+  return {sheet:sh.name, ds:ds, tongFile:tongFile, tongDoc:tongDoc, canhBao:canhBao};
+}
+
+/* ---------- 3.13.0: PHIẾU LƯƠNG & THU NHẬP NĂM ----------
+   Không lưu lương vào máy (Store/IndexedDB); chỉ giữ trong bộ nhớ khi màn đang mở, tự đóng sau 5 phút không thao tác. */
+const LG_XLSX = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+const lgQT = () => ['QUAN_TRI','ADMIN'].includes(String((S.user || {}).vaiTro || '').toUpperCase());
+const lgD = n => Math.round(+n || 0).toLocaleString('vi-VN');
+const lgThangTen = t => 'Tháng ' + String(t).slice(5) + '/' + String(t).slice(0, 4);
+let lgHen = null;
+function lgHenGio(){ clearTimeout(lgHen); lgHen = setTimeout(() => { if ($('lg-modal')){ lgDong(); toast('Đã tự đóng phiếu lương sau 5 phút'); } }, 300000); }
+function lgDong(){ clearTimeout(lgHen); S.lg = null; const m = $('lg-modal'); if (m) m.remove(); }
+function lgKhung(tieuDe, than){
+  let m = $('lg-modal');
+  if (!m){ m = document.createElement('div'); m.id = 'lg-modal'; document.body.appendChild(m);
+    m.addEventListener('click', lgHenGio); m.addEventListener('input', lgHenGio); }
+  m.innerHTML = `<div class="lg-top"><button onclick="lgDong()" aria-label="Đóng">‹</button><b>${tieuDe}</b><span>🔒</span></div><div class="lg-body" id="lg-body">${than}</div>`;
+  lgHenGio();
+}
+function moLuong(){
+  if (!navigator.onLine){ toast('Cần có mạng để xem phiếu lương'); return; }
+  if (DEMO){ toast('Chế độ chạy thử không có phiếu lương'); return; }
+  S.lg = {nam:String(new Date().getFullYear()), tab:'thang', email:''};
+  lgKhung('PHIẾU LƯƠNG CỦA TÔI', `<div class="lg-pin">
+      <div class="lg-khoa">🔒</div>
+      <p>Lương là thông tin riêng. Nhập lại <b>mã PIN đăng nhập</b> để xem.</p>
+      <input id="lg-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••••" onkeydown="if(event.key==='Enter')lgVao()">
+      <button class="primary" id="lg-vao" onclick="lgVao()">XEM PHIẾU LƯƠNG</button>
+      <p class="hint">Số liệu lấy từ Bảng thanh toán lương của Đội (khối Gián tiếp). Không lưu trên điện thoại · tự đóng sau 5 phút.</p></div>`);
+  setTimeout(() => { const i = $('lg-pin'); if (i) i.focus(); }, 80);
+}
+async function lgVao(){
+  const pin = ($('lg-pin') || {}).value || '';
+  if (!/^\d{4,8}$/.test(pin.trim())){ toast('Nhập mã PIN'); return; }
+  const n = $('lg-vao'); n.disabled = true; n.textContent = 'Đang mở…';
+  try { await lgTai({pin:pin.trim()}); }
+  catch(e){ n.disabled = false; n.textContent = 'XEM PHIẾU LƯƠNG'; toast(e.message, 3500); }
+}
+async function lgTai(them){
+  const g = S.lg; if (!g) return;
+  const d = Object.assign({nam:g.nam, email:g.email || ''}, them || {});
+  if (!d.pin && g.ve) d.ve = g.ve;
+  let r;
+  try { r = await api('luongXem', d, 40); }
+  catch(e){ if (/HET_PHIEN/.test(e.message)){ g.ve = null; moLuong(); toast('Hết phiên xem — nhập lại PIN'); return; } throw e; }
+  Object.assign(g, r); g.thangChon = g.thangChon && r.ds.some(x => x.thang === g.thangChon) ? g.thangChon : (r.ds.length ? r.ds[r.ds.length - 1].thang : '');
+  lgVe();
+}
+function lgVe(){
+  const g = S.lg; if (!g) return;
+  const nams = [...new Set((g.namCo || []).concat([g.nam, String(new Date().getFullYear())]))].sort();
+  const chonNguoi = g.qt ? `<select class="lg-sel" onchange="S.lg.email=this.value;S.lg.thangChon='';lgTai().catch(e=>toast(e.message))">
+      <option value="">— Của tôi —</option>${(g.nguoiCo || []).map(p => `<option value="${escA(p.email)}" ${p.email === g.email && p.email !== String(S.user.email).toLowerCase() ? 'selected' : ''}>${escA(p.hoTen)}</option>`).join('')}</select>` : '';
+  const dau = `<div class="lg-ten"><b>${escA(g.hoTen)}</b><span>${escA(g.email)}</span></div>
+    <div class="lg-thanh">${chonNguoi}<select class="lg-sel" onchange="S.lg.nam=this.value;S.lg.thangChon='';lgTai().catch(e=>toast(e.message))">${nams.map(n => `<option ${n === g.nam ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+    <div class="lg-tabs"><button class="${g.tab === 'thang' ? 'on' : ''}" onclick="S.lg.tab='thang';lgVe()">Theo tháng</button><button class="${g.tab === 'nam' ? 'on' : ''}" onclick="S.lg.tab='nam';lgVe()">Tổng thu nhập năm ${g.nam}</button></div>`;
+  let than;
+  if (!g.ds.length) than = `<div class="empty" style="padding:18px">Chưa có bảng lương năm ${g.nam}${g.qt ? '' : ' của bạn'}.<br><small>Nếu đã nhận lương mà chưa thấy: báo Quản trị kiểm tra tên trong bảng lương có khớp với tài khoản app không.</small></div>`;
+  else if (g.tab === 'nam') than = lgVeNam(g);
+  else {
+    const thangs = [...new Set(g.ds.map(x => x.thang))].sort();
+    than = `<div class="lg-chip">${thangs.map(t => `<button class="${t === g.thangChon ? 'on' : ''}" onclick="S.lg.thangChon='${t}';lgVe()">T${+t.slice(5)}</button>`).join('')}</div>`
+      + g.ds.filter(x => x.thang === g.thangChon).map(lgVePhieu).join('');
+    const ca = g.ds.filter(x => x.thang === g.thangChon);
+    if (ca.length > 1) than += `<div class="lg-tongthang">Cộng ${lgThangTen(g.thangChon)} (${ca.length} bảng lương): <b>${lgD(ca.reduce((a, x) => a + (+x.thucLinh || 0), 0))} đ</b></div>`;
+  }
+  const qtNut = g.qt ? `<div class="lg-qt"><button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>${(g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}</div>` : '';
+  lgKhung(g.qt && g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (QUẢN TRỊ XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + qtNut);
+}
+function lgDong1(nhan, gt, phu, cls){ return `<div class="lg-d ${cls || ''}"><span>${nhan}${phu ? '<small>' + phu + '</small>' : ''}</span><b>${gt}</b></div>`; }
+function lgVePhieu(x){
+  const tenDA = (S.duan.find(d => d.maDA === x.maDA) || {}).tenDA || x.maDA;
+  const so = k => +x[k] || 0;
+  const thu = [
+    ['Lương theo ngày công', 'tienNC', '(Lương CB + phụ cấp) × ' + lgD(so('ncTT')) + '/' + lgD(so('ncQD')) + ' công'],
+    ['Lương ngày nghỉ lễ, tết', 'tienLe', so('ngayLe') ? so('ngayLe') + ' ngày' : ''],
+    ['Lương bổ sung theo hiệu quả', 'tienHQ', so('tnDK') ? 'TN dự kiến ' + lgD(so('tnDK')) + ' × HS hoàn thành ' + so('hsHT') + ' × HS hiệu quả ' + so('hsHQ') : ''],
+    ['Tiền lương làm thêm giờ', 'tienLT', so('gioLT') ? so('gioLT') + ' giờ' : ''],
+    ['Khoản bổ sung quý', 'bsQuy', '']
+  ].filter((r, i) => i < 1 || so(r[1]));
+  const khac = (x.khac || []).map(k => lgDong1(escA(k[0]), lgD(k[1]), ''));
+  return `<div class="lg-the">
+    <div class="lg-tdau"><b>${lgThangTen(x.thang)}</b><span>${escA(tenDA)}${x.chucDanh ? ' · ' + escA(x.chucDanh) : ''}</span></div>
+    <div class="lg-tl"><small>LƯƠNG THỰC LĨNH</small><b>${lgD(x.thucLinh)} đ</b></div>
+    <div class="lg-nhom">NGÀY CÔNG</div>
+    ${lgDong1('Ngày công thực tế / quy định', lgD(so('ncTT')) + ' / ' + lgD(so('ncQD')))}
+    ${so('ngayLe') ? lgDong1('Nghỉ lễ, tết hưởng lương', so('ngayLe') + ' ngày') : ''}
+    ${so('gioLT') ? lgDong1('Làm thêm giờ', so('gioLT') + ' giờ') : ''}
+    <div class="lg-nhom">CÁC KHOẢN THU NHẬP</div>
+    ${thu.map(r => lgDong1(r[0], lgD(x[r[1]]), r[2])).join('')}${khac.join('')}
+    ${so('tienBH') ? lgDong1('Khoản tiền tương ứng mức đóng BHXH', lgD(so('tienBH')), '25,5% × (lương CB + phụ cấp)') : ''}
+    ${lgDong1('TỔNG THU NHẬP', lgD(so('tongTN')), '', 'tong')}
+    <div class="lg-nhom">KHẤU TRỪ</div>
+    ${lgDong1('Trích nộp BHXH, BHYT, BHTN', '− ' + lgD(so('truBH')), '10,5% × (lương CB + phụ cấp)')}
+    ${lgDong1('LƯƠNG THỰC LĨNH', lgD(so('thucLinh')) + ' đ', '', 'tl')}
+    <div class="lg-nhom">THÔNG TIN THAM CHIẾU</div>
+    ${lgDong1('Mức lương cơ bản', lgD(so('lcb')), so('hsBH') ? 'Hệ số BHXH ' + so('hsBH') : '')}
+    ${so('pc') ? lgDong1('Phụ cấp chức vụ', lgD(so('pc'))) : ''}
+    ${so('tnDK') ? lgDong1('Mức thu nhập dự kiến', lgD(so('tnDK'))) : ''}
+    ${so('doanPhi') ? lgDong1('Đoàn phí công đoàn', lgD(so('doanPhi')), '0,5% × (lương CB + phụ cấp) — theo bảng lương') : ''}
+  </div>`;
+}
+function lgVeNam(g){
+  const cong = (k) => g.ds.reduce((a, x) => a + (+x[k] || 0), 0);
+  const theoThang = {}; g.ds.forEach(x => { const o = theoThang[x.thang] = theoThang[x.thang] || {tn:0, bh:0, tl:0, nc:0, da:[]}; o.tn += +x.tongTN || 0; o.bh += +x.truBH || 0; o.tl += +x.thucLinh || 0; o.nc += +x.ncTT || 0; o.da.push(x.maDA); });
+  const ts = Object.keys(theoThang).sort(), soT = ts.length;
+  const max = Math.max(1, ...ts.map(t => theoThang[t].tl));
+  const W = 320, H = 150, bw = W / 12;
+  const cot = Array.from({length:12}, (_, i) => { const t = g.nam + '-' + String(i + 1).padStart(2, '0'), o = theoThang[t];
+    const h = o ? Math.max(3, (o.tl / max) * (H - 34)) : 0;
+    return `<g>${o ? `<rect x="${i * bw + 4}" y="${H - 18 - h}" width="${bw - 8}" height="${h}" rx="3" fill="#C00000"/><text x="${i * bw + bw / 2}" y="${H - 22 - h}" text-anchor="middle" font-size="8.5" fill="#1F2A37">${(o.tl / 1e6).toFixed(1)}</text>` : `<rect x="${i * bw + 4}" y="${H - 21}" width="${bw - 8}" height="3" rx="1.5" fill="#D3D8DD"/>`}
+      <text x="${i * bw + bw / 2}" y="${H - 5}" text-anchor="middle" font-size="9" fill="#5A6875">T${i + 1}</text></g>`; }).join('');
+  return `<div class="lg-o4">
+      <div class="lg-o big"><small>TỔNG THU NHẬP NĂM ${g.nam}</small><b>${lgD(cong('tongTN'))} đ</b><span>trước khấu trừ BHXH</span></div>
+      <div class="lg-o"><small>Thực lĩnh cả năm</small><b>${lgD(cong('thucLinh'))}</b></div>
+      <div class="lg-o"><small>Đã trích BHXH, BHYT, BHTN</small><b>${lgD(cong('truBH'))}</b></div>
+      <div class="lg-o"><small>Bình quân thực lĩnh / tháng</small><b>${lgD(cong('thucLinh') / Math.max(1, soT))}</b></div>
+      <div class="lg-o"><small>Số tháng có lương · ngày công</small><b>${soT} tháng · ${lgD(cong('ncTT'))} công</b></div></div>
+    <div class="lg-nhom" style="margin-top:12px">THỰC LĨNH THEO THÁNG (triệu đồng)</div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${cot}</svg>
+    <table class="lg-bang"><thead><tr><th>Tháng</th><th>Tổng TN</th><th>BHXH</th><th>Thực lĩnh</th></tr></thead><tbody>
+      ${ts.map(t => { const o = theoThang[t]; return `<tr onclick="S.lg.tab='thang';S.lg.thangChon='${t}';lgVe()"><td>T${+t.slice(5)}${o.da.length > 1 ? '<small> (' + o.da.length + ' DA)</small>' : ''}</td><td>${lgD(o.tn)}</td><td>${lgD(o.bh)}</td><td><b>${lgD(o.tl)}</b></td></tr>`; }).join('')}
+      <tr class="tong"><td>Cộng</td><td>${lgD(cong('tongTN'))}</td><td>${lgD(cong('truBH'))}</td><td><b>${lgD(cong('thucLinh'))}</b></td></tr></tbody></table>
+    <p class="hint">Tổng thu nhập = lương ngày công + lễ tết + bổ sung hiệu quả + làm thêm + bổ sung quý + khoản khác + khoản tương ứng BHXH. Chưa trừ thuế TNCN (bảng lương Đội không thể hiện). Bấm 1 dòng để xem phiếu tháng đó.</p>`;
+}
+/* ----- Quản trị: ghép tên trong bảng lương ↔ tài khoản NHAN_SU ----- */
+function lgVeGhep(){
+  const g = S.lg; if (!g) return;
+  const ns = (g.nhanSu || []).slice().sort((a, b) => a.hoTen.localeCompare(b.hoTen, 'vi'));
+  const kd = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
+  lgKhung('GHÉP TÊN BẢNG LƯƠNG', `<p class="hint" style="margin-top:0">Tên trong bảng lương không khớp đúng 1 tài khoản app (sai chính tả, trùng tên, hoặc chưa có tài khoản). Chọn đúng người rồi bấm Ghép — áp cho mọi tháng, lần nạp sau tự nhận. Người không có tài khoản app (thủ kho, thợ, lái máy…) thì bỏ qua.</p>
+    ${(g.chuaGhep || []).map((x, i) => { const ho = kd(x.hoTen).split(' ').pop();
+      const goi = ns.filter(n => kd(n.hoTen).split(' ').pop() === ho);
+      return `<div class="lg-ghep"><div><b>${escA(x.hoTen)}</b><small>${escA(x.thang.slice(0, 6).join(', '))}${x.thang.length > 6 ? '…' : ''}</small></div>
+        <select id="lg-g${i}"><option value="">— chọn tài khoản —</option>${goi.length ? '<optgroup label="Gợi ý cùng tên">' + goi.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('') + '</optgroup>' : ''}
+          <optgroup label="Tất cả">${ns.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('')}</optgroup></select>
+        <button class="small" data-ten="${escA(x.hoTen)}" onclick="lgGhep(this, 'lg-g${i}')">Ghép</button></div>`; }).join('') || '<div class="empty">Đã ghép đủ.</div>'}
+    <button class="ghost" style="margin-top:12px" onclick="lgVe()">‹ Quay lại phiếu lương</button>`);
+}
+async function lgGhep(nut, idSel){
+  const email = $(idSel).value, hoTen = nut.dataset.ten;
+  if (!email){ toast('Chọn tài khoản'); return; }
+  nut.disabled = true;
+  try { const r = await api('luongGhep', {hoTen, email}, 40); toast('Đã ghép ' + hoTen + ' · ' + r.n + ' tháng'); S.lg.chuaGhep = S.lg.chuaGhep.filter(x => x.hoTen !== hoTen); nut.closest('.lg-ghep').remove(); }
+  catch(e){ nut.disabled = false; toast(e.message, 3500); }
+}
+/* ----- Quản trị: nạp file bảng lương .xls/.xlsx ----- */
+function moNapLuong(){
+  if (!lgQT()){ toast('Chỉ Quản trị'); return; }
+  if (!S.lg || !S.lg.ve){ moLuong(); toast('Nhập PIN trước, sau đó bấm "⇪ Nạp bảng lương"'); return; }
+  S.lg.nap = [];
+  lgKhung('NẠP BẢNG LƯƠNG', `<p class="hint" style="margin-top:0">Chọn 1 hoặc nhiều file Bảng thanh toán lương của Đội (.xls/.xlsx). App đọc sheet <b>Gián tiếp</b>, tự nhận tháng và dự án theo tên file (sửa lại được). Nạp lại cùng tháng + dự án sẽ <b>ghi đè</b> bản trước.</p>
+    <input type="file" id="lg-file" accept=".xls,.xlsx" multiple style="display:none" onchange="lgDocFile(this.files)">
+    <button class="primary" onclick="$('lg-file').click()">CHỌN FILE BẢNG LƯƠNG</button>
+    <div id="lg-nap"></div>
+    <button class="ghost" style="margin-top:12px" onclick="lgVe()">‹ Quay lại phiếu lương</button>`);
+}
+async function lgDocFile(files){
+  const box = $('lg-nap'); box.innerHTML = '<div class="empty">Đang tải bộ đọc Excel…</div>';
+  try { await napJS(LG_XLSX); } catch(e){ box.innerHTML = '<div class="empty">Không tải được bộ đọc Excel (cần mạng).</div>'; return; }
+  S.lg.nap = [];
+  for (const f of files){
+    box.innerHTML = '<div class="empty">Đang đọc ' + escA(f.name) + '…</div>';
+    try {
+      const wb = XLSX.read(await f.arrayBuffer(), {type:'array'});
+      const an = (wb.Workbook && wb.Workbook.Sheets) || [];
+      const sheets = wb.SheetNames.map((n, i) => ({name:n, hidden:!!(an[i] && an[i].Hidden),
+        aoa:/gian tiep/.test(LUONG_KD(n)) ? XLSX.utils.sheet_to_json(wb.Sheets[n], {header:1, raw:true, defval:''}) : []}));
+      const r = luongDocBang(sheets);
+      S.lg.nap.push(Object.assign({ten:f.name, thang:luongThangTuTen(f.name), maDA:luongDATuTen(f.name)}, r));
+    } catch(e){ S.lg.nap.push({ten:f.name, loi:'Không đọc được file: ' + e.message}); }
+  }
+  lgVeNap();
+}
+function lgVeNap(){
+  const box = $('lg-nap'); if (!box) return;
+  const daNap = {}; (S.lg.daNap || []).forEach(x => daNap[x[0]] = x[1]);
+  const dsDA = (S.duan || []).map(d => d.maDA);
+  box.innerHTML = S.lg.nap.map((x, i) => x.loi ? `<div class="lg-the"><b>${escA(x.ten)}</b><div style="color:var(--alert)">${escA(x.loi)}</div></div>` : `<div class="lg-the">
+      <div style="font-weight:700;font-size:13px;word-break:break-all">${escA(x.ten)}</div>
+      <div class="lg-thanh" style="margin-top:6px"><input type="month" class="lg-sel" value="${x.thang}" onchange="S.lg.nap[${i}].thang=this.value;lgVeNap()">
+        <select class="lg-sel" onchange="S.lg.nap[${i}].maDA=this.value;lgVeNap()"><option value="">— dự án —</option>${dsDA.map(m => `<option ${m === x.maDA ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+      ${lgDong1('Sheet đọc', escA(x.sheet))}${lgDong1('Số người (khối Gián tiếp)', x.ds.length)}
+      ${lgDong1('Tổng thực lĩnh', lgD(x.tongDoc) + ' đ', x.tongFile !== null && x.tongFile !== undefined ? (Math.abs(x.tongFile - x.tongDoc) <= 1000 ? '✓ khớp dòng tổng của file' : '⚠ dòng tổng file: ' + lgD(x.tongFile)) : '')}
+      ${x.canhBao.length ? '<div class="lg-cb">⚠ ' + x.canhBao.slice(0, 5).map(escA).join('<br>⚠ ') + '</div>' : ''}
+      ${x.thang && x.maDA && daNap[x.thang + '|' + x.maDA] ? '<div class="lg-cb">Tháng này đã nạp ' + daNap[x.thang + '|' + x.maDA] + ' người — nạp tiếp sẽ GHI ĐÈ.</div>' : ''}
+      <details><summary>Xem danh sách</summary>${x.ds.map(p => lgDong1(escA(p.stt + '. ' + p.hoTen), lgD(p.thucLinh), escA(p.chucDanh))).join('')}</details>
+      ${x.xong ? `<div class="lg-ok">✓ Đã nạp ${x.xong.n} người · ghép tài khoản ${x.xong.khop}/${x.xong.n}${x.xong.chuaKhop.length ? '<br><small>Chưa ghép: ' + escA(x.xong.chuaKhop.join(', ')) + '</small>' : ''}</div>`
+        : `<button class="primary" style="margin-top:8px" ${x.thang && x.maDA && x.ds.length ? '' : 'disabled'} onclick="lgNap(${i}, this)">NẠP LÊN MÁY CHỦ</button>`}
+    </div>`).join('');
+}
+async function lgNap(i, nut){
+  const x = S.lg.nap[i];
+  if (!/^\d{4}-\d{2}$/.test(x.thang) || !x.maDA){ toast('Chọn tháng và dự án'); return; }
+  if (!confirm('Nạp bảng lương ' + lgThangTen(x.thang) + ' · ' + x.maDA + ' (' + x.ds.length + ' người, thực lĩnh ' + lgD(x.tongDoc) + ' đ)?')) return;
+  nut.disabled = true; nut.textContent = 'Đang nạp…';
+  try {
+    x.xong = await api('luongNap', {thang:x.thang, maDA:x.maDA, tenFile:x.ten, ds:x.ds}, 90);
+    lgVeNap(); toast('Đã nạp ' + x.xong.n + ' người');
+    const r = await api('luongXem', {ve:S.lg.ve, nam:S.lg.nam, email:S.lg.email || ''}, 40); Object.assign(S.lg, r);
+  } catch(e){ nut.disabled = false; nut.textContent = 'NẠP LÊN MÁY CHỦ'; toast(e.message, 4000); }
 }
 
 let tt;
