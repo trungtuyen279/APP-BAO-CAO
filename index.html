@@ -369,6 +369,12 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .kpi-tc .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .kpi-chip{font-size:11px;padding:2px 8px;border-radius:10px;background:#FFF5F6;border:1px solid #F1C6CD;color:#8A0B20}
 .kpi-chip.nv{background:#EEF4FB;border-color:#B9D0EA;color:#1A5C96}.kpi-chip.ok{background:#EAF6EC;border-color:#B7DFC0;color:#1E7B34}
+.kpi-chip.warn{background:#FFF4D6;border-color:#F0C040;color:#7A5200}
+.kpi-dk{border:1px dashed #1A5C96;border-radius:10px;padding:8px;margin:6px 0;background:#F7FAFE}.kpi-dk input{width:100%;padding:7px;border:1px solid var(--line);border-radius:8px;margin-top:4px;font-family:inherit}
+.kpi-h{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;background:#1F2A37;color:#FFD54F}
+.bb-page table.kpi-in{border-collapse:collapse;width:100%;font-size:10.5pt;margin:6px 0}.bb-page table.kpi-in th,.bb-page table.kpi-in td{border:1px solid #333;padding:3px 4px;vertical-align:top}.bb-page table.kpi-in th{background:#C00000;color:#fff}
+.bb-page.ngang{width:297mm}.bb-page .bb-ky td{width:33%}
+@media print{ .bb-page.ngang{width:auto} }
 .kpi-tc .sl{display:flex;align-items:center;gap:10px;margin-top:8px}.kpi-tc .sl input[type=range]{flex:1;width:auto;padding:0;accent-color:var(--brand)}
 .kpi-tc .sl output{font-family:var(--mono);font-size:12px;min-width:92px;text-align:right}
 .kpi-tc textarea{margin-top:6px;font-size:13px}
@@ -963,7 +969,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.13.0';
+const APP_VERSION = '3.14.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1440,7 +1446,7 @@ function veTrangChu(){
   $('secbar').innerHTML = '<span>TRANG CHỦ</span>';
   renderHome(); document.querySelector('main').scrollTop = 0;
 }
-function kpiKetLuanNhan(d){ return d >= 85 ? 'Xuất sắc — vượt ngưỡng 85' : d >= 80 ? 'Tốt — đạt ngưỡng 80' : d >= 75 ? 'Khá — đạt ngưỡng 75' : d >= 70 ? 'Đạt — ngưỡng 70' : d >= 60 ? 'Cần cố gắng — dưới 70' : 'Chưa đạt — cần xem lại'; }
+function kpiKetLuanNhan(d){ return d > 110 ? 'Hoàn thành tốt (xem xét) — H 1,10' : d > 100 ? 'Hoàn thành tốt — H ' + (Math.round(d) / 100).toFixed(2).replace('.', ',') : d >= 90 ? 'Hoàn thành — H 1,00' : d >= 86 ? 'Không hoàn thành — H 0,95' : d >= 80 ? 'Không hoàn thành — H 0,90' : 'Không hoàn thành — H 0,80'; }
 function moPhu(id){ const b = document.querySelector('.sitem[data-s="' + id + '"]'); if (b) b.click(); }
 let kpiNhaDangTai = false;
 async function taiKpiNha(){
@@ -2176,7 +2182,7 @@ async function renderAcct(){
   $('a-da').textContent   = (S.user.duAn || []).map(m => m === 'TAT_CA' ? 'Tất cả dự án'
                             : (S.duan.find(d => d.maDA === m) || {}).tenDA || m).join(', ') || '—';
   $('a-pv').textContent   = (S.user.phamVi || []).length ? S.user.phamVi.join(' · ') : 'Toàn dự án';
-  const nl = $('btnLuong'); if (nl) nl.querySelector('b').innerHTML = lgQT() ? 'Phiếu lương &amp; nạp bảng lương' : 'Phiếu lương &amp; thu nhập năm';
+  const nl = $('btnLuong'); if (nl) nl.querySelector('b').innerHTML = lgQT() ? 'Phiếu lương &amp; bảng lương BCH' : 'Phiếu lương &amp; thu nhập năm';
   trangThaiDay();
   const q = await Store.all();
   $('a-db').textContent   = q.length ? q.length + ' bản ghi chờ gửi' : 'Đã đồng bộ';
@@ -3663,7 +3669,7 @@ function kpiDoiThang(n){ const [y,m] = S.kpi.thang.split('-').map(Number); const
   S.kpi.thang = thangLocal(d); S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; S.kpi.vp = null; S.kpi.th = null; S.kpi.ban = null; renderKPI(); }
 function kpiThanhThang(){ return `<div class="kpi-thang"><button onclick="kpiDoiThang(-1)">‹</button><b>${thangNhan(S.kpi.thang)}</b><button onclick="kpiDoiThang(1)">›</button></div>` + kpiBangLich(); }
 function kpiTag(tt){ return `<span class="kpi-tag" style="background:${KPI_MAU[tt] || '#888'}">${KPI_TT[tt] || tt}</span>`; }
-function kpiDiemMau(d){ return d == null ? '#888' : d >= 85 ? '#1E7B34' : d >= 70 ? '#B8860B' : '#C00000'; }
+function kpiDiemMau(d){ return d == null ? '#888' : d >= 90 ? '#1E7B34' : d >= 80 ? '#B8860B' : '#C00000'; }
 
 async function renderKPI(){
   kpiKhoiTao();
@@ -3713,7 +3719,7 @@ function renderKpiCuaToi(){
   else {
     const p = c.goi.phieu;
     out += `<div class="kpi-head"><div><div class="kpi-vt">${escK(c.tenViTri || c.viTri)}</div>${kpiTag(p.trangThai)}</div>
-      <div class="kpi-so" style="color:${kpiDiemMau(p.tongDiem)}">${p.tongDiem != null ? p.tongDiem : '—'}<small>/100</small></div></div>`;
+      <div class="kpi-so" style="color:${kpiDiemMau(p.tongDiem)}">${p.tongDiem != null ? kpiSo1(p.tongDiem) : '—'}<small>/100</small>${p.heSoH != null ? '<div><span class="kpi-h">H ' + kpiSo2(p.heSoH) + '</span></div>' : ''}</div></div>`;
     if (p.ketLuan) out += `<div class="kpi-kl">${escK(p.ketLuan)}</div>`;
     if (p.trangThai === 'TRA_LAI' && p.lyDoTra) out += `<div class="kpi-kl" style="color:#C00000">Trả lại: ${escK(p.lyDoTra)}</div>`;
     out += `<div class="eyebrow" style="margin:12px 0 6px"><span>Điểm 12 tháng</span></div>` + veKpiLine(c.lichSu);
@@ -3727,28 +3733,44 @@ function renderKpiCuaToi(){
 /* ---- phiếu (dùng chung 4 chế độ) ---- */
 function veKpiPhieu(goi, che){
   const p = goi.phieu; let out = ''; let nhom = '';
-  goi.tieuChi.forEach(t => {
+  const d2 = v => kpiSo2(v);
+  goi.tieuChi.filter(t => !t.them).forEach(t => {
     if (t.nhom !== nhom){ nhom = t.nhom; out += `<div class="kpi-nhom">${t.nhom}. ${escK(t.tenNhom)}</div>`; }
     const pctHT = che === 'TU_CHAM' ? (t.pctTuCham != null ? t.pctTuCham : (t.pctGoiY != null ? t.pctGoiY : 1))
                 : (t.pct != null ? t.pct : (t.pctTuCham != null ? t.pctTuCham : (t.pctGoiY != null ? t.pctGoiY : 1)));
     const v = Math.round(pctHT * 100);
-    const chips = [t.pctGoiY != null ? `<span class="kpi-chip" title="Gợi ý từ số liệu app">App gợi ý ${Math.round(t.pctGoiY * 100)}%</span>` : '',
+    const loai = String(t.tuDong || '').toUpperCase(); const laBan = loai === 'KPI_BAN', laTD = loai === 'VI_PHAM'; const khoa = laBan || laTD || t.khoa;
+    const chips = [!khoa && t.pctGoiY != null ? `<span class="kpi-chip" title="Gợi ý từ số liệu app">App gợi ý ${Math.round(t.pctGoiY * 1000) / 10}%</span>` : '',
+                   t.nguonTrong ? `<span class="kpi-chip warn">Chưa có dữ liệu nguồn – chấm tay</span>` : '',
                    t.pctTuCham != null && che !== 'TU_CHAM' ? `<span class="kpi-chip nv">Tự chấm ${Math.round(t.pctTuCham * 100)}%</span>` : '',
-                   t.pct != null && che !== 'CHAM' ? `<span class="kpi-chip ok">Chấm ${Math.round(t.pct * 100)}% → ${t.diem} đ</span>` : ''].join('');
-    const laBan = String(t.tuDong || '').toUpperCase() === 'KPI_BAN';
-    const sua = (che === 'TU_CHAM' || che === 'CHAM') && !laBan;
-    out += `<div class="kpi-tc${laBan ? ' kpi-ban' : ''}" data-tc="${escK(t.maTC)}"${laBan ? ' data-ban="1"' : ''}>
-      <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${Math.round(t.diemMax)} đ</b></div>
-      <div class="ct">${escK(t.chiTieu)}</div>${laBan ? `<div class="chips"><span class="kpi-chip ${t.pctGoiY != null ? 'ok' : ''}">${t.pctGoiY != null ? 'KPI Ban đã duyệt: ' + Math.round(t.pctGoiY * 100) + '% → ' + Math.round(t.pctGoiY * t.diemMax) + ' đ' : 'Phiếu KPI Ban ' + escK(p.maDA) + ' chưa duyệt (' + (KPI_TT[(goi.kpiBan || {}).trangThai] || 'chưa tạo').toLowerCase() + ') — xem tab KPI Ban'}</span></div>` : (chips ? `<div class="chips">${chips}</div>` : '')}
-      ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="5" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+Math.round(this.value*${t.diemMax}/100)+' đ'"><output>${v}% · ${Math.round(v * t.diemMax / 100)} đ</output></div>
-             <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới 100%)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
-           : `${t.dienGiai ? `<div class="dg"><b>Người chấm:</b> ${escK(t.dienGiai)}</div>` : ''}${t.dienGiaiNV ? `<div class="dg"><b>Tự nhận xét:</b> ${escK(t.dienGiaiNV)}</div>` : ''}`}
+                   !khoa && t.pct != null && che !== 'CHAM' ? `<span class="kpi-chip ok">Chấm ${Math.round(t.pct * 1000) / 10}% → ${d2(t.diem)} đ</span>` : ''].join('');
+    const chipKhoa = laBan ? `<span class="kpi-chip ${t.pctGoiY != null ? 'ok' : ''}">${t.pctGoiY != null ? 'KPI Ban đã duyệt: ' + Math.round(t.pctGoiY * 1000) / 10 + '% → ' + d2(t.pctGoiY * t.diemMax) + ' đ' : 'Phiếu KPI Ban ' + escK(p.maDA) + ' chưa duyệt (' + (KPI_TT[(goi.kpiBan || {}).trangThai] || 'chưa tạo').toLowerCase() + ') — xem tab KPI Ban'}</span>`
+      : laTD ? `<span class="kpi-chip ${t.pct != null && t.pct < 1 ? 'warn' : 'ok'}">Thái độ tự tính từ vi phạm A7.15: ${t.pct == null ? '100' : Math.round(t.pct * 1000) / 10}% → ${d2((t.pct == null ? 1 : t.pct) * t.diemMax)} đ · không nhập tay</span>` : '';
+    const sua = (che === 'TU_CHAM' || che === 'CHAM') && !khoa;
+    out += `<div class="kpi-tc${laBan ? ' kpi-ban' : ''}" data-tc="${escK(t.maTC)}"${khoa ? ' data-khoa="1"' : ''} data-gy="${t.pctGoiY != null ? Math.round(t.pctGoiY * 100) : ''}">
+      <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${d2(t.diemMax).replace(',00', '')} đ</b></div>
+      <div class="ct">${escK(t.chiTieu)}</div>${khoa ? `<div class="chips">${chipKhoa}</div>` : (chips ? `<div class="chips">${chips}</div>` : '')}
+      ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="1" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+(Math.round(this.value*${t.diemMax})/100).toLocaleString('vi-VN',{minimumFractionDigits:2})+' đ'"><output>${v}% · ${d2(v * t.diemMax / 100)} đ</output></div>
+             <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới 100% hoặc khác số app gợi ý)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
+           : `${t.dienGiai ? `<div class="dg"><b>${khoa ? 'Tự động' : 'Người chấm'}:</b> ${escK(t.dienGiai)}</div>` : ''}${t.dienGiaiNV ? `<div class="dg"><b>Tự nhận xét:</b> ${escK(t.dienGiaiNV)}</div>` : ''}`}
       ${t.ghiChu ? `<div class="gc">${escK(t.ghiChu)}</div>` : ''}
     </div>`;
   });
+  /* mục tiêu đăng ký thêm (khi Quản trị bật KPI_DANG_KY_THEM) */
+  const them = goi.tieuChi.filter(t => t.them);
+  if ((goi.cauHinh || {}).dangKyThem || them.length){
+    out += `<div class="kpi-nhom">MỤC TIÊU ĐĂNG KÝ THÊM (tối đa 2 mục, cộng tối đa 10 điểm)</div>`;
+    const ds = che === 'CHAM' ? [0, 1].map(i => them[i] || {maTC:'DK' + (i + 1), tenTC:'', chiTieu:'', diemMax:5, pct:null, dienGiai:''}) : them;
+    out += ds.map(t => che === 'CHAM' ? `<div class="kpi-dk" data-dk="${t.maTC}"><input class="dk-ten" placeholder="Tên mục tiêu ${t.maTC} (để trống nếu không đăng ký)" value="${escK(t.tenTC)}">
+        <input class="dk-ct" placeholder="Chỉ tiêu cụ thể" value="${escK(t.chiTieu)}"><div class="row"><input class="dk-max" type="number" min="0" max="10" step="0.5" value="${t.diemMax}" title="Điểm tối đa"><input class="dk-pct" type="number" min="0" max="100" value="${t.pct == null ? '' : Math.round(t.pct * 100)}" placeholder="% hoàn thành"></div>
+        <input class="dk-dg" placeholder="Diễn giải kết quả (bắt buộc)" value="${escK(t.dienGiai)}"></div>`
+      : `<div class="kpi-tc"><div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${d2(t.diemMax)} đ</b></div><div class="ct">${escK(t.chiTieu)}</div>${t.pct != null ? `<div class="chips"><span class="kpi-chip ok">${Math.round(t.pct * 100)}% → ${d2(t.diem)} đ</span></div>` : ''}${t.dienGiai ? `<div class="dg">${escK(t.dienGiai)}</div>` : ''}</div>`).join('');
+  }
+  if (che === 'CHAM') out += `<div class="field" style="margin-top:10px"><label>Ghi chú chuyển dự án giữa tháng (nếu có — ý kiến CHP dự án cũ cho phần trước ngày chuyển)</label><textarea id="kpi-ccda" rows="2">${escK(p.ghiChuChuyenDA || '')}</textarea></div>`;
+  else if (p.ghiChuChuyenDA) out += `<div class="dg" style="margin-top:8px"><b>Chuyển dự án:</b> ${escK(p.ghiChuChuyenDA)}</div>`;
   if (goi.viPham && goi.viPham.length)
     out += `<div class="kpi-nhom" style="color:#C00000">Vi phạm A7.15 trong tháng (${goi.viPham.length})</div>` +
-      goi.viPham.map(v => `<div class="kpi-vp">${escK(v.ngay)} · <b>trừ ${v.mucTru}%</b> · ${escK(v.tenVP)}${v.ghiChu ? ' — ' + escK(v.ghiChu) : ''} <i>(${escK(v.nguoiGhi)})</i></div>`).join('');
+      goi.viPham.map(v => `<div class="kpi-vp">${escK(v.ngay)} · <b>trừ ${v.mucTru}%</b> · ${escK(v.tenVP)}${v.ghiChu ? ' — ' + escK(v.ghiChu) : ''}${kpiMinhChung(v.minhChung)} <i>(${escK(v.nguoiGhi)})</i></div>`).join('');
   const em = escK(p.email), th = escK(p.thang);
   if (che === 'TU_CHAM') out += `<button class="btn" style="margin-top:12px" onclick="kpiGui('TU_CHAM','${em}','${th}')">Gửi tự chấm cho người quản lý</button>`;
   if (che === 'CHAM') out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiGui('CHAM','${em}','${th}')">Lưu nháp</button><button class="btn" onclick="kpiGui('GUI_DUYET','${em}','${th}')">Gửi duyệt</button></div>`;
@@ -3757,23 +3779,32 @@ function veKpiPhieu(goi, che){
     out += `<div class="field" style="margin-top:12px"><label>Ý kiến của tôi về kết quả</label><textarea id="kpi-yk" rows="2">${escK(p.yKienNV)}</textarea></div><button class="btn ghost" onclick="kpiGuiYKien('${em}','${th}')">Gửi ý kiến</button>`;
   else if (p.yKienNV) out += `<div class="dg" style="margin-top:8px"><b>Ý kiến nhân viên:</b> ${escK(p.yKienNV)}</div>`;
   if (p.nguoiCham || p.nguoiDuyet) out += `<div class="hint">${p.nguoiCham ? 'Người chấm: ' + escK(p.nguoiCham) + (p.thoiGianCham ? ' · ' + escK(p.thoiGianCham).slice(0,16) : '') : ''}${p.nguoiDuyet ? '<br>Người duyệt: ' + escK(p.nguoiDuyet) + (p.thoiGianDuyet ? ' · ' + escK(p.thoiGianDuyet).slice(0,16) : '') : ''}</div>`;
+  out += `<button class="btn ghost sm" style="margin-top:8px" onclick="kpiInA714()">🖨 In phiếu A7.14</button>`;
   return out;
 }
+function kpiMinhChung(mc){ if (!mc) return ''; return ' · ' + String(mc).split(' | ').map(x => /^https?:/.test(x) ? `<a href="${escK(x)}" target="_blank" rel="noopener">📎 minh chứng</a>` : '📎 ' + escK(x)).join(' '); }
 function kpiThuDiem(){
-  return [...$('kpiBody').querySelectorAll('.kpi-tc')].filter(el => !el.dataset.ban).map(el => ({maTC: el.dataset.tc,
-    pct: el.querySelector('input[type=range]') ? +el.querySelector('input[type=range]').value : null,
+  return [...$('kpiBody').querySelectorAll('.kpi-tc[data-tc]')].filter(el => !el.dataset.khoa).map(el => ({maTC: el.dataset.tc,
+    pct: el.querySelector('input[type=range]') ? +el.querySelector('input[type=range]').value : null, goiY: el.dataset.gy === '' ? null : +el.dataset.gy,
     dienGiai: el.querySelector('textarea') ? el.querySelector('textarea').value.trim() : ''}));
+}
+function kpiThuThem(){
+  return [...$('kpiBody').querySelectorAll('.kpi-dk')].map(el => ({ma:el.dataset.dk, ten:el.querySelector('.dk-ten').value.trim(), chiTieu:el.querySelector('.dk-ct').value.trim(),
+    diemMax:+el.querySelector('.dk-max').value || 0, pct:el.querySelector('.dk-pct').value, dienGiai:el.querySelector('.dk-dg').value.trim()})).filter(x => x.ten);
 }
 async function kpiGui(che, email, thang){
   if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
   { const l = kpiLich(thang); if (!l.cham) return toast('Chưa đến lịch chấm KPI ' + thangNhan(thang) + ' — chấm từ ' + l.moCham + ' đến ' + l.hetCham, 4000); }
-  const diem = kpiThuDiem();
-  if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct != null && x.pct < 100 && !x.dienGiai);
-    if (thieu.length) return toast('Tiêu chí dưới 100% phải có diễn giải: ' + thieu.map(x => x.maTC).join(', '), 4000);
+  const diem = kpiThuDiem(); const them = $('kpiBody').querySelector('.kpi-dk') ? kpiThuThem() : undefined;
+  if (them && them.reduce((a, x) => a + x.diemMax, 0) > 10) return toast('Mục tiêu đăng ký thêm tối đa 10 điểm', 4000);
+  if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct != null && (x.pct < 100 || (x.goiY != null && x.pct !== x.goiY)) && !x.dienGiai);
+    if (thieu.length) return toast('Phải có diễn giải (dưới 100% hoặc khác số app gợi ý): ' + thieu.map(x => x.maTC).join(', '), 5000);
+    if (them && them.some(x => x.pct === '' || !x.dienGiai)) return toast('Mục tiêu đăng ký thêm: nhập % hoàn thành và diễn giải', 4000);
     if (!confirm('Gửi duyệt phiếu KPI ' + thangNhan(thang) + '? Sau khi gửi không sửa được.')) return; }
   S.kpi.dang = true; toast('Đang lưu…');
-  try { const r = await api('kpiLuu', {cheDo:che, email, thang, diem}, 60);
-    toast(che === 'TU_CHAM' ? 'Đã gửi tự chấm' : che === 'CHAM' ? 'Đã lưu nháp' : 'Đã gửi duyệt · ' + r.tongDiem + ' điểm');
+  const ccda = $('kpi-ccda') ? $('kpi-ccda').value.trim() : undefined;
+  try { const r = await api('kpiLuu', {cheDo:che, email, thang, diem, them, ghiChuChuyenDA:ccda}, 60);
+    toast(che === 'TU_CHAM' ? 'Đã gửi tự chấm' : che === 'CHAM' ? 'Đã lưu nháp' : 'Đã gửi duyệt · ' + kpiSo1(r.tongDiem) + ' điểm · H ' + kpiSo2(r.heSoH), 4000);
     S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; renderKPI();
   } catch(e){ toast('Chưa lưu được: ' + e.message, 4000); }
   S.kpi.dang = false;
@@ -3824,7 +3855,7 @@ function renderKpiPhieuNguoi(che){
   const cheVe = che === 'CHAM' ? (g.quyen.cham ? 'CHAM' : 'XEM') : (g.quyen.duyet ? 'DUYET' : 'XEM');
   let out = `<button class="back" onclick="kpiDongPhieu()">‹ Danh sách</button>
     <div class="kpi-head"><div><div class="kpi-vt">${escK(p.hoTen)} · ${escK(p.viTri)}</div>${thangNhan(p.thang)} ${kpiTag(p.trangThai)}</div>
-      <div class="kpi-so" style="color:${kpiDiemMau(p.tongDiem)}">${p.tongDiem != null ? p.tongDiem : '—'}<small>/100</small></div></div>`;
+      <div class="kpi-so" style="color:${kpiDiemMau(p.tongDiem)}">${p.tongDiem != null ? kpiSo1(p.tongDiem) : '—'}<small>/100</small>${p.heSoH != null ? '<div><span class="kpi-h">H ' + kpiSo2(p.heSoH) + '</span></div>' : ''}</div></div>`;
   if (p.ketLuan) out += `<div class="kpi-kl">${escK(p.ketLuan)}</div>`;
   if (p.lyDoTra) out += `<div class="kpi-kl" style="color:#C00000">Lý do trả lại: ${escK(p.lyDoTra)}</div>`;
   if (cheVe === 'XEM' && che === 'CHAM' && ['CHO_DUYET','DA_DUYET'].includes(p.trangThai)) out += `<div class="hint">Phiếu đã ${KPI_TT[p.trangThai].toLowerCase()} — chỉ xem.</div>`;
@@ -3845,17 +3876,22 @@ async function renderKpiViPham(){
   out += `<div class="card"><h4>Ghi nhận vi phạm (phụ lục A7.15)</h4>
     <div class="field" style="margin-top:8px"><label>Nhân sự</label><select id="vp-email">${(S.kpi.ds.VI_PHAM || []).map(x => `<option value="${escK(x.email)}">${escK(x.hoTen)} · ${escK(x.viTri)}</option>`).join('')}</select></div>
     <div class="field"><label>Tiêu chí vi phạm</label><select id="vp-ma">${dm.map(v => { let o = ''; if (v.nhom !== nhom){ nhom = v.nhom; o += `<option disabled>── ${escK(v.nhom)}</option>`; } return o + `<option value="${escK(v.maVP)}">[trừ ${v.mucTru}%] ${escK(v.tenVP)}</option>`; }).join('')}</select></div>
-    <div class="row"><div class="field"><label>Ghi chú / minh chứng</label><input id="vp-gc" placeholder="Sự việc, thời điểm, người chứng kiến"></div><div class="field"><label>Ngày</label><input id="vp-ngay" type="date" value="${ngayLocal(new Date())}"></div></div>
+    <div class="row"><div class="field"><label>Ghi chú sự việc</label><input id="vp-gc" placeholder="Sự việc, thời điểm, người chứng kiến"></div><div class="field"><label>Ngày</label><input id="vp-ngay" type="date" value="${ngayLocal(new Date())}"></div></div>
+    <div class="field"><label>Minh chứng (bắt buộc: ảnh hoặc số/đường link biên bản)</label><input id="vp-mc" placeholder="VD: BB số 05/ATLĐ ngày 20/09 hoặc link Drive">
+      <input type="file" id="vp-anh" accept="image/*" capture="environment" style="display:none" onchange="kpiChonAnhVP(this)">
+      <button class="btn ghost sm" style="margin-top:6px" onclick="$('vp-anh').click()">📷 Chụp / chọn ảnh minh chứng</button> <span id="vp-anh-tt" class="hint">${S.kpi.vpAnh ? '✓ đã có ảnh' : ''}</span></div>
     <button class="btn" onclick="kpiGhiVP()">Ghi vi phạm</button>
-    <div class="hint">Nhân viên nhận thông báo ngay và có 3 ngày để ý kiến. Điểm nhóm Thái độ của tháng tự trừ theo mức.</div></div>`;
+    <div class="hint">Nhân viên nhận thông báo ngay và có 3 ngày để ý kiến. Điểm Thái độ của tháng tự tính = 100% − tổng mức trừ (không nhập tay).</div></div>`;
   out += `<div class="eyebrow" style="margin:12px 0 6px"><span>Vi phạm ${thangNhan(S.kpi.thang)} (${S.kpi.vp.length})</span></div>`;
-  out += S.kpi.vp.length ? S.kpi.vp.map(v => `<div class="kpi-vp"><b>${escK(v.hoTen)}</b> · ${escK(v.ngay)} · trừ ${v.mucTru}% · ${escK(v.tenVP)}${v.ghiChu ? ' — ' + escK(v.ghiChu) : ''} <i>(${escK(v.nguoiGhi)})</i></div>`).join('') : empty('Chưa có vi phạm nào trong tháng.');
+  out += S.kpi.vp.length ? S.kpi.vp.map(v => `<div class="kpi-vp"><b>${escK(v.hoTen)}</b> · ${escK(v.ngay)} · trừ ${v.mucTru}% · ${escK(v.tenVP)}${v.ghiChu ? ' — ' + escK(v.ghiChu) : ''}${kpiMinhChung(v.minhChung)} <i>(${escK(v.nguoiGhi)})</i></div>`).join('') : empty('Chưa có vi phạm nào trong tháng.');
   $('kpiBody').innerHTML = out;
 }
+async function kpiChonAnhVP(inp){ const f = inp.files[0]; if (!f) return; S.kpi.vpAnh = await nenAnh(f, 1600, .8); inp.value = ''; const e = $('vp-anh-tt'); if (e) e.textContent = S.kpi.vpAnh ? '✓ đã có ảnh' : 'không đọc được ảnh'; }
 async function kpiGhiVP(){
   const email = $('vp-email').value, maVP = $('vp-ma').value; if (!email || !maVP) return toast('Chọn nhân sự và tiêu chí');
+  const mc = $('vp-mc').value.trim(); if (!mc && !S.kpi.vpAnh) return toast('Vi phạm phải có minh chứng: chụp ảnh hoặc ghi số/link biên bản', 4000);
   if (!confirm('Ghi vi phạm cho ' + $('vp-email').selectedOptions[0].textContent + '?')) return;
-  try { await api('kpiViPham', {email, maVP, ngay:$('vp-ngay').value, ghiChu:$('vp-gc').value.trim()}, 60); toast('Đã ghi vi phạm'); S.kpi.vp = null; S.kpi.ds = {}; renderKPI(); }
+  try { await api('kpiViPham', {email, maVP, ngay:$('vp-ngay').value, ghiChu:$('vp-gc').value.trim(), minhChung:mc, anh:S.kpi.vpAnh || ''}, 90); toast('Đã ghi vi phạm'); S.kpi.vpAnh = null; S.kpi.vp = null; S.kpi.ds = {}; renderKPI(); }
   catch(e){ toast(e.message, 4000); }
 }
 
@@ -3870,9 +3906,10 @@ async function renderKpiTongHop(){
   out += `<div class="kpi-stats">${[['Nhân sự', t.ds.length], ['Đã duyệt', dem.DA_DUYET || 0], ['Chờ duyệt', dem.CHO_DUYET || 0], ['Chưa chấm', (dem.NHAP || 0) + (dem.CHUA_TAO || 0) + (dem.TU_CHAM || 0) + (dem.TRA_LAI || 0)], ['TB đã duyệt', t.trungBinh != null ? t.trungBinh : '—'], ['Vi phạm', t.soVP || 0]]
     .map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('')}</div>`;
   const ds = t.ds.slice().sort((a, b) => (b.tongDiem ?? -1) - (a.tongDiem ?? -1));
-  out += `<table class="kpi-tb"><tr><th>Họ tên</th><th>Vị trí</th><th>DA</th><th>Điểm</th><th>Trạng thái</th></tr>` +
-    ds.map(x => `<tr><td>${escK(x.hoTen)}</td><td>${escK(x.viTri)}</td><td>${escK(x.maDA)}</td><td style="color:${kpiDiemMau(x.tongDiem)};font-weight:bold">${x.tongDiem != null ? x.tongDiem : '—'}</td><td>${kpiTag(x.trangThai)}</td></tr>`).join('') + '</table>';
-  out += `<button class="btn ghost sm" style="margin-top:10px" onclick="kpiSaoChep()">Sao chép bảng</button>`;
+  out += `<table class="kpi-tb"><tr><th>Họ tên</th><th>DA</th><th>Ban</th><th>MT</th><th>TĐ</th><th>Tổng</th><th>H</th><th>Trạng thái</th></tr>` +
+    ds.map(x => `<tr><td>${escK(x.hoTen)}<small style="display:block;color:#5A6875">${escK(x.viTri)}</small></td><td>${escK(x.maDA)}</td><td>${kpiSo1(x.diemBan)}</td><td>${kpiSo1(x.diemMucTieu)}</td><td>${kpiSo1(x.diemThaiDo)}</td><td style="color:${kpiDiemMau(x.tongDiem)};font-weight:bold">${x.tongDiem != null ? kpiSo1(x.tongDiem) : '—'}</td><td>${x.heSoH != null ? kpiSo2(x.heSoH) : '—'}</td><td>${kpiTag(x.trangThai)}</td></tr>`).join('') + '</table>';
+  out += `<div class="kpi-btns"><button class="btn ghost sm" onclick="kpiSaoChep()">Sao chép bảng</button><button class="btn ghost sm" onclick="kpiInA716()">🖨 In tổng hợp A7.16</button></div>
+    <div class="hint">Ban = KPI Ban · MT = mục tiêu công việc · TĐ = thái độ. Hệ số H theo bảng quy đổi công ty (sheet KPI_QUY_DOI): &lt;80% → 0,80 · 80–&lt;86% → 0,90 · 86–&lt;90% → 0,95 · 90–100% → 1,00 · &gt;100% → KPI/100 (tối đa 1,10).</div>`;
   const kb = t.kpiBan || [];
   if (kb.length) out += `<div class="eyebrow" style="margin:14px 0 6px"><span>KPI Ban Chỉ huy (A7.9) ${thangNhan(S.kpi.thang)}</span></div>
     <table class="kpi-tb"><tr><th>Dự án</th><th>Kết quả</th><th>Trạng thái</th><th>CHT chấm</th></tr>` +
@@ -3881,12 +3918,13 @@ async function renderKpiTongHop(){
 }
 
 /* ---- KPI Ban Chỉ huy (biểu A7.9): CHT chấm KH/TH, Quản trị duyệt; % kết quả áp vào mục I (10%) phiếu cá nhân ---- */
-const KB_PP = {TH_KH:'TH / KH', KHONG_VUOT:'TH ≤ KH → 100%, vượt → 0%', KHONG_DUOI:'TH ≥ KH → 100%, thấp hơn → 0%', HAN_NGAY:'Xong trước/đúng hạn → 100%, trễ → 0%'};
+const KB_PP = {TH_KH:'TH / KH', KHONG_VUOT:'KH khoá = 0 · TH = 0 → 100%, có từ 1 vụ → 0%', KHONG_VUOT_KH:'TH ≤ KH → 100%, vượt → 0%', KHONG_DUOI:'TH ≥ KH → 100%, thấp hơn → 0%', HAN_NGAY:'Xong trước/đúng hạn → 100%, trễ → 0%'};
 function kbHoanThanh(pp, kh, th){
   if (th === '' || th == null) return null;
   if (pp === 'HAN_NGAY'){ if (!kh) return null; return th <= kh ? 1 : 0; }
   const K = +kh, T = +th; if (isNaN(T)) return null;
-  if (pp === 'KHONG_VUOT') return T <= K ? 1 : 0;
+  if (pp === 'KHONG_VUOT') return T <= 0 ? 1 : 0;
+  if (pp === 'KHONG_VUOT_KH') return T <= K ? 1 : 0;
   if (pp === 'KHONG_DUOI') return T >= K ? 1 : 0;
   if (!K) return null; return Math.max(0, Math.min(2, Math.round(T / K * 1000) / 1000));
 }
@@ -3934,8 +3972,8 @@ async function renderKpiBan(){
     out += `<div class="kb-tc" data-ma="${escK(t.ma)}" data-nhom="${escK(t.nhom)}" data-tsn="${t.trongSoNhom}" data-ts="${t.trongSo}" data-pp="${escK(t.phuongPhap)}" data-kh="${escK(kh)}">
       <div class="tt"><span class="ma">${escK(t.ma)}</span> ${escK(t.ten)} <span class="ts">×${t.trongSo}</span></div>
       <div class="ct">${escK(t.tieuChi)}${t.donVi ? ' · ĐVT: ' + escK(t.donVi) : ''}</div><div class="pp">${KB_PP[t.phuongPhap] || escK(t.phuongPhap)}${t.nguon ? ' · Nguồn: ' + escK(t.nguon) : ''}</div>
-      <div class="kb-in"><div><label>Kế hoạch (KH)</label>${sua ? `<input class="kb-kh" type="${typ}" ${laNgay ? '' : 'step="any" inputmode="decimal"'} value="${escK(kh)}" oninput="kbCapNhat()">` : `<div class="ht" style="font-weight:normal">${kh === '' ? '—' : escK(kh)}</div>`}</div>
-        <div><label>Thực hiện (TH)</label>${sua ? `<input class="kb-th" type="${typ}" ${laNgay ? '' : 'step="any" inputmode="decimal"'} value="${escK(th)}" oninput="kbCapNhat()">` : `<div class="ht" style="font-weight:normal">${th === '' ? '—' : escK(th)}</div>`}</div>
+      <div class="kb-in"><div><label>Kế hoạch (KH)${t.donVi && !laNgay ? ' · ' + escK(t.donVi) : ''}</label>${sua ? (t.khoaKH ? `<input class="kb-kh" type="number" value="0" disabled title="Khoá = 0 theo KPI công ty">` : `<input class="kb-kh" type="${typ}" ${laNgay ? '' : 'step="any" min="0" inputmode="decimal"'} value="${escK(kh)}" oninput="kbCapNhat()">`) : `<div class="ht" style="font-weight:normal">${kh === '' ? '—' : escK(kh)}${t.donVi && !laNgay && kh !== '' ? ' ' + escK(t.donVi) : ''}</div>`}</div>
+        <div><label>Thực hiện (TH)${t.donVi && !laNgay ? ' · ' + escK(t.donVi) : ''}</label>${sua ? `<input class="kb-th" type="${typ}" ${laNgay ? '' : 'step="any" min="0" inputmode="decimal"'} value="${escK(th)}" oninput="kbCapNhat()">` : `<div class="ht" style="font-weight:normal">${th === '' ? '—' : escK(th)}${t.donVi && !laNgay && th !== '' ? ' ' + escK(t.donVi) : ''}</div>`}</div>
         <div><label>Hoàn thành</label><div class="ht" style="color:${kpiDiemMau(t.hoanThanh == null ? null : t.hoanThanh * 100)}">${t.hoanThanh == null ? '—' : Math.round(t.hoanThanh * 100) + '%'}</div></div></div>
       ${sua ? `<textarea rows="1" placeholder="Diễn giải / nguồn số liệu">${escK(t.dienGiai)}</textarea>` : (t.dienGiai ? `<div class="dg">${escK(t.dienGiai)}</div>` : '')}
     </div>`;
@@ -3943,6 +3981,7 @@ async function renderKpiBan(){
   const da = escK(p.maDA), th = escK(p.thang);
   if (sua) out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiBanGui('LUU','${da}','${th}')">Lưu nháp</button><button class="btn" onclick="kpiBanGui('GUI_DUYET','${da}','${th}')">Gửi Quản trị duyệt</button></div>`;
   if (g.quyen.duyet) out += `<div class="kpi-btns"><button class="btn ghost" onclick="kpiBanDuyet('TRA_LAI','${da}','${th}')">Trả lại</button><button class="btn" onclick="kpiBanDuyet('DUYET','${da}','${th}')">Duyệt & áp vào phiếu cá nhân</button></div>`;
+  if (g.quyen.tuDuyetBiCam) out += `<div class="kpi-kl" style="color:#B36B00">Bạn là người chấm phiếu này nên không tự duyệt được. Quản trị khác duyệt, hoặc bật Script Property KPI_CHO_TU_DUYET = TRUE.</div>`;
   if (p.nguoiCham || p.nguoiDuyet) out += `<div class="hint">${p.nguoiCham ? 'CHT chấm: ' + escK(p.nguoiCham) + (p.thoiGianCham ? ' · ' + escK(p.thoiGianCham).slice(0,16) : '') : ''}${p.nguoiDuyet ? '<br>Quản trị duyệt: ' + escK(p.nguoiDuyet) + (p.thoiGianDuyet ? ' · ' + escK(p.thoiGianDuyet).slice(0,16) : '') : ''}</div>`;
   $('kpiBody').innerHTML = out;
 }
@@ -3950,12 +3989,14 @@ async function kpiBanGui(che, maDA, thang){
   if (S.kpi.dang) return; if (!navigator.onLine) return toast('Cần có mạng');
   { const l = kpiLich(thang); if (!l.cham) return toast('Chưa đến lịch chấm KPI Ban ' + thangNhan(thang) + ' — chấm từ ' + l.moCham, 4000); }
   const ds = kbDoc(); const t = kbTinh(ds);
+  const am = ds.filter(x => x.pp !== 'HAN_NGAY' && ((x.thucHien !== '' && +x.thucHien < 0) || (x.keHoach !== '' && +x.keHoach < 0))).map(x => x.ma);
+  if (am.length) return toast('Số kế hoạch/thực hiện không được âm: ' + am.join(', '), 4000);
   if (che === 'GUI_DUYET'){ const thieu = ds.filter(x => x.ht == null).map(x => x.ma);
     if (thieu.length) return toast('Chưa đủ KH/TH ở tiêu chí: ' + thieu.join(', '), 4000);
     if (!confirm('Gửi Quản trị duyệt KPI Ban ' + maDA + ' ' + thangNhan(thang) + ' = ' + Math.round(t.ketQua * 100) + '%? Sau khi gửi không sửa được.')) return; }
   S.kpi.dang = true; toast('Đang lưu…');
   try { const r = await api('kpiBanLuu', {cheDo:che, maDA, thang, diem:ds.map(x => ({ma:x.ma, keHoach:x.keHoach, thucHien:x.thucHien, dienGiai:x.dienGiai}))}, 60);
-    toast(che === 'LUU' ? 'Đã lưu nháp' : r.trangThai === 'DA_DUYET' ? 'Đã duyệt · ' + Math.round(r.ketQua * 100) + '%' : 'Đã gửi duyệt · ' + Math.round(r.ketQua * 100) + '%');
+    toast(che === 'LUU' ? 'Đã lưu nháp' : r.trangThai === 'DA_DUYET' ? 'Đã duyệt · ' + Math.round(r.ketQua * 1000) / 10 + '%' : 'Đã gửi duyệt · ' + Math.round(r.ketQua * 1000) / 10 + '%');
     S.kpi.ban = null; S.kpi.th = null; S.kpi.cuaToi = null; S.kpi.ds = {}; S.kpi.phieu = null; renderKPI();
   } catch(e){ toast('Chưa lưu được: ' + e.message, 4000); }
   S.kpi.dang = false;
@@ -3970,7 +4011,7 @@ async function kpiBanDuyet(kq, maDA, thang){
   catch(e){ toast(e.message, 4000); }
 }
 function kpiSaoChep(){
-  const t = S.kpi.th; const txt = ['KPI ' + thangNhan(S.kpi.thang)].concat(t.ds.map(x => `${x.hoTen}\t${x.viTri}\t${x.maDA}\t${x.tongDiem ?? ''}\t${KPI_TT[x.trangThai] || x.trangThai}`)).join('\n');
+  const t = S.kpi.th; const txt = ['KPI ' + thangNhan(S.kpi.thang) + '\tVị trí\tDA\tKPI Ban\tMục tiêu\tThái độ\tTổng\tH\tPhân loại\tTrạng thái'].concat(t.ds.map(x => `${x.hoTen}\t${x.viTri}\t${x.maDA}\t${x.diemBan ?? ''}\t${x.diemMucTieu ?? ''}\t${x.diemThaiDo ?? ''}\t${x.tongDiem ?? ''}\t${x.heSoH ?? ''}\t${x.phanLoai || ''}\t${KPI_TT[x.trangThai] || x.trangThai}`)).join('\n');
   navigator.clipboard.writeText(txt).then(() => toast('Đã sao chép')).catch(() => toast('Không sao chép được'));
 }
 
@@ -4931,13 +4972,13 @@ async function lgTai(them){
 function lgVe(){
   const g = S.lg; if (!g) return;
   const nams = [...new Set((g.namCo || []).concat([g.nam, String(new Date().getFullYear())]))].sort();
-  const chonNguoi = g.qt ? `<select class="lg-sel" onchange="S.lg.email=this.value;S.lg.thangChon='';lgTai().catch(e=>toast(e.message))">
+  const chonNguoi = (g.quyen || {}).bang ? `<select class="lg-sel" onchange="S.lg.email=this.value;S.lg.thangChon='';lgTai().catch(e=>toast(e.message))">
       <option value="">— Của tôi —</option>${(g.nguoiCo || []).map(p => `<option value="${escA(p.email)}" ${p.email === g.email && p.email !== String(S.user.email).toLowerCase() ? 'selected' : ''}>${escA(p.hoTen)}</option>`).join('')}</select>` : '';
   const dau = `<div class="lg-ten"><b>${escA(g.hoTen)}</b><span>${escA(g.email)}</span></div>
     <div class="lg-thanh">${chonNguoi}<select class="lg-sel" onchange="S.lg.nam=this.value;S.lg.thangChon='';lgTai().catch(e=>toast(e.message))">${nams.map(n => `<option ${n === g.nam ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
     <div class="lg-tabs"><button class="${g.tab === 'thang' ? 'on' : ''}" onclick="S.lg.tab='thang';lgVe()">Theo tháng</button><button class="${g.tab === 'nam' ? 'on' : ''}" onclick="S.lg.tab='nam';lgVe()">Tổng thu nhập năm ${g.nam}</button></div>`;
   let than;
-  if (!g.ds.length) than = `<div class="empty" style="padding:18px">Chưa có bảng lương năm ${g.nam}${g.qt ? '' : ' của bạn'}.<br><small>Nếu đã nhận lương mà chưa thấy: báo Quản trị kiểm tra tên trong bảng lương có khớp với tài khoản app không.</small></div>`;
+  if (!g.ds.length) than = `<div class="empty" style="padding:18px">Chưa có bảng lương năm ${g.nam}${(g.quyen || {}).bang ? '' : ' của bạn'}.<br><small>Nếu đã nhận lương mà chưa thấy: báo Quản trị kiểm tra tên trong bảng lương có khớp với tài khoản app không.</small></div>`;
   else if (g.tab === 'nam') than = lgVeNam(g);
   else {
     const thangs = [...new Set(g.ds.map(x => x.thang))].sort();
@@ -4946,8 +4987,9 @@ function lgVe(){
     const ca = g.ds.filter(x => x.thang === g.thangChon);
     if (ca.length > 1) than += `<div class="lg-tongthang">Cộng ${lgThangTen(g.thangChon)} (${ca.length} bảng lương): <b>${lgD(ca.reduce((a, x) => a + (+x.thucLinh || 0), 0))} đ</b></div>`;
   }
-  const qtNut = g.qt ? `<div class="lg-qt"><button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>${(g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}</div>` : '';
-  lgKhung(g.qt && g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (QUẢN TRỊ XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + qtNut);
+  const q = g.quyen || {};
+  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (tính theo KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}</div>` : '';
+  lgKhung(g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (' + (q.qt ? 'QUẢN TRỊ' : 'BCH') + ' XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + qtNut);
 }
 function lgDong1(nhan, gt, phu, cls){ return `<div class="lg-d ${cls || ''}"><span>${nhan}${phu ? '<small>' + phu + '</small>' : ''}</span><b>${gt}</b></div>`; }
 function lgVePhieu(x){
@@ -4957,7 +4999,7 @@ function lgVePhieu(x){
     ['Lương theo ngày công', 'tienNC', '(Lương CB + phụ cấp) × ' + lgD(so('ncTT')) + '/' + lgD(so('ncQD')) + ' công'],
     ['Lương ngày nghỉ lễ, tết', 'tienLe', so('ngayLe') ? so('ngayLe') + ' ngày' : ''],
     ['Lương bổ sung theo hiệu quả', 'tienHQ', so('tnDK') ? 'TN dự kiến ' + lgD(so('tnDK')) + ' × HS hoàn thành ' + so('hsHT') + ' × HS hiệu quả ' + so('hsHQ') : ''],
-    ['Tiền lương làm thêm giờ', 'tienLT', so('gioLT') ? so('gioLT') + ' giờ' : ''],
+    ['Tiền lương làm thêm giờ', 'tienLT', so('gioLTThuong') + so('gioLTCN') + so('gioLTLe') ? [so('gioLTThuong') ? so('gioLTThuong') + 'h thường ×150% = ' + lgD(so('tienLTThuong')) : '', so('gioLTCN') ? so('gioLTCN') + 'h CN ×200% = ' + lgD(so('tienLTCN')) : '', so('gioLTLe') ? so('gioLTLe') + 'h lễ ×300% = ' + lgD(so('tienLTLe')) : ''].filter(String).join(' · ') : (so('gioLT') ? so('gioLT') + ' giờ' : '')],
     ['Khoản bổ sung quý', 'bsQuy', '']
   ].filter((r, i) => i < 1 || so(r[1]));
   const khac = (x.khac || []).map(k => lgDong1(escA(k[0]), lgD(k[1]), ''));
@@ -4967,7 +5009,7 @@ function lgVePhieu(x){
     <div class="lg-nhom">NGÀY CÔNG</div>
     ${lgDong1('Ngày công thực tế / quy định', lgD(so('ncTT')) + ' / ' + lgD(so('ncQD')))}
     ${so('ngayLe') ? lgDong1('Nghỉ lễ, tết hưởng lương', so('ngayLe') + ' ngày') : ''}
-    ${so('gioLT') ? lgDong1('Làm thêm giờ', so('gioLT') + ' giờ') : ''}
+    ${so('gioLTThuong') + so('gioLTCN') + so('gioLTLe') ? lgDong1('Làm thêm giờ', (so('gioLTThuong') + so('gioLTCN') + so('gioLTLe')) + ' giờ', 'thường ' + so('gioLTThuong') + ' · CN ' + so('gioLTCN') + ' · lễ ' + so('gioLTLe')) : (so('gioLT') ? lgDong1('Làm thêm giờ', so('gioLT') + ' giờ') : '')}
     <div class="lg-nhom">CÁC KHOẢN THU NHẬP</div>
     ${thu.map(r => lgDong1(r[0], lgD(x[r[1]]), r[2])).join('')}${khac.join('')}
     ${so('tienBH') ? lgDong1('Khoản tiền tương ứng mức đóng BHXH', lgD(so('tienBH')), '25,5% × (lương CB + phụ cấp)') : ''}
@@ -4979,6 +5021,7 @@ function lgVePhieu(x){
     ${lgDong1('Mức lương cơ bản', lgD(so('lcb')), so('hsBH') ? 'Hệ số BHXH ' + so('hsBH') : '')}
     ${so('pc') ? lgDong1('Phụ cấp chức vụ', lgD(so('pc'))) : ''}
     ${so('tnDK') ? lgDong1('Mức thu nhập dự kiến', lgD(so('tnDK'))) : ''}
+    ${x.heSoH !== undefined && x.heSoH !== '' && x.heSoH != null ? lgDong1('Hệ số KPI (H)', (+x.heSoH).toFixed(2).replace('.', ','), (x.kpiPct !== '' && x.kpiPct != null ? 'KPI ' + x.kpiPct + '% · ' : '') + escA(x.phanLoai || '')) : ''}
     ${so('doanPhi') ? lgDong1('Đoàn phí công đoàn', lgD(so('doanPhi')), '0,5% × (lương CB + phụ cấp) — theo bảng lương') : ''}
   </div>`;
 }
@@ -5013,23 +5056,27 @@ function lgVeGhep(){
   lgKhung('GHÉP TÊN BẢNG LƯƠNG', `<p class="hint" style="margin-top:0">Tên trong bảng lương không khớp đúng 1 tài khoản app (sai chính tả, trùng tên, hoặc chưa có tài khoản). Chọn đúng người rồi bấm Ghép — áp cho mọi tháng, lần nạp sau tự nhận. Người không có tài khoản app (thủ kho, thợ, lái máy…) thì bỏ qua.</p>
     ${(g.chuaGhep || []).map((x, i) => { const ho = kd(x.hoTen).split(' ').pop();
       const goi = ns.filter(n => kd(n.hoTen).split(' ').pop() === ho);
-      return `<div class="lg-ghep"><div><b>${escA(x.hoTen)}</b><small>${escA(x.thang.slice(0, 6).join(', '))}${x.thang.length > 6 ? '…' : ''}</small></div>
+      return `<div class="lg-ghep"><div><b>${escA(x.hoTen)}</b><small>${escA(x.chucDanh || '')}${x.maDA ? ' · ' + escA(x.maDA) : ''} · ${escA(x.thang.slice(0, 6).join(', '))}${x.thang.length > 6 ? '…' : ''}</small>${x.xungDot ? '<small style="color:#C00000">⚠ ' + escA(x.xungDot) + '</small>' : ''}
+          <label style="font-size:12px;display:block;margin-top:4px"><input type="checkbox" id="lg-gcd${i}" ${x.xungDot ? 'checked' : ''}> Chỉ áp cho ${escA(x.maDA || '')} + chức danh "${escA(x.chucDanh || '')}"</label>
+          <label style="font-size:12px;display:block"><input type="checkbox" id="lg-gkpi${i}"> Không áp KPI (H = 1)</label></div>
         <select id="lg-g${i}"><option value="">— chọn tài khoản —</option>${goi.length ? '<optgroup label="Gợi ý cùng tên">' + goi.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('') + '</optgroup>' : ''}
           <optgroup label="Tất cả">${ns.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('')}</optgroup></select>
-        <button class="small" data-ten="${escA(x.hoTen)}" onclick="lgGhep(this, 'lg-g${i}')">Ghép</button></div>`; }).join('') || '<div class="empty">Đã ghép đủ.</div>'}
+        <button class="small" data-ten="${escA(x.hoTen)}" data-da="${escA(x.maDA || '')}" data-cd="${escA(x.chucDanh || '')}" data-i="${i}" onclick="lgGhep(this, 'lg-g${i}')">Ghép</button></div>`; }).join('') || '<div class="empty">Đã ghép đủ.</div>'}
     <button class="ghost" style="margin-top:12px" onclick="lgVe()">‹ Quay lại phiếu lương</button>`);
 }
 async function lgGhep(nut, idSel){
-  const email = $(idSel).value, hoTen = nut.dataset.ten;
+  const email = $(idSel).value, hoTen = nut.dataset.ten, i = nut.dataset.i;
   if (!email){ toast('Chọn tài khoản'); return; }
+  const rieng = $('lg-gcd' + i) && $('lg-gcd' + i).checked, apKpi = !($('lg-gkpi' + i) && $('lg-gkpi' + i).checked);
   nut.disabled = true;
-  try { const r = await api('luongGhep', {hoTen, email}, 40); toast('Đã ghép ' + hoTen + ' · ' + r.n + ' tháng'); S.lg.chuaGhep = S.lg.chuaGhep.filter(x => x.hoTen !== hoTen); nut.closest('.lg-ghep').remove(); }
+  try { const r = await api('luongGhep', {hoTen, email, maDA: rieng ? nut.dataset.da : '', chucDanh: rieng ? nut.dataset.cd : '', apKpi}, 40); toast('Đã ghép ' + hoTen + ' · ' + r.n + ' dòng');
+    S.lg.chuaGhep = S.lg.chuaGhep.filter(x => !(x.hoTen === hoTen && (!rieng || (x.maDA === nut.dataset.da && x.chucDanh === nut.dataset.cd)))); nut.closest('.lg-ghep').remove(); }
   catch(e){ nut.disabled = false; toast(e.message, 3500); }
 }
 /* ----- Quản trị: nạp file bảng lương .xls/.xlsx ----- */
 function moNapLuong(){
-  if (!lgQT()){ toast('Chỉ Quản trị'); return; }
   if (!S.lg || !S.lg.ve){ moLuong(); toast('Nhập PIN trước, sau đó bấm "⇪ Nạp bảng lương"'); return; }
+  if (!(S.lg.quyen || {}).nap){ toast('Chỉ Quản trị / kế toán BCH được nạp bảng lương'); return; }
   S.lg.nap = [];
   lgKhung('NẠP BẢNG LƯƠNG', `<p class="hint" style="margin-top:0">Chọn 1 hoặc nhiều file Bảng thanh toán lương của Đội (.xls/.xlsx). App đọc sheet <b>Gián tiếp</b>, tự nhận tháng và dự án theo tên file (sửa lại được). Nạp lại cùng tháng + dự án sẽ <b>ghi đè</b> bản trước.</p>
     <input type="file" id="lg-file" accept=".xls,.xlsx" multiple style="display:none" onchange="lgDocFile(this.files)">
@@ -5057,7 +5104,7 @@ async function lgDocFile(files){
 function lgVeNap(){
   const box = $('lg-nap'); if (!box) return;
   const daNap = {}; (S.lg.daNap || []).forEach(x => daNap[x[0]] = x[1]);
-  const dsDA = (S.duan || []).map(d => d.maDA);
+  const dsDA = ((S.lg.quyen || {}).duAnNhap || []).length ? S.lg.quyen.duAnNhap : (S.duan || []).map(d => d.maDA);
   box.innerHTML = S.lg.nap.map((x, i) => x.loi ? `<div class="lg-the"><b>${escA(x.ten)}</b><div style="color:var(--alert)">${escA(x.loi)}</div></div>` : `<div class="lg-the">
       <div style="font-weight:700;font-size:13px;word-break:break-all">${escA(x.ten)}</div>
       <div class="lg-thanh" style="margin-top:6px"><input type="month" class="lg-sel" value="${x.thang}" onchange="S.lg.nap[${i}].thang=this.value;lgVeNap()">
@@ -5067,7 +5114,7 @@ function lgVeNap(){
       ${x.canhBao.length ? '<div class="lg-cb">⚠ ' + x.canhBao.slice(0, 5).map(escA).join('<br>⚠ ') + '</div>' : ''}
       ${x.thang && x.maDA && daNap[x.thang + '|' + x.maDA] ? '<div class="lg-cb">Tháng này đã nạp ' + daNap[x.thang + '|' + x.maDA] + ' người — nạp tiếp sẽ GHI ĐÈ.</div>' : ''}
       <details><summary>Xem danh sách</summary>${x.ds.map(p => lgDong1(escA(p.stt + '. ' + p.hoTen), lgD(p.thucLinh), escA(p.chucDanh))).join('')}</details>
-      ${x.xong ? `<div class="lg-ok">✓ Đã nạp ${x.xong.n} người · ghép tài khoản ${x.xong.khop}/${x.xong.n}${x.xong.chuaKhop.length ? '<br><small>Chưa ghép: ' + escA(x.xong.chuaKhop.join(', ')) + '</small>' : ''}</div>`
+      ${x.xong ? `<div class="lg-ok">✓ Đã nạp ${x.xong.n} người · ghép tài khoản ${x.xong.khop}/${x.xong.n}${x.xong.chuaKhop.length ? '<br><small>Chưa ghép: ' + escA(x.xong.chuaKhop.join(', ')) + '</small>' : ''}${(x.xong.xungDot || []).length ? '<br><small style="color:#C00000">⚠ Xung đột (1 email, khác chức danh) — chưa ghép: ' + escA(x.xong.xungDot.join(', ')) + '</small>' : ''}</div>`
         : `<button class="primary" style="margin-top:8px" ${x.thang && x.maDA && x.ds.length ? '' : 'disabled'} onclick="lgNap(${i}, this)">NẠP LÊN MÁY CHỦ</button>`}
     </div>`).join('');
 }
@@ -5081,6 +5128,142 @@ async function lgNap(i, nut){
     lgVeNap(); toast('Đã nạp ' + x.xong.n + ' người');
     const r = await api('luongXem', {ve:S.lg.ve, nam:S.lg.nam, email:S.lg.email || ''}, 40); Object.assign(S.lg, r);
   } catch(e){ nut.disabled = false; nut.textContent = 'NẠP LÊN MÁY CHỦ'; toast(e.message, 4000); }
+}
+
+
+/* ---------- 3.14.0: IN BIỂU MẪU (A7.14 phiếu KPI cá nhân · A7.16 tổng hợp KPI BCH) ---------- */
+const kpiSo1 = v => v == null || v === '' ? '—' : String(Math.round(+v * 10) / 10).replace('.', ',');
+const kpiSo2 = v => v == null || v === '' ? '—' : (+v).toFixed(2).replace('.', ',');
+function inTaiLieu(tieuDe, html, ngang){
+  dongBienBan();
+  const div = document.createElement('div'); div.id = 'bb-print';
+  div.innerHTML = `<div class="bb-bar"><b style="flex:1">${escK(tieuDe)}</b><button onclick="inBienBan()" style="background:#FFD54F;color:#5C4A00">🖨 In / Lưu PDF</button><button onclick="dongBienBan()" style="background:#fff;color:var(--brand)">Đóng</button></div>
+    <div class="bb-page${ngang ? ' ngang' : ''}">${html}</div>`;
+  document.body.appendChild(div); document.body.classList.add('bb-in');
+}
+function kpiKyTen(){ return `<table class="bb-ky" style="margin-top:14px"><tr><td><b>NGƯỜI LẬP</b><i>(Chỉ huy trưởng)</i><div class="kt"></div></td><td><b>XEM XÉT</b><i>(Ban KPI)</i><div class="kt"></div></td><td><b>PHÊ DUYỆT</b><i>(Phó Tổng Giám đốc)</i><div class="kt"></div></td></tr></table>`; }
+function kpiInA714(){
+  const g = (S.kpi.phieu && S.kpi.phieu.goi) || (S.kpi.cuaToi && S.kpi.cuaToi.goi); if (!g) return;
+  const p = g.phieu; let nhom = '', rows = '';
+  g.tieuChi.forEach(t => { if (t.nhom !== nhom){ nhom = t.nhom; rows += `<tr><td colspan="6" style="background:#F2F2F2;font-weight:bold">${escK(t.nhom)}. ${escK(t.tenNhom)}</td></tr>`; }
+    rows += `<tr><td>${escK(t.maTC)}</td><td>${escK(t.tenTC)}<br><i style="font-size:10pt">${escK(t.chiTieu || '')}</i></td><td style="text-align:center">${kpiSo2(t.diemMax)}</td><td style="text-align:center">${t.pct == null ? '—' : Math.round(t.pct * 1000) / 10 + '%'}</td><td style="text-align:center"><b>${kpiSo2(t.diem)}</b></td><td style="font-size:10pt">${escK(t.dienGiai || '')}</td></tr>`; });
+  inTaiLieu('A7.14 · ' + p.hoTen, `<h1>PHIẾU ĐÁNH GIÁ KPI CÁ NHÂN THÁNG ${thangNhan(p.thang).toUpperCase()}</h1><div class="bb-vv">Biểu A7.14 — LICOGI13FC</div>
+    <table class="bb-da"><tr><td>Họ tên:</td><td><b>${escK(p.hoTen)}</b>${p.maNV ? ' · Mã NV: ' + escK(p.maNV) : ''}</td></tr><tr><td>Chức danh:</td><td>${escK(p.chucDanh || p.viTri)} · Vị trí KPI ${escK(p.viTri)}</td></tr><tr><td>Dự án:</td><td>${escK(p.maDA)}${p.ghiChuChuyenDA ? ' · ' + escK(p.ghiChuChuyenDA) : ''}</td></tr></table>
+    <table class="kpi-in"><tr><th>Mã</th><th>Tiêu chí</th><th>Điểm tối đa</th><th>% hoàn thành</th><th>Điểm</th><th>Diễn giải</th></tr>${rows}
+      <tr><td colspan="4" style="text-align:right"><b>TỔNG ĐIỂM KPI</b></td><td style="text-align:center"><b>${kpiSo1(p.tongDiem)}</b></td><td>${p.heSoH != null ? 'Hệ số H = ' + kpiSo2(p.heSoH) + ' · ' + escK(p.phanLoai || '') : ''}</td></tr></table>
+    ${(g.viPham || []).length ? '<p><b>Vi phạm A7.15:</b> ' + g.viPham.map(v => escK(v.ngay + ' ' + v.maVP + ' −' + v.mucTru + '% ' + v.tenVP)).join('; ') + '</p>' : ''}
+    <p><b>Ý kiến nhân viên:</b> ${escK(p.yKienNV || '')}</p>
+    <table class="bb-ky" style="margin-top:14px"><tr><td><b>NGƯỜI ĐƯỢC ĐÁNH GIÁ</b><div class="kt"></div>${escK(p.hoTen)}</td><td><b>NGƯỜI CHẤM</b><div class="kt"></div>${escK(p.nguoiCham || '')}</td><td><b>NGƯỜI DUYỆT</b><div class="kt"></div>${escK(p.nguoiDuyet || '')}</td></tr></table>`);
+}
+function kpiInA716(){
+  const t = S.kpi.th; if (!t) return;
+  const ds = t.ds.slice().sort((a, b) => (a.maDA + a.hoTen).localeCompare(b.maDA + b.hoTen, 'vi'));
+  inTaiLieu('A7.16 · ' + thangNhan(S.kpi.thang), `<h1>TỔNG HỢP KPI CÁ NHÂN THÁNG ${thangNhan(S.kpi.thang).toUpperCase()} — BAN CHỈ HUY</h1><div class="bb-vv">Biểu A7.16 — LICOGI13FC</div>
+    <table class="kpi-in"><tr><th>TT</th><th>Họ tên</th><th>Chức danh</th><th>Dự án</th><th>KPI Ban</th><th>Mục tiêu công việc</th><th>Thái độ</th><th>Tổng</th><th>Hệ số H</th><th>Phân loại</th></tr>
+    ${ds.map((x, i) => `<tr><td>${i + 1}</td><td>${escK(x.hoTen)}${x.maNV ? '<br><i>' + escK(x.maNV) + '</i>' : ''}</td><td>${escK(x.chucDanh || x.viTri)}</td><td>${escK(x.maDA)}</td><td style="text-align:center">${kpiSo2(x.diemBan)}</td><td style="text-align:center">${kpiSo2(x.diemMucTieu)}</td><td style="text-align:center">${kpiSo2(x.diemThaiDo)}</td><td style="text-align:center"><b>${kpiSo1(x.tongDiem)}</b></td><td style="text-align:center">${kpiSo2(x.heSoH)}</td><td>${escK(x.phanLoai || (KPI_TT[x.trangThai] || x.trangThai))}</td></tr>`).join('')}</table>
+    ${kpiKyTen()}`, true);
+}
+
+/* ---------- 3.14.0: BẢNG LƯƠNG THÁNG (Quản trị · CHT · kế toán BCH) — tính lương theo KPI ---------- */
+const LG_TT = {CHO_KPI:'Chờ KPI', CHO_DUYET:'Chờ CHT duyệt', DA_DUYET:'Đã duyệt'};
+const LG_TT_MAU = {CHO_KPI:'#B36B00', CHO_DUYET:'#1565C0', DA_DUYET:'#157F4B'};
+function lgMoBang(){
+  const g = S.lg; if (!g || !g.ve) return moLuong();
+  const d = new Date(); const tr = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+  g.bang = g.bang || {thang: tr.getFullYear() + '-' + String(tr.getMonth() + 1).padStart(2, '0'), maDA:'', data:null, sua:null};
+  lgTaiBang(false);
+}
+async function lgTaiBang(tinh){
+  const b = S.lg.bang; lgKhung('BẢNG LƯƠNG BCH', '<div class="empty">Đang tải bảng lương…</div>');
+  try { b.data = await api('luongBang', {ve:S.lg.ve, thang:b.thang, maDA:b.maDA, tinh:!!tinh}, 90); }
+  catch(e){ if (/HET_PHIEN/.test(e.message)){ S.lg.ve = null; moLuong(); toast('Hết phiên — nhập lại PIN'); return; } lgKhung('BẢNG LƯƠNG BCH', `<div class="empty">${escA(e.message)}</div><button class="ghost" onclick="lgVe()">‹ Quay lại</button>`); return; }
+  lgVeBang();
+}
+function lgVeBang(){
+  const g = S.lg, b = g.bang, r = b.data; const ds = r.ds; const ss = r.cauHinh.cheDo === 'SONG_SONG';
+  const n = k => +k || 0;
+  const dem = {}; ds.forEach(x => dem[x.trang_thai_luong || 'CHUA_TINH'] = (dem[x.trang_thai_luong || 'CHUA_TINH'] || 0) + 1);
+  const tFile = ds.reduce((a, x) => a + n(x.thuc_linh), 0), tKPI = ds.reduce((a, x) => a + n(x.kpi_thuc_linh), 0);
+  const dsDA = (g.quyen || {}).duAnXem || [];
+  let out = `<div class="lg-thanh"><input type="month" class="lg-sel" value="${b.thang}" onchange="S.lg.bang.thang=this.value;lgTaiBang(false)">
+      <select class="lg-sel" onchange="S.lg.bang.maDA=this.value;lgTaiBang(false)"><option value="">Mọi dự án được xem</option>${dsDA.map(m => `<option ${m === b.maDA ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+    <div class="lg-cb" style="margin:0 0 10px">${ss ? '<b>CHẠY SONG SONG</b> — trả lương theo file Đội; cột "Theo KPI" là số app tính theo công thức mới (H từ KPI, lễ cộng thêm, làm thêm 3 loại) để đối chiếu.' : '<b>CHÍNH THỨC</b> — app tính và ghi đè lương theo KPI.'}
+      · Ngày công quy định ${r.cauHinh.ncQD} · K = ${r.cauHinh.K}</div>`;
+  if (r.quyen.qt) out += `<details class="lg-the"><summary><b>Chế độ tháng ${lgThangTen(b.thang)} (Quản trị)</b></summary>
+      <div class="lg-thanh" style="margin-top:8px"><select class="lg-sel" id="lgb-che"><option value="SONG_SONG" ${ss ? 'selected' : ''}>Chạy song song</option><option value="CHINH_THUC" ${ss ? '' : 'selected'}>Chính thức</option></select>
+        <input class="lg-sel" id="lgb-nc" type="number" min="20" max="31" value="${r.cauHinh.ncQD}" title="Ngày công quy định"><input class="lg-sel" id="lgb-k" type="number" step="0.01" value="${r.cauHinh.K}" title="Hệ số K"></div>
+      <button class="primary" onclick="lgDatCheDo()">Lưu chế độ & tính lại</button><p class="hint">Chính thức chỉ bật khi Phòng TCNS đã duyệt. Ngày công quy định mặc định 26.</p></details>`;
+  out += `<div class="lg-o4" style="margin-bottom:10px"><div class="lg-o"><small>Số dòng lương</small><b>${ds.length}</b></div><div class="lg-o"><small>Chờ KPI duyệt</small><b style="color:#B36B00">${dem.CHO_KPI || 0}</b></div>
+      <div class="lg-o"><small>${ss ? 'Thực lĩnh theo file' : 'Thực lĩnh nếu H = 1'}</small><b>${lgD(ss ? tFile : ds.reduce((a, x) => a + n(x.thuc_linh_neu_H1), 0))}</b></div><div class="lg-o"><small>Thực lĩnh theo KPI</small><b>${lgD(tKPI)}</b></div>
+      <div class="lg-o big"><small>CHÊNH LỆCH (theo KPI − ${ss ? 'file' : 'H = 1'})</small><b>${(tKPI - (ss ? tFile : ds.reduce((a, x) => a + n(x.thuc_linh_neu_H1), 0)) >= 0 ? '+' : '') + lgD(tKPI - (ss ? tFile : ds.reduce((a, x) => a + n(x.thuc_linh_neu_H1), 0)))} đ</b></div></div>
+    <div class="lg-qt" style="margin:0 0 10px">${r.quyen.nhap.length || r.quyen.duyet.length ? '<button class="ghost" onclick="lgTaiBang(true)">↻ Tính lại theo KPI</button>' : ''}
+      <button class="ghost" onclick="lgXuatBang('LUONG')">⇩ Excel bảng lương</button><button class="ghost" onclick="lgXuatBang('CHENH')">⇩ Excel chênh lệch</button>
+      ${r.maDAs.filter(m => r.quyen.duyet.includes(m)).map(m => { const ca = ds.filter(x => x.ma_da === m); const da = ca.length && ca.every(x => x.trang_thai_luong === 'DA_DUYET');
+        return da ? (r.quyen.qt ? `<button class="ghost" onclick="lgDuyetBang('${m}','HUY')">Huỷ duyệt ${m}</button>` : `<span class="lg-ok" style="margin:0">✓ ${m} đã duyệt</span>`) : `<button class="primary" onclick="lgDuyetBang('${m}','DUYET')">✓ Duyệt lương ${m}</button>`; }).join('')}</div>`;
+  if (!ds.length) out += '<div class="empty">Chưa nạp bảng lương tháng này.</div>';
+  else out += `<table class="lg-bang"><thead><tr><th>Họ tên</th><th>H</th><th>${ss ? 'File' : 'H=1'}</th><th>Theo KPI</th><th>Lệch</th></tr></thead><tbody>${ds.map((x, i) => {
+      const goc = ss ? n(x.thuc_linh) : n(x.thuc_linh_neu_H1); const l = n(x.kpi_thuc_linh) - goc;
+      return `<tr onclick="lgSuaDong(${i})"><td><b>${escA(x.ho_ten)}</b><small style="display:block;color:#5A6875">${escA(x.chuc_danh || '')} · ${escA(x.ma_da)}${x.email ? '' : ' · <span style="color:#C00000">chưa ghép</span>'}</small><small style="color:${LG_TT_MAU[x.trang_thai_luong] || '#888'}">${LG_TT[x.trang_thai_luong] || 'chưa tính'}${x.du_an_chinh && x.du_an_chinh !== x.ma_da ? ' · DA chính ' + escA(x.du_an_chinh) : ''}</small></td>
+        <td>${x.he_so_H === '' || x.he_so_H == null ? '<span style="color:#B36B00">chờ</span>' : (+x.he_so_H).toFixed(2)}</td><td>${lgD(goc)}</td><td><b>${lgD(x.kpi_thuc_linh)}</b></td><td style="color:${l < 0 ? '#C00000' : l > 0 ? '#157F4B' : 'inherit'}">${l > 0 ? '+' : ''}${lgD(l)}</td></tr>`; }).join('')}</tbody></table>
+    <p class="hint">Bấm 1 dòng để xem chi tiết${r.quyen.nhap.length ? ' và nhập công, ngày lễ, giờ làm thêm (thường 150% · CN 200% · lễ 300%), khoản bổ sung có lý do' : ''}. H lấy từ phiếu KPI tháng đã duyệt (bảng quy đổi KPI_QUY_DOI); người chưa có vị trí KPI hoặc miễn KPI: H = 1.</p>`;
+  out += `<button class="ghost" style="margin-top:12px" onclick="lgVe()">‹ Quay lại phiếu lương</button>`;
+  lgKhung('BẢNG LƯƠNG BCH', out);
+}
+function lgSuaDong(i){
+  const r = S.lg.bang.data, x = r.ds[i]; const n = k => +x[k] || 0;
+  const sua = r.quyen.nhap.includes(x.ma_da) && x.trang_thai_luong !== 'DA_DUYET';
+  const o = (k, nhan, st) => `<div class="field"><label>${nhan}</label><input class="lg-sel" data-k="${k}" type="number" ${st || 'step="0.5"'} value="${x[k] === '' || x[k] == null ? '' : x[k]}" ${sua ? '' : 'disabled'}></div>`;
+  const ss = r.cauHinh.cheDo === 'SONG_SONG';
+  lgKhung('CHI TIẾT LƯƠNG', `<div class="lg-ten"><b>${escA(x.ho_ten)}</b><span>${escA(x.chuc_danh || '')} · ${escA(x.ma_da)} · ${lgThangTen(x.thang)}${x.email ? ' · ' + escA(x.email) : ''}</span></div>
+    ${x.xung_dot ? '<div class="lg-cb">⚠ ' + escA(x.xung_dot) + '</div>' : ''}
+    <div class="lg-the"><div class="lg-nhom">HỆ SỐ KPI</div>${lgDong1('Hệ số H', x.he_so_H === '' ? 'chờ KPI' : (+x.he_so_H).toFixed(2), escA(x.H_nguon || ''))}${x.kpi_pct !== '' ? lgDong1('Điểm KPI tháng', x.kpi_pct + '%', escA(x.phan_loai || '')) : ''}
+      <div class="lg-nhom">SO SÁNH</div>${lgDong1(ss ? 'Thực lĩnh theo file (đang trả)' : 'Thực lĩnh nếu H = 1', lgD(ss ? n('thuc_linh') : n('thuc_linh_neu_H1')))}
+      ${lgDong1('Lương ngày công (KPI)', lgD(n('kpi_tien_nc')))}${lgDong1('Lương lễ, tết — cộng thêm', lgD(n('kpi_tien_le')))}${lgDong1('Lương hiệu quả (KPI)', lgD(n('kpi_tien_hq')))}${lgDong1('Làm thêm giờ', lgD(n('kpi_tien_lt')), n('tien_lt_thuong') + n('tien_lt_cn') + n('tien_lt_le') ? 'Thường ' + lgD(n('tien_lt_thuong')) + ' · CN ' + lgD(n('tien_lt_cn')) + ' · Lễ ' + lgD(n('tien_lt_le')) : 'theo file (1 cột giờ)')}
+      ${lgDong1('Tổng thu nhập (KPI)', lgD(n('kpi_tong_tn')), '', 'tong')}${lgDong1('Trừ BHXH 10,5%', '− ' + lgD(n('kpi_tru_bhxh')))}${lgDong1('THỰC LĨNH THEO KPI', lgD(n('kpi_thuc_linh')) + ' đ', 'Chênh lệch ' + lgD(n('chenh_lech')), 'tl')}</div>
+    <div class="lg-the" id="lgs-form"><div class="lg-nhom">SỐ LIỆU ĐẦU VÀO ${sua ? '(kế toán nhập)' : '(chỉ xem)'}</div>
+      <div class="lg-thanh">${o('nc_tt', 'Công thực tế')}${o('ngay_le', 'Ngày lễ')}</div>
+      <div class="lg-thanh">${o('gio_lt_thuong', 'Giờ LT thường')}${o('gio_lt_cn', 'Giờ LT CN')}${o('gio_lt_le', 'Giờ LT lễ')}</div>
+      <div class="lg-thanh">${o('tn_du_kien', 'TN dự kiến', 'step="1000"')}${o('bs_quy', 'Bổ sung quý', 'step="1000"')}</div>
+      <div class="lg-thanh">${o('bs_khac', 'Bổ sung khác', 'step="1000"')}<div class="field" style="flex:2"><label>Lý do bổ sung (bắt buộc nếu có)</label><input class="lg-sel" data-k="ly_do_bs" value="${escA(x.ly_do_bs || '')}" ${sua ? '' : 'disabled'}></div></div>
+      ${sua ? `<button class="primary" onclick="lgLuuDong(${i})">LƯU & TÍNH LẠI</button>` : ''}</div>
+    <button class="ghost" style="margin-top:8px" onclick="lgVeBang()">‹ Bảng lương</button>`);
+}
+async function lgLuuDong(i){
+  const r = S.lg.bang.data, x = r.ds[i]; const o = {id:x.id};
+  document.querySelectorAll('#lgs-form [data-k]').forEach(el => { o[el.dataset.k] = el.value; });
+  if (+o.bs_khac && !String(o.ly_do_bs || '').trim()) return toast('Khoản bổ sung khác phải ghi lý do');
+  try { await api('luongNhap', {ve:S.lg.ve, thang:x.thang, ds:[o]}, 90); toast('Đã lưu và tính lại'); lgTaiBang(false); }
+  catch(e){ toast(e.message, 4000); }
+}
+async function lgDuyetBang(maDA, kq){
+  if (!confirm((kq === 'DUYET' ? 'Duyệt (chốt) bảng lương ' : 'Huỷ duyệt bảng lương ') + maDA + ' ' + lgThangTen(S.lg.bang.thang) + '?')) return;
+  try { await api('luongDuyet', {ve:S.lg.ve, thang:S.lg.bang.thang, maDA, ketQua:kq}, 60); toast(kq === 'DUYET' ? 'Đã duyệt' : 'Đã huỷ duyệt'); lgTaiBang(false); }
+  catch(e){ toast(e.message, 5000); }
+}
+async function lgDatCheDo(){
+  const b = S.lg.bang; const che = $('lgb-che').value;
+  if (che === 'CHINH_THUC' && !confirm('Chuyển tháng ' + lgThangTen(b.thang) + ' sang CHÍNH THỨC? App sẽ ghi đè lương theo KPI (chỉ làm khi Phòng TCNS đã duyệt).')) return;
+  try { await api('luongDatCheDo', {ve:S.lg.ve, thang:b.thang, cheDo:che, ncQD:$('lgb-nc').value, K:$('lgb-k').value}, 90); toast('Đã lưu chế độ'); lgTaiBang(false); }
+  catch(e){ toast(e.message, 4000); }
+}
+async function lgXuatBang(loai){
+  const r = S.lg.bang.data; if (!r || !r.ds.length) return toast('Chưa có dữ liệu');
+  try { await napJS(LG_XLSX); } catch(e){ return toast('Không tải được bộ ghi Excel (cần mạng)'); }
+  const n = v => v === '' || v == null ? 0 : +v;
+  let aoa;
+  if (loai === 'LUONG'){
+    aoa = [['BẢNG THANH TOÁN LƯƠNG — KHỐI GIÁN TIẾP — ' + lgThangTen(r.thang) + ' — ' + r.maDAs.join(', ') + (r.cauHinh.cheDo === 'SONG_SONG' ? ' (THEO KPI — CHẠY SONG SONG, THAM KHẢO)' : '')], [],
+      ['STT','Họ tên','Chức danh','Dự án','Hệ số BHXH','Mức lương CB','Phụ cấp CV','Công thực tế','Công quy định','Lương theo ngày công','Ngày lễ','Tiền lễ','TN dự kiến','Hệ số H (KPI)','Hệ số K','Lương hiệu quả','Giờ LT thường','Giờ LT CN','Giờ LT lễ','Tiền làm thêm','Bổ sung quý','Bổ sung khác','Lý do bổ sung','Khoản tương ứng BHXH','Tổng thu nhập','Trích BHXH 10,5%','Thực lĩnh','Đoàn phí 0,5%','Trạng thái','Ký nhận']];
+    r.ds.forEach((x, i) => aoa.push([i + 1, x.ho_ten, x.chuc_danh, x.ma_da, n(x.hs_bhxh), n(x.lcb), n(x.pc), n(x.nc_tt), r.cauHinh.ncQD, n(x.kpi_tien_nc), n(x.ngay_le), n(x.kpi_tien_le), n(x.tn_du_kien), x.he_so_H === '' ? '' : n(x.he_so_H), r.cauHinh.K, n(x.kpi_tien_hq),
+      n(x.gio_lt_thuong), n(x.gio_lt_cn), n(x.gio_lt_le), n(x.kpi_tien_lt), n(x.bs_quy), n(x.bs_khac), x.ly_do_bs || '', n(x.tien_bhxh), n(x.kpi_tong_tn), n(x.kpi_tru_bhxh), n(x.kpi_thuc_linh), n(x.doan_phi), LG_TT[x.trang_thai_luong] || '', '']));
+    aoa.push([], ['', 'NGƯỜI LẬP (Kế toán BCH)', '', '', '', 'CHỈ HUY TRƯỞNG', '', '', '', '', 'P.KTKH / P.TCKT']);
+  } else {
+    aoa = [['BẢNG CHÊNH LỆCH LƯƠNG THEO KPI — ' + lgThangTen(r.thang) + ' — ' + r.maDAs.join(', ')], [],
+      ['STT','Họ tên','Chức danh','Dự án','Dự án chính','Điểm KPI','Hệ số H','Nguồn H','Thực lĩnh theo file','Thực lĩnh nếu H = 1','Thực lĩnh theo KPI','Chênh lệch (KPI − file)','Chênh lệch (KPI − H=1)','Trạng thái']];
+    r.ds.forEach((x, i) => aoa.push([i + 1, x.ho_ten, x.chuc_danh, x.ma_da, x.du_an_chinh, x.kpi_pct === '' ? '' : n(x.kpi_pct), x.he_so_H === '' ? '' : n(x.he_so_H), x.H_nguon, n(x.thuc_linh), n(x.thuc_linh_neu_H1), n(x.kpi_thuc_linh), n(x.kpi_thuc_linh) - n(x.thuc_linh), n(x.kpi_thuc_linh) - n(x.thuc_linh_neu_H1), LG_TT[x.trang_thai_luong] || '']));
+  }
+  const ws = XLSX.utils.aoa_to_sheet(aoa); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, loai === 'LUONG' ? 'Bang luong' : 'Chenh lech');
+  XLSX.writeFile(wb, r.thang + '_' + (loai === 'LUONG' ? 'bang-luong-KPI' : 'chenh-lech-luong-KPI') + '_' + (S.lg.bang.maDA || 'BCH') + '.xlsx');
 }
 
 let tt;
