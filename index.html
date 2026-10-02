@@ -969,7 +969,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.14.0';
+const APP_VERSION = '3.15.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -4988,13 +4988,14 @@ function lgVe(){
     if (ca.length > 1) than += `<div class="lg-tongthang">Cộng ${lgThangTen(g.thangChon)} (${ca.length} bảng lương): <b>${lgD(ca.reduce((a, x) => a + (+x.thucLinh || 0), 0))} đ</b></div>`;
   }
   const q = g.quyen || {};
-  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (tính theo KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}</div>` : '';
+  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (3P + KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}</div>` : '';
   lgKhung(g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (' + (q.qt ? 'QUẢN TRỊ' : 'BCH') + ' XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + qtNut);
 }
 function lgDong1(nhan, gt, phu, cls){ return `<div class="lg-d ${cls || ''}"><span>${nhan}${phu ? '<small>' + phu + '</small>' : ''}</span><b>${gt}</b></div>`; }
 function lgVePhieu(x){
   const tenDA = (S.duan.find(d => d.maDA === x.maDA) || {}).tenDA || x.maDA;
   const so = k => +x[k] || 0;
+  if (x.p1 !== undefined && x.p1 !== '' && x.p1 !== null) return lgVePhieu3P(x, tenDA, so);
   const thu = [
     ['Lương theo ngày công', 'tienNC', '(Lương CB + phụ cấp) × ' + lgD(so('ncTT')) + '/' + lgD(so('ncQD')) + ' công'],
     ['Lương ngày nghỉ lễ, tết', 'tienLe', so('ngayLe') ? so('ngayLe') + ' ngày' : ''],
@@ -5023,6 +5024,99 @@ function lgVePhieu(x){
     ${so('tnDK') ? lgDong1('Mức thu nhập dự kiến', lgD(so('tnDK'))) : ''}
     ${x.heSoH !== undefined && x.heSoH !== '' && x.heSoH != null ? lgDong1('Hệ số KPI (H)', (+x.heSoH).toFixed(2).replace('.', ','), (x.kpiPct !== '' && x.kpiPct != null ? 'KPI ' + x.kpiPct + '% · ' : '') + escA(x.phanLoai || '')) : ''}
     ${so('doanPhi') ? lgDong1('Đoàn phí công đoàn', lgD(so('doanPhi')), '0,5% × (lương CB + phụ cấp) — theo bảng lương') : ''}
+  </div>`;
+}
+/* ---------- 3.15.0: THƯỞNG DỰ ÁN QUÝ ---------- */
+function lgDaMacDinh(){ const b = S.lg.bang || {}; const q = (S.lg.bang && S.lg.bang.data && S.lg.bang.data.quyen) || {}; return b.maDA || (q.duyet || [])[0] || ((S.lg.quyen || {}).duAnXem || [])[0] || ''; }
+function lgCacQuy(){ const d = new Date(); const ds = []; for (let i = 0; i < 6; i++){ const t = new Date(d.getFullYear(), d.getMonth() - 3 * i, 1); const q = t.getFullYear() + '-Q' + (Math.floor(t.getMonth() / 3) + 1); if (!ds.includes(q)) ds.push(q); } return ds; }
+function lgMoTQ(){ const t = new Date(); S.lg.tq = S.lg.tq || {quy:t.getFullYear() + '-Q' + (Math.floor(t.getMonth() / 3) + 1), maDA:lgDaMacDinh(), mat:{}}; if (!S.lg.tq.maDA) S.lg.tq.maDA = lgDaMacDinh(); lgTaiTQ(); }
+async function lgTaiTQ(xemTruoc){
+  const t = S.lg.tq; lgKhung('THƯỞNG DỰ ÁN QUÝ', '<div class="empty">Đang tính…</div>');
+  const d = {ve:S.lg.ve, quy:t.quy, maDA:t.maDA}; if (xemTruoc){ d.quyThuong = ($('tq-quy') || {}).value; d.matThuong = t.mat; }
+  try { t.data = await api('thuongQuyBang', d, 90); } catch(e){ if (/HET_PHIEN/.test(e.message)){ S.lg.ve = null; moLuong(); return; } lgKhung('THƯỞNG DỰ ÁN QUÝ', `<div class="empty">${escA(e.message)}</div><button class="ghost" onclick="lgVeBang()">‹ Bảng lương</button>`); return; }
+  lgVeTQ();
+}
+function lgVeTQ(){
+  const t = S.lg.tq, r = t.data; const sua = r.quyen.deXuat && r.trangThai !== 'DA_DUYET';
+  const dsDA = (S.lg.quyen || {}).duAnXem || [];
+  const TT = {MOI:'Chưa đề xuất', CHO_DUYET:'Chờ Ban TGĐ duyệt', DA_DUYET:'Đã duyệt'};
+  let out = `<div class="lg-thanh"><select class="lg-sel" onchange="S.lg.tq.quy=this.value;S.lg.tq.mat={};lgTaiTQ()">${lgCacQuy().map(q => `<option ${q === t.quy ? 'selected' : ''}>${q}</option>`).join('')}</select>
+      <select class="lg-sel" onchange="S.lg.tq.maDA=this.value;S.lg.tq.mat={};lgTaiTQ()">${dsDA.map(m => `<option ${m === t.maDA ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+    <div class="lg-cb" style="margin:0 0 10px"><b>${TT[r.trangThai] || r.trangThai}</b>${r.nguoiDeXuat ? ' · đề xuất: ' + escA(r.nguoiDeXuat.split('@')[0]) : ''}${r.nguoiDuyet ? ' · duyệt: ' + escA(r.nguoiDuyet.split('@')[0]) : ''}<br>
+      Điểm chia = hệ số chức danh × KPI bình quân quý × min(1; công quý / ${r.ncChuan}). KPI quý &lt; ${Math.round(r.kpiSan * 100)}% hoặc mất thưởng → 0. Tiền = quỹ × điểm / tổng điểm. Ghi vào lương tháng ${lgThangTen(r.thangs[2])}.</div>
+    <div class="field"><label>Quỹ thưởng dự án quý (đ) — CHT đề xuất theo KPI Ban quý + mốc dự án</label><input class="lg-sel" id="tq-quy" type="number" step="1000000" value="${r.quyThuong || ''}" ${sua ? '' : 'disabled'}></div>
+    ${sua ? '<div class="lg-qt" style="margin:0 0 10px"><button class="ghost" onclick="lgTaiTQ(true)">Xem trước chia thưởng</button><button class="primary" onclick="lgGuiTQ()">Gửi đề xuất</button></div>' : ''}
+    ${r.quyen.duyet && r.trangThai === 'CHO_DUYET' ? `<div class="lg-qt" style="margin:0 0 10px"><button class="primary" onclick="lgDuyetTQ('DUYET')">✓ Duyệt (Ban TGĐ đã đồng ý)</button></div>` : ''}
+    ${r.quyen.duyet && r.trangThai === 'DA_DUYET' ? `<div class="lg-qt" style="margin:0 0 10px"><button class="ghost" onclick="lgDuyetTQ('HUY')">Huỷ duyệt</button></div>` : ''}`;
+  out += `<table class="lg-bang"><thead><tr><th>Họ tên</th><th>HS</th><th>KPI quý</th><th>Công</th><th>Điểm</th><th>Thưởng</th></tr></thead><tbody>${r.ds.map(x => `<tr><td><b>${escA(x.hoTen)}</b><small style="display:block;color:#5A6875">${escA(x.viTri)}${x.soThangKPI < 3 ? ' · ' + x.soThangKPI + '/3 tháng có KPI' : ''}</small>
+      <label style="font-size:12px;color:${x.mat ? '#C00000' : '#5A6875'}"><input type="checkbox" ${x.mat ? 'checked' : ''} ${sua && !/Vi phạm nhóm 100%/.test(x.lyDoMat) ? '' : 'disabled'} onchange="S.lg.tq.mat['${x.email}']=this.checked?'TNLĐ nghiêm trọng do lỗi':false"> Mất thưởng${x.lyDoMat ? ': ' + escA(x.lyDoMat) : ''}</label></td>
+      <td>${x.hs}</td><td>${Math.round(x.kpi * 1000) / 10}%</td><td>${x.nc}</td><td>${Math.round(x.diem * 1000) / 1000}</td><td><b>${lgD(x.tien)}</b></td></tr>`).join('')}
+      <tr><td><b>CỘNG</b></td><td></td><td></td><td></td><td>${Math.round(r.tongDiem * 1000) / 1000}</td><td><b>${lgD(r.ds.reduce((a, x) => a + x.tien, 0))}</b></td></tr></tbody></table>
+    ${r.ngoai.length ? '<p class="hint">Không thuộc diện chia: ' + r.ngoai.map(x => escA(x.hoTen) + ' (' + escA(x.lyDo) + ')').join(', ') + '</p>' : ''}
+    <div class="lg-qt" style="margin-top:10px"><button class="ghost" onclick="lgXuatTQ()">⇩ Excel thưởng quý</button><button class="ghost" onclick="lgVeBang()">‹ Bảng lương</button></div>`;
+  lgKhung('THƯỞNG DỰ ÁN QUÝ', out);
+}
+async function lgGuiTQ(){ const t = S.lg.tq; const q = +($('tq-quy') || {}).value || 0; if (!q) return toast('Nhập quỹ thưởng quý');
+  if (!confirm('Gửi đề xuất thưởng quý ' + t.quy + ' · ' + t.maDA + ' – quỹ ' + lgD(q) + ' đ?')) return;
+  try { t.data = await api('thuongQuyLuu', {ve:S.lg.ve, quy:t.quy, maDA:t.maDA, quyThuong:q, matThuong:t.mat}, 90); toast('Đã gửi đề xuất'); lgVeTQ(); } catch(e){ toast(e.message, 5000); } }
+async function lgDuyetTQ(kq){ const t = S.lg.tq; if (!confirm((kq === 'DUYET' ? 'Duyệt' : 'Huỷ duyệt') + ' thưởng quý ' + t.quy + ' · ' + t.maDA + '?')) return;
+  try { const r = await api('thuongQuyDuyet', {ve:S.lg.ve, quy:t.quy, maDA:t.maDA, ketQua:kq}, 90); toast(kq === 'DUYET' ? 'Đã duyệt — đã ghi vào lương tháng cuối quý' + (r.thieuDongLuong && r.thieuDongLuong.length ? ' (' + r.thieuDongLuong.length + ' người chưa có dòng lương)' : '') : 'Đã huỷ duyệt', 5000); lgTaiTQ(); } catch(e){ toast(e.message, 5000); } }
+async function lgXuatTQ(){ const r = S.lg.tq.data; try { await napJS(LG_XLSX); } catch(e){ return toast('Cần mạng để xuất Excel'); }
+  const aoa = [['THƯỞNG DỰ ÁN QUÝ ' + r.quy + ' — ' + r.maDA + ' — quỹ ' + r.quyThuong + ' đ'], [], ['STT','Họ tên','Vị trí KPI','Hệ số chức danh','KPI bình quân quý (%)','Công quý','Công chuẩn','Mất thưởng','Lý do','Điểm chia','Tiền thưởng']];
+  r.ds.forEach((x, i) => aoa.push([i + 1, x.hoTen, x.viTri, x.hs, Math.round(x.kpi * 1000) / 10, x.nc, r.ncChuan, x.mat ? 'Có' : '', x.lyDoMat, x.diem, x.tien]));
+  aoa.push(['', 'CỘNG', '', '', '', '', '', '', '', r.tongDiem, r.ds.reduce((a, x) => a + x.tien, 0)], [], ['', 'CHỈ HUY TRƯỞNG (đề xuất)', '', '', '', 'BAN TỔNG GIÁM ĐỐC (phê duyệt)']);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Thuong quy'); XLSX.writeFile(wb, r.quy + '_thuong-du-an-quy_' + r.maDA + '.xlsx'); }
+
+/* ---------- 3.15.0: XÉT TĂNG THU NHẬP MỤC TIÊU 6 THÁNG ---------- */
+function lgCacKy(){ const y = new Date().getFullYear(); return [(y + 1) + '-K1', y + '-K2', y + '-K1', (y - 1) + '-K2']; }
+function lgMoXT(){ const d = new Date(); S.lg.xt = S.lg.xt || {ky:d.getMonth() >= 6 ? (d.getFullYear() + 1) + '-K1' : d.getFullYear() + '-K2', maDA:lgDaMacDinh()}; if (!S.lg.xt.maDA) S.lg.xt.maDA = lgDaMacDinh(); lgTaiXT(); }
+async function lgTaiXT(){ const t = S.lg.xt; lgKhung('XÉT TĂNG THU NHẬP 6 THÁNG', '<div class="empty">Đang tính…</div>');
+  try { t.data = await api('xetTangBang', {ve:S.lg.ve, ky:t.ky, maDA:t.maDA}, 90); } catch(e){ if (/HET_PHIEN/.test(e.message)){ S.lg.ve = null; moLuong(); return; } lgKhung('XÉT TĂNG THU NHẬP 6 THÁNG', `<div class="empty">${escA(e.message)}</div><button class="ghost" onclick="lgVeBang()">‹ Bảng lương</button>`); return; }
+  lgVeXT(); }
+function lgVeXT(){
+  const t = S.lg.xt, r = t.data; const dsDA = (S.lg.quyen || {}).duAnXem || [];
+  const tt = r.ds.length && r.ds.every(x => x.trangThai === 'DA_DUYET') ? 'DA_DUYET' : r.ds.some(x => x.trangThai === 'CHO_DUYET') ? 'CHO_DUYET' : 'MOI';
+  let out = `<div class="lg-thanh"><select class="lg-sel" onchange="S.lg.xt.ky=this.value;lgTaiXT()">${lgCacKy().map(k => `<option ${k === t.ky ? 'selected' : ''}>${k}</option>`).join('')}</select>
+      <select class="lg-sel" onchange="S.lg.xt.maDA=this.value;lgTaiXT()">${dsDA.map(m => `<option ${m === t.maDA ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+    <div class="lg-cb" style="margin:0 0 10px">Xét KPI ${lgThangTen(r.thangs[0])} – ${lgThangTen(r.thangs[5])} · hiệu lực từ ${lgThangTen(r.hieuLuc)} · <b>${{MOI:'Chưa đề xuất', CHO_DUYET:'Chờ Phòng TCNS duyệt', DA_DUYET:'Đã duyệt'}[tt]}</b><br>
+      % tăng = ma trận (KPI 6 tháng × vị trí trong khung = Mdk / mức giữa khung) × min(6; số tháng làm việc)/6. Cần ≥ 3 tháng trong kỳ, đã qua 5 tháng đầu.</div>
+    ${r.quyen.deXuat && tt !== 'DA_DUYET' ? '<div class="lg-qt" style="margin:0 0 10px"><button class="primary" onclick="lgGuiXT()">Gửi đề xuất tăng thu nhập</button></div>' : ''}
+    ${r.quyen.duyet && tt === 'CHO_DUYET' ? '<div class="lg-qt" style="margin:0 0 10px"><button class="primary" onclick="lgDuyetXT(\'DUYET\')">✓ Duyệt (Phòng TCNS đã đồng ý)</button></div>' : ''}
+    ${r.quyen.duyet && tt === 'DA_DUYET' ? '<div class="lg-qt" style="margin:0 0 10px"><button class="ghost" onclick="lgDuyetXT(\'HUY\')">Huỷ duyệt</button></div>' : ''}
+    <table class="lg-bang"><thead><tr><th>Họ tên</th><th>Mdk cũ</th><th>KPI 6T</th><th>Vị trí khung</th><th>% tăng</th><th>Mdk mới</th></tr></thead><tbody>${r.ds.map(x => `<tr><td><b>${escA(x.hoTen)}</b><small style="display:block;color:#5A6875">${escA(x.viTri || '—')} · ${x.soThang} tháng${x.ghiChu ? ' · <span style="color:#B36B00">' + escA(x.ghiChu) + '</span>' : ''}</small></td>
+      <td>${lgD(x.mdkCu)}</td><td>${x.kpi6 === null ? '—' : Math.round(x.kpi6 * 1000) / 10 + '%'}</td><td>${x.viTriKhung === null ? '—' : x.viTriKhung}</td><td>${Math.round(x.pt * 10000) / 100}%</td><td><b>${lgD(x.mdkMoi)}</b></td></tr>`).join('')}</tbody></table>
+    <div class="lg-qt" style="margin-top:10px"><button class="ghost" onclick="lgXuatXT()">⇩ Excel xét tăng</button><button class="ghost" onclick="lgVeBang()">‹ Bảng lương</button></div>`;
+  lgKhung('XÉT TĂNG THU NHẬP 6 THÁNG', out);
+}
+async function lgGuiXT(){ const t = S.lg.xt; if (!confirm('Gửi đề xuất tăng thu nhập kỳ ' + t.ky + ' · ' + t.maDA + '?')) return;
+  try { t.data = await api('xetTangLuu', {ve:S.lg.ve, ky:t.ky, maDA:t.maDA}, 90); toast('Đã gửi đề xuất'); lgVeXT(); } catch(e){ toast(e.message, 5000); } }
+async function lgDuyetXT(kq){ const t = S.lg.xt; if (!confirm((kq === 'DUYET' ? 'Duyệt' : 'Huỷ duyệt') + ' xét tăng kỳ ' + t.ky + ' · ' + t.maDA + '?')) return;
+  try { await api('xetTangDuyet', {ve:S.lg.ve, ky:t.ky, maDA:t.maDA, ketQua:kq}, 90); toast(kq === 'DUYET' ? 'Đã duyệt — Mdk mới áp từ tháng hiệu lực' : 'Đã huỷ duyệt'); lgTaiXT(); } catch(e){ toast(e.message, 5000); } }
+async function lgXuatXT(){ const r = S.lg.xt.data; try { await napJS(LG_XLSX); } catch(e){ return toast('Cần mạng để xuất Excel'); }
+  const aoa = [['XÉT TĂNG THU NHẬP MỤC TIÊU KỲ ' + r.ky + ' — ' + r.maDA + ' — hiệu lực từ ' + r.hieuLuc], [], ['STT','Họ tên','Vị trí KPI','Mdk cũ','Mức giữa khung','Vị trí trong khung','KPI BQ 6 tháng (%)','Số tháng trong kỳ','% tăng','Mdk mới','Ghi chú']];
+  r.ds.forEach((x, i) => aoa.push([i + 1, x.hoTen, x.viTri, x.mdkCu, x.giua || '', x.viTriKhung === null ? '' : x.viTriKhung, x.kpi6 === null ? '' : Math.round(x.kpi6 * 1000) / 10, x.soThang, Math.round(x.pt * 10000) / 100, x.mdkMoi, x.ghiChu]));
+  aoa.push([], ['', 'CHỈ HUY TRƯỞNG (đề xuất)', '', '', '', 'PHÒNG TCNS (duyệt)']);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Xet tang'); XLSX.writeFile(wb, r.ky + '_xet-tang-thu-nhap_' + r.maDA + '.xlsx'); }
+
+/* ---------- 3.15.0: phiếu lương cá nhân khi chế độ CHÍNH THỨC 3P ---------- */
+function lgVePhieu3P(x, tenDA, so){
+  const pct = v => Math.round((+v || 0) * 1000) / 10;
+  const thu = [['P1 – Lương vị trí (theo ngày công)', 'p1', '(Lương CB + phụ cấp) × ' + lgD(so('ncTT')) + '/' + lgD(so('ncQD')) + ' công'],
+    ['Lương ngày nghỉ lễ, tết', 'tienLe3p', so('ngayLe') ? so('ngayLe') + ' ngày' : ''], ['P2 – Lương năng lực', 'p2', ''],
+    ['Phụ cấp thâm niên', 'tienTN', so('ptTN') ? pct(so('ptTN')) + '% thu nhập mục tiêu · ' + so('thangTN') + ' tháng' : ''],
+    ['P3 – Lương KPI', 'p3', 'Hệ số thưởng KPI ' + (x.hsKPI === '' || x.hsKPI == null ? '—' : String(x.hsKPI).replace('.', ',')) + (x.kpiPct !== '' && x.kpiPct != null ? ' · KPI tháng ' + x.kpiPct + '%' : '')],
+    ['Làm thêm giờ', 'tienLTMoi', ''], ['Thưởng dự án quý', 'thuongQuy', ''], ['Thưởng gắn bó', 'thuongGB', ''], ['Khoản bổ sung quý', 'bsQuy', '']].filter((r, i) => i < 1 || i === 4 || so(r[1]));
+  const khac = (x.khac || []).map(k => lgDong1(escA(k[0]), lgD(k[1]), ''));
+  return `<div class="lg-the">
+    <div class="lg-tdau"><b>${lgThangTen(x.thang)}</b><span>${escA(tenDA)}${x.chucDanh ? ' · ' + escA(x.chucDanh) : ''}</span></div>
+    <div class="lg-tl"><small>LƯƠNG THỰC LĨNH</small><b>${lgD(x.thucLinh)} đ</b></div>
+    <div class="lg-nhom">NGÀY CÔNG</div>${lgDong1('Ngày công thực tế / quy định', lgD(so('ncTT')) + ' / ' + lgD(so('ncQD')))}${so('ngayLe') ? lgDong1('Nghỉ lễ, tết hưởng lương', so('ngayLe') + ' ngày') : ''}
+    <div class="lg-nhom">CÁC KHOẢN THU NHẬP (MÔ HÌNH 3P)</div>${thu.map(r => lgDong1(r[0], lgD(x[r[1]]), r[2])).join('')}${khac.join('')}
+    ${lgDong1('TỔNG THU NHẬP', lgD(so('tongTN')), '', 'tong')}
+    <div class="lg-nhom">KHẤU TRỪ</div>${lgDong1('Trích nộp BHXH, BHYT, BHTN', '− ' + lgD(so('truBH')), '10,5% × (lương CB + phụ cấp + thâm niên)')}
+    ${lgDong1('LƯƠNG THỰC LĨNH', lgD(so('thucLinh')) + ' đ', '', 'tl')}
+    <div class="lg-nhom">THÔNG TIN THAM CHIẾU</div>${lgDong1('Thu nhập mục tiêu (Mdk)', lgD(so('mdk3p') || so('tnDK')))}${lgDong1('Mức lương cơ bản', lgD(so('lcb3p') || so('lcb')), so('hsBH') ? 'Hệ số BHXH ' + so('hsBH') : '')}
+    ${so('doanPhi') ? lgDong1('Đoàn phí công đoàn', lgD(so('doanPhi')), '0,5% × (lương CB + phụ cấp)') : ''}
   </div>`;
 }
 function lgVeNam(g){
@@ -5180,32 +5274,33 @@ async function lgTaiBang(tinh){
   lgVeBang();
 }
 function lgVeBang(){
-  const g = S.lg, b = g.bang, r = b.data; const ds = r.ds; const ss = r.cauHinh.cheDo === 'SONG_SONG';
+  const g = S.lg, b = g.bang, r = b.data; const ds = r.ds; const ss = r.cauHinh.cheDo === 'SONG_SONG'; const p = r.cauHinh.p || {};
   const n = k => +k || 0;
   const dem = {}; ds.forEach(x => dem[x.trang_thai_luong || 'CHUA_TINH'] = (dem[x.trang_thai_luong || 'CHUA_TINH'] || 0) + 1);
-  const tFile = ds.reduce((a, x) => a + n(x.thuc_linh), 0), tKPI = ds.reduce((a, x) => a + n(x.kpi_thuc_linh), 0);
+  const tHT = ds.reduce((a, x) => a + n(x.thuc_linh_hien_tai), 0), t3P = ds.reduce((a, x) => a + n(x.thuc_linh_3p), 0);
   const dsDA = (g.quyen || {}).duAnXem || [];
   let out = `<div class="lg-thanh"><input type="month" class="lg-sel" value="${b.thang}" onchange="S.lg.bang.thang=this.value;lgTaiBang(false)">
       <select class="lg-sel" onchange="S.lg.bang.maDA=this.value;lgTaiBang(false)"><option value="">Mọi dự án được xem</option>${dsDA.map(m => `<option ${m === b.maDA ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
-    <div class="lg-cb" style="margin:0 0 10px">${ss ? '<b>CHẠY SONG SONG</b> — trả lương theo file Đội; cột "Theo KPI" là số app tính theo công thức mới (H từ KPI, lễ cộng thêm, làm thêm 3 loại) để đối chiếu.' : '<b>CHÍNH THỨC</b> — app tính và ghi đè lương theo KPI.'}
-      · Ngày công quy định ${r.cauHinh.ncQD} · K = ${r.cauHinh.K}</div>`;
+    <div class="lg-cb" style="margin:0 0 10px">${ss ? '<b>CHẠY SONG SONG</b> — trả lương theo <b>cách hiện tại</b> của công ty; cột <b>3P</b> là số tính theo mô hình mới (P1 + P2 + thâm niên + P3 KPI) để đối chiếu.' : '<b>CHÍNH THỨC 3P</b> — trả lương theo mô hình 3P.'}
+      · Công quy định ${r.cauHinh.ncQD} · Cố định ${Math.round((p.TL_CD || 0.75) * 100)}% / KPI ${Math.round((p.TL_BD || 0.25) * 100)}% · K = ${r.cauHinh.K}</div>`;
   if (r.quyen.qt) out += `<details class="lg-the"><summary><b>Chế độ tháng ${lgThangTen(b.thang)} (Quản trị)</b></summary>
-      <div class="lg-thanh" style="margin-top:8px"><select class="lg-sel" id="lgb-che"><option value="SONG_SONG" ${ss ? 'selected' : ''}>Chạy song song</option><option value="CHINH_THUC" ${ss ? '' : 'selected'}>Chính thức</option></select>
+      <div class="lg-thanh" style="margin-top:8px"><select class="lg-sel" id="lgb-che"><option value="SONG_SONG" ${ss ? 'selected' : ''}>Chạy song song</option><option value="CHINH_THUC" ${ss ? '' : 'selected'}>Chính thức 3P</option></select>
         <input class="lg-sel" id="lgb-nc" type="number" min="20" max="31" value="${r.cauHinh.ncQD}" title="Ngày công quy định"><input class="lg-sel" id="lgb-k" type="number" step="0.01" value="${r.cauHinh.K}" title="Hệ số K"></div>
-      <button class="primary" onclick="lgDatCheDo()">Lưu chế độ & tính lại</button><p class="hint">Chính thức chỉ bật khi Phòng TCNS đã duyệt. Ngày công quy định mặc định 26.</p></details>`;
+      <button class="primary" onclick="lgDatCheDo()">Lưu chế độ & tính lại</button><p class="hint">Chính thức chỉ bật khi Ban lãnh đạo đã duyệt mô hình 3P. Tham số tỷ lệ, ngưỡng KPI, thâm niên sửa ở sheet CAU_HINH_LUONG (file lương bảo mật).</p></details>`;
   out += `<div class="lg-o4" style="margin-bottom:10px"><div class="lg-o"><small>Số dòng lương</small><b>${ds.length}</b></div><div class="lg-o"><small>Chờ KPI duyệt</small><b style="color:#B36B00">${dem.CHO_KPI || 0}</b></div>
-      <div class="lg-o"><small>${ss ? 'Thực lĩnh theo file' : 'Thực lĩnh nếu H = 1'}</small><b>${lgD(ss ? tFile : ds.reduce((a, x) => a + n(x.thuc_linh_neu_H1), 0))}</b></div><div class="lg-o"><small>Thực lĩnh theo KPI</small><b>${lgD(tKPI)}</b></div>
-      <div class="lg-o big"><small>CHÊNH LỆCH (theo KPI − ${ss ? 'file' : 'H = 1'})</small><b>${(tKPI - (ss ? tFile : ds.reduce((a, x) => a + n(x.thuc_linh_neu_H1), 0)) >= 0 ? '+' : '') + lgD(tKPI - (ss ? tFile : ds.reduce((a, x) => a + n(x.thuc_linh_neu_H1), 0)))} đ</b></div></div>
-    <div class="lg-qt" style="margin:0 0 10px">${r.quyen.nhap.length || r.quyen.duyet.length ? '<button class="ghost" onclick="lgTaiBang(true)">↻ Tính lại theo KPI</button>' : ''}
-      <button class="ghost" onclick="lgXuatBang('LUONG')">⇩ Excel bảng lương</button><button class="ghost" onclick="lgXuatBang('CHENH')">⇩ Excel chênh lệch</button>
+      <div class="lg-o"><small>Thực lĩnh cách hiện tại</small><b>${lgD(tHT)}</b></div><div class="lg-o"><small>Thực lĩnh 3P</small><b>${lgD(t3P)}</b></div>
+      <div class="lg-o big"><small>CHÊNH LỆCH QUỸ LƯƠNG (3P − hiện tại)</small><b>${(t3P - tHT >= 0 ? '+' : '') + lgD(t3P - tHT)} đ</b></div></div>
+    <div class="lg-qt" style="margin:0 0 10px">${r.quyen.nhap.length || r.quyen.duyet.length ? '<button class="ghost" onclick="lgTaiBang(true)">↻ Tính lại</button>' : ''}
+      <button class="ghost" onclick="lgXuatBang('LUONG')">⇩ Excel bảng lương 3P</button><button class="ghost" onclick="lgXuatBang('CHENH')">⇩ Excel chênh lệch</button>
+      <button class="ghost" onclick="lgMoTQ()">🏆 Thưởng dự án quý</button><button class="ghost" onclick="lgMoXT()">📈 Xét tăng thu nhập 6 tháng</button>
       ${r.maDAs.filter(m => r.quyen.duyet.includes(m)).map(m => { const ca = ds.filter(x => x.ma_da === m); const da = ca.length && ca.every(x => x.trang_thai_luong === 'DA_DUYET');
         return da ? (r.quyen.qt ? `<button class="ghost" onclick="lgDuyetBang('${m}','HUY')">Huỷ duyệt ${m}</button>` : `<span class="lg-ok" style="margin:0">✓ ${m} đã duyệt</span>`) : `<button class="primary" onclick="lgDuyetBang('${m}','DUYET')">✓ Duyệt lương ${m}</button>`; }).join('')}</div>`;
   if (!ds.length) out += '<div class="empty">Chưa nạp bảng lương tháng này.</div>';
-  else out += `<table class="lg-bang"><thead><tr><th>Họ tên</th><th>H</th><th>${ss ? 'File' : 'H=1'}</th><th>Theo KPI</th><th>Lệch</th></tr></thead><tbody>${ds.map((x, i) => {
-      const goc = ss ? n(x.thuc_linh) : n(x.thuc_linh_neu_H1); const l = n(x.kpi_thuc_linh) - goc;
-      return `<tr onclick="lgSuaDong(${i})"><td><b>${escA(x.ho_ten)}</b><small style="display:block;color:#5A6875">${escA(x.chuc_danh || '')} · ${escA(x.ma_da)}${x.email ? '' : ' · <span style="color:#C00000">chưa ghép</span>'}</small><small style="color:${LG_TT_MAU[x.trang_thai_luong] || '#888'}">${LG_TT[x.trang_thai_luong] || 'chưa tính'}${x.du_an_chinh && x.du_an_chinh !== x.ma_da ? ' · DA chính ' + escA(x.du_an_chinh) : ''}</small></td>
-        <td>${x.he_so_H === '' || x.he_so_H == null ? '<span style="color:#B36B00">chờ</span>' : (+x.he_so_H).toFixed(2)}</td><td>${lgD(goc)}</td><td><b>${lgD(x.kpi_thuc_linh)}</b></td><td style="color:${l < 0 ? '#C00000' : l > 0 ? '#157F4B' : 'inherit'}">${l > 0 ? '+' : ''}${lgD(l)}</td></tr>`; }).join('')}</tbody></table>
-    <p class="hint">Bấm 1 dòng để xem chi tiết${r.quyen.nhap.length ? ' và nhập công, ngày lễ, giờ làm thêm (thường 150% · CN 200% · lễ 300%), khoản bổ sung có lý do' : ''}. H lấy từ phiếu KPI tháng đã duyệt (bảng quy đổi KPI_QUY_DOI); người chưa có vị trí KPI hoặc miễn KPI: H = 1.</p>`;
+  else out += `<table class="lg-bang"><thead><tr><th>Họ tên</th><th>HS KPI</th><th>Hiện tại</th><th>3P</th><th>Lệch</th></tr></thead><tbody>${ds.map((x, i) => {
+      const l = n(x.thuc_linh_3p) - n(x.thuc_linh_hien_tai); const hs = x.hs_thuong_kpi === '' || x.hs_thuong_kpi == null ? '<span style="color:#B36B00">chờ</span>' : (+x.hs_thuong_kpi).toFixed(2);
+      return `<tr onclick="lgSuaDong(${i})"><td><b>${escA(x.ho_ten)}</b><small style="display:block;color:#5A6875">${escA(x.chuc_danh || '')} · ${escA(x.ma_da)}${x.email ? '' : ' · <span style="color:#C00000">chưa ghép</span>'}${n(x.pt_tham_nien) ? ' · TN ' + Math.round(n(x.pt_tham_nien) * 100) + '%' : ''}</small><small style="color:${LG_TT_MAU[x.trang_thai_luong] || '#888'}">${LG_TT[x.trang_thai_luong] || 'chưa tính'}${x.kpi_pct !== '' && x.kpi_pct != null ? ' · KPI ' + x.kpi_pct + '%' : ''}${x.du_an_chinh && x.du_an_chinh !== x.ma_da ? ' · DA chính ' + escA(x.du_an_chinh) : ''}</small></td>
+        <td>${hs}<small style="display:block;color:#5A6875">H ${x.h_hien_tai === '' || x.h_hien_tai == null ? '—' : (+x.h_hien_tai).toFixed(2)}</small></td><td>${lgD(x.thuc_linh_hien_tai)}</td><td><b>${lgD(x.thuc_linh_3p)}</b></td><td style="color:${l < 0 ? '#C00000' : l > 0 ? '#157F4B' : 'inherit'}">${l > 0 ? '+' : ''}${lgD(l)}</td></tr>`; }).join('')}</tbody></table>
+    <p class="hint">HS KPI = hệ số thưởng P3 (mô hình 3P) · H = hệ số KPI của cách hiện tại. Bấm 1 dòng để xem chi tiết${r.quyen.nhap.length ? ' và nhập công, ngày lễ, giờ làm thêm (thường 150% · CN 200% · lễ 300%), ngày vào công ty, khoản bổ sung có lý do' : ''}.</p>`;
   out += `<button class="ghost" style="margin-top:12px" onclick="lgVe()">‹ Quay lại phiếu lương</button>`;
   lgKhung('BẢNG LƯƠNG BCH', out);
 }
@@ -5213,18 +5308,35 @@ function lgSuaDong(i){
   const r = S.lg.bang.data, x = r.ds[i]; const n = k => +x[k] || 0;
   const sua = r.quyen.nhap.includes(x.ma_da) && x.trang_thai_luong !== 'DA_DUYET';
   const o = (k, nhan, st) => `<div class="field"><label>${nhan}</label><input class="lg-sel" data-k="${k}" type="number" ${st || 'step="0.5"'} value="${x[k] === '' || x[k] == null ? '' : x[k]}" ${sua ? '' : 'disabled'}></div>`;
-  const ss = r.cauHinh.cheDo === 'SONG_SONG';
+  const ngayVao = String(x.ngay_vao_cong_ty || '').slice(0, 10);
+  const pct = v => (Math.round((+v || 0) * 1000) / 10) + '%';
   lgKhung('CHI TIẾT LƯƠNG', `<div class="lg-ten"><b>${escA(x.ho_ten)}</b><span>${escA(x.chuc_danh || '')} · ${escA(x.ma_da)} · ${lgThangTen(x.thang)}${x.email ? ' · ' + escA(x.email) : ''}</span></div>
-    ${x.xung_dot ? '<div class="lg-cb">⚠ ' + escA(x.xung_dot) + '</div>' : ''}
-    <div class="lg-the"><div class="lg-nhom">HỆ SỐ KPI</div>${lgDong1('Hệ số H', x.he_so_H === '' ? 'chờ KPI' : (+x.he_so_H).toFixed(2), escA(x.H_nguon || ''))}${x.kpi_pct !== '' ? lgDong1('Điểm KPI tháng', x.kpi_pct + '%', escA(x.phan_loai || '')) : ''}
-      <div class="lg-nhom">SO SÁNH</div>${lgDong1(ss ? 'Thực lĩnh theo file (đang trả)' : 'Thực lĩnh nếu H = 1', lgD(ss ? n('thuc_linh') : n('thuc_linh_neu_H1')))}
-      ${lgDong1('Lương ngày công (KPI)', lgD(n('kpi_tien_nc')))}${lgDong1('Lương lễ, tết — cộng thêm', lgD(n('kpi_tien_le')))}${lgDong1('Lương hiệu quả (KPI)', lgD(n('kpi_tien_hq')))}${lgDong1('Làm thêm giờ', lgD(n('kpi_tien_lt')), n('tien_lt_thuong') + n('tien_lt_cn') + n('tien_lt_le') ? 'Thường ' + lgD(n('tien_lt_thuong')) + ' · CN ' + lgD(n('tien_lt_cn')) + ' · Lễ ' + lgD(n('tien_lt_le')) : 'theo file (1 cột giờ)')}
-      ${lgDong1('Tổng thu nhập (KPI)', lgD(n('kpi_tong_tn')), '', 'tong')}${lgDong1('Trừ BHXH 10,5%', '− ' + lgD(n('kpi_tru_bhxh')))}${lgDong1('THỰC LĨNH THEO KPI', lgD(n('kpi_thuc_linh')) + ' đ', 'Chênh lệch ' + lgD(n('chenh_lech')), 'tl')}</div>
+    ${x.xung_dot ? '<div class="lg-cb">⚠ ' + escA(x.xung_dot) + '</div>' : ''}${x.ghi_chu_3p ? '<div class="lg-cb" style="background:#EEF4FB;border-color:#B7CDE8">ℹ ' + escA(x.ghi_chu_3p) + '</div>' : ''}
+    <div class="lg-the"><div class="lg-nhom">KPI & THÂM NIÊN</div>
+      ${lgDong1('Điểm KPI tháng', x.kpi_pct === '' || x.kpi_pct == null ? '—' : x.kpi_pct + '%', escA(x.kpi_id_phieu || x.H_nguon || ''))}
+      ${lgDong1('Hệ số thưởng KPI (P3)', x.hs_thuong_kpi === '' ? 'chờ KPI' : (+x.hs_thuong_kpi).toFixed(3).replace(/0+$/, '').replace(/\.$/, ''), 'H cách hiện tại ' + (x.h_hien_tai === '' ? '—' : (+x.h_hien_tai).toFixed(2)))}
+      ${lgDong1('KPI bình quân 6 tháng', x.kpi6_pct === '' || x.kpi6_pct == null ? '—' : x.kpi6_pct + '%', x.vi_pham_nang === 'TRUE' ? '<span style="color:#C00000">có vi phạm nhóm 80–100%</span>' : '')}
+      ${lgDong1('Thâm niên', x.thang_tham_nien === '' || x.thang_tham_nien == null ? 'chưa có ngày vào' : x.thang_tham_nien + ' tháng', 'Phụ cấp ' + pct(x.pt_tham_nien) + ' Mdk')}
+      <div class="lg-nhom">MÔ HÌNH 3P</div>
+      ${lgDong1('P1 – Lương vị trí (theo công)', lgD(n('p1_thuc_tra')), '(LCB ' + lgD(n('lcb_3p')) + ' + PC) × ' + n('nc_tt') + '/' + r.cauHinh.ncQD)}
+      ${lgDong1('Lương lễ, tết (cộng thêm)', lgD(n('tien_le_3p')))}
+      ${lgDong1('P2 – Lương năng lực', lgD(n('p2_nang_luc')), 'Mdk ' + lgD(n('mdk_3p')) + ' × ' + Math.round((r.cauHinh.p || {}).TL_CD * 100 || 75) + '% − P1')}
+      ${lgDong1('Phụ cấp thâm niên', lgD(n('tien_tham_nien')))}
+      ${lgDong1('P3 – Lương KPI', lgD(n('p3_kpi')), 'Mdk × ' + Math.round((r.cauHinh.p || {}).TL_BD * 100 || 25) + '% × hệ số KPI')}
+      ${lgDong1('Làm thêm giờ', lgD(n('tien_lt_moi')), 'Đơn giá giờ ' + lgD(n('don_gia_gio')) + ' · thường ' + n('gio_lt_thuong') + 'h · CN ' + n('gio_lt_cn') + 'h · lễ ' + n('gio_lt_le') + 'h')}
+      ${n('thuong_quy') ? lgDong1('Thưởng dự án quý', lgD(n('thuong_quy'))) : ''}${n('thuong_gan_bo') ? lgDong1('Thưởng gắn bó', lgD(n('thuong_gan_bo'))) : ''}
+      ${n('bs_quy') + n('bs_khac') ? lgDong1('Bổ sung (quý cũ + khác)', lgD(n('bs_quy') + n('bs_khac')), escA(x.ly_do_bs || '')) : ''}
+      ${lgDong1('Tổng thu nhập 3P', lgD(n('tong_tn_3p')), '', 'tong')}${lgDong1('Trừ BH người lao động 10,5%', '− ' + lgD(n('tru_bh_3p')))}
+      ${lgDong1('THỰC LĨNH 3P', lgD(n('thuc_linh_3p')) + ' đ', 'Chênh lệch so với cách hiện tại ' + (n('chenh_lech') > 0 ? '+' : '') + lgD(n('chenh_lech')), 'tl')}
+      <div class="lg-nhom">CÁCH HIỆN TẠI (bảng lương công ty)</div>
+      ${lgDong1('Lương theo ngày công + lễ', lgD(n('p1_thuc_tra') + n('tien_le_3p')))}${lgDong1('Lương hiệu quả (H)', lgD(n('hq_hien_tai')))}${lgDong1('Làm thêm (200%)', lgD(n('lt_hien_tai')))}
+      ${lgDong1('THỰC LĨNH CÁCH HIỆN TẠI', lgD(n('thuc_linh_hien_tai')) + ' đ', 'Bảng lương Đội đã nạp: ' + lgD(n('thuc_linh')), 'tong')}</div>
     <div class="lg-the" id="lgs-form"><div class="lg-nhom">SỐ LIỆU ĐẦU VÀO ${sua ? '(kế toán nhập)' : '(chỉ xem)'}</div>
       <div class="lg-thanh">${o('nc_tt', 'Công thực tế')}${o('ngay_le', 'Ngày lễ')}</div>
       <div class="lg-thanh">${o('gio_lt_thuong', 'Giờ LT thường')}${o('gio_lt_cn', 'Giờ LT CN')}${o('gio_lt_le', 'Giờ LT lễ')}</div>
-      <div class="lg-thanh">${o('tn_du_kien', 'TN dự kiến', 'step="1000"')}${o('bs_quy', 'Bổ sung quý', 'step="1000"')}</div>
-      <div class="lg-thanh">${o('bs_khac', 'Bổ sung khác', 'step="1000"')}<div class="field" style="flex:2"><label>Lý do bổ sung (bắt buộc nếu có)</label><input class="lg-sel" data-k="ly_do_bs" value="${escA(x.ly_do_bs || '')}" ${sua ? '' : 'disabled'}></div></div>
+      <div class="lg-thanh">${o('tn_du_kien', 'Thu nhập mục tiêu (Mdk)', 'step="1000"')}<div class="field"><label>Ngày vào công ty</label><input class="lg-sel" data-k="ngay_vao_cong_ty" type="date" value="${escA(ngayVao)}" ${sua ? '' : 'disabled'}></div></div>
+      <div class="lg-thanh">${o('bs_quy', 'Bổ sung quý (cũ)', 'step="1000"')}${o('bs_khac', 'Bổ sung khác', 'step="1000"')}</div>
+      <div class="field"><label>Lý do bổ sung (bắt buộc nếu có)</label><input class="lg-sel" data-k="ly_do_bs" value="${escA(x.ly_do_bs || '')}" ${sua ? '' : 'disabled'}></div>
       ${sua ? `<button class="primary" onclick="lgLuuDong(${i})">LƯU & TÍNH LẠI</button>` : ''}</div>
     <button class="ghost" style="margin-top:8px" onclick="lgVeBang()">‹ Bảng lương</button>`);
 }
@@ -5249,21 +5361,31 @@ async function lgDatCheDo(){
 async function lgXuatBang(loai){
   const r = S.lg.bang.data; if (!r || !r.ds.length) return toast('Chưa có dữ liệu');
   try { await napJS(LG_XLSX); } catch(e){ return toast('Không tải được bộ ghi Excel (cần mạng)'); }
-  const n = v => v === '' || v == null ? 0 : +v;
+  const n = v => v === '' || v == null ? 0 : +v; const ss = r.cauHinh.cheDo === 'SONG_SONG';
   let aoa;
   if (loai === 'LUONG'){
-    aoa = [['BẢNG THANH TOÁN LƯƠNG — KHỐI GIÁN TIẾP — ' + lgThangTen(r.thang) + ' — ' + r.maDAs.join(', ') + (r.cauHinh.cheDo === 'SONG_SONG' ? ' (THEO KPI — CHẠY SONG SONG, THAM KHẢO)' : '')], [],
-      ['STT','Họ tên','Chức danh','Dự án','Hệ số BHXH','Mức lương CB','Phụ cấp CV','Công thực tế','Công quy định','Lương theo ngày công','Ngày lễ','Tiền lễ','TN dự kiến','Hệ số H (KPI)','Hệ số K','Lương hiệu quả','Giờ LT thường','Giờ LT CN','Giờ LT lễ','Tiền làm thêm','Bổ sung quý','Bổ sung khác','Lý do bổ sung','Khoản tương ứng BHXH','Tổng thu nhập','Trích BHXH 10,5%','Thực lĩnh','Đoàn phí 0,5%','Trạng thái','Ký nhận']];
-    r.ds.forEach((x, i) => aoa.push([i + 1, x.ho_ten, x.chuc_danh, x.ma_da, n(x.hs_bhxh), n(x.lcb), n(x.pc), n(x.nc_tt), r.cauHinh.ncQD, n(x.kpi_tien_nc), n(x.ngay_le), n(x.kpi_tien_le), n(x.tn_du_kien), x.he_so_H === '' ? '' : n(x.he_so_H), r.cauHinh.K, n(x.kpi_tien_hq),
-      n(x.gio_lt_thuong), n(x.gio_lt_cn), n(x.gio_lt_le), n(x.kpi_tien_lt), n(x.bs_quy), n(x.bs_khac), x.ly_do_bs || '', n(x.tien_bhxh), n(x.kpi_tong_tn), n(x.kpi_tru_bhxh), n(x.kpi_thuc_linh), n(x.doan_phi), LG_TT[x.trang_thai_luong] || '', '']));
+    aoa = [['BẢNG LƯƠNG MÔ HÌNH 3P + KPI + THÂM NIÊN — ' + lgThangTen(r.thang) + ' — ' + r.maDAs.join(', ') + (ss ? ' (CHẠY SONG SONG – THAM KHẢO, TRẢ THEO CÁCH HIỆN TẠI)' : '')], [],
+      ['STT','Họ tên','Chức danh','Dự án','Hệ số BHXH','Lương CB','Phụ cấp CV','Thu nhập mục tiêu (Mdk)','Công thực tế','Công quy định','Ngày lễ','Ngày vào công ty','Số tháng thâm niên',
+       'Điểm KPI tháng (%)','Hệ số thưởng KPI','KPI BQ 6 tháng (%)','P1 Lương vị trí','Lương lễ','P2 Lương năng lực','% thâm niên','Phụ cấp thâm niên','P3 Lương KPI',
+       'Giờ LT thường','Giờ LT CN','Giờ LT lễ','Đơn giá giờ','Tiền làm thêm','Thưởng quý','Thưởng gắn bó','Bổ sung quý (cũ)','Bổ sung khác','Lý do bổ sung',
+       'TỔNG THU NHẬP 3P','Trừ BH NLĐ','THỰC LĨNH 3P','Đoàn phí','Thực lĩnh cách hiện tại','Chênh lệch','Trạng thái','Ghi chú','Ký nhận']];
+    r.ds.forEach((x, i) => aoa.push([i + 1, x.ho_ten, x.chuc_danh, x.ma_da, n(x.hs_bhxh), n(x.lcb_3p), n(x.pc), n(x.mdk_3p), n(x.nc_tt), r.cauHinh.ncQD, n(x.ngay_le), String(x.ngay_vao_cong_ty || '').slice(0, 10),
+      x.thang_tham_nien === '' ? '' : n(x.thang_tham_nien), x.kpi_pct === '' ? '' : n(x.kpi_pct), x.hs_thuong_kpi === '' ? '' : n(x.hs_thuong_kpi), x.kpi6_pct === '' ? '' : n(x.kpi6_pct),
+      n(x.p1_thuc_tra), n(x.tien_le_3p), n(x.p2_nang_luc), n(x.pt_tham_nien), n(x.tien_tham_nien), n(x.p3_kpi), n(x.gio_lt_thuong), n(x.gio_lt_cn), n(x.gio_lt_le), n(x.don_gia_gio), n(x.tien_lt_moi),
+      n(x.thuong_quy), n(x.thuong_gan_bo), n(x.bs_quy), n(x.bs_khac), x.ly_do_bs || '', n(x.tong_tn_3p), n(x.tru_bh_3p), n(x.thuc_linh_3p), n(x.doan_phi_3p), n(x.thuc_linh_hien_tai), n(x.chenh_lech),
+      LG_TT[x.trang_thai_luong] || '', x.ghi_chu_3p || '', '']));
     aoa.push([], ['', 'NGƯỜI LẬP (Kế toán BCH)', '', '', '', 'CHỈ HUY TRƯỞNG', '', '', '', '', 'P.KTKH / P.TCKT']);
   } else {
-    aoa = [['BẢNG CHÊNH LỆCH LƯƠNG THEO KPI — ' + lgThangTen(r.thang) + ' — ' + r.maDAs.join(', ')], [],
-      ['STT','Họ tên','Chức danh','Dự án','Dự án chính','Điểm KPI','Hệ số H','Nguồn H','Thực lĩnh theo file','Thực lĩnh nếu H = 1','Thực lĩnh theo KPI','Chênh lệch (KPI − file)','Chênh lệch (KPI − H=1)','Trạng thái']];
-    r.ds.forEach((x, i) => aoa.push([i + 1, x.ho_ten, x.chuc_danh, x.ma_da, x.du_an_chinh, x.kpi_pct === '' ? '' : n(x.kpi_pct), x.he_so_H === '' ? '' : n(x.he_so_H), x.H_nguon, n(x.thuc_linh), n(x.thuc_linh_neu_H1), n(x.kpi_thuc_linh), n(x.kpi_thuc_linh) - n(x.thuc_linh), n(x.kpi_thuc_linh) - n(x.thuc_linh_neu_H1), LG_TT[x.trang_thai_luong] || '']));
+    aoa = [['BẢNG CHÊNH LỆCH LƯƠNG: MÔ HÌNH 3P so với CÁCH HIỆN TẠI — ' + lgThangTen(r.thang) + ' — ' + r.maDAs.join(', ')], [],
+      ['STT','Họ tên','Chức danh','Dự án','Dự án chính','Điểm KPI (%)','H cách hiện tại','Hệ số thưởng KPI 3P','KPI BQ 6 tháng (%)','% thâm niên','Thực lĩnh bảng lương Đội','Thực lĩnh cách hiện tại (app)','Thực lĩnh 3P','Chênh lệch (3P − hiện tại)','Chênh lệch %','Trạng thái','Ghi chú']];
+    r.ds.forEach((x, i) => { const ht = n(x.thuc_linh_hien_tai); aoa.push([i + 1, x.ho_ten, x.chuc_danh, x.ma_da, x.du_an_chinh, x.kpi_pct === '' ? '' : n(x.kpi_pct), x.h_hien_tai === '' ? '' : n(x.h_hien_tai),
+      x.hs_thuong_kpi === '' ? '' : n(x.hs_thuong_kpi), x.kpi6_pct === '' ? '' : n(x.kpi6_pct), n(x.pt_tham_nien), n(x.thuc_linh), ht, n(x.thuc_linh_3p), n(x.thuc_linh_3p) - ht,
+      ht ? Math.round((n(x.thuc_linh_3p) - ht) / ht * 1000) / 10 : '', LG_TT[x.trang_thai_luong] || '', x.ghi_chu_3p || '']); });
+    const tH = r.ds.reduce((a, x) => a + n(x.thuc_linh_hien_tai), 0), t3 = r.ds.reduce((a, x) => a + n(x.thuc_linh_3p), 0);
+    aoa.push(['', 'CỘNG', '', '', '', '', '', '', '', '', r.ds.reduce((a, x) => a + n(x.thuc_linh), 0), tH, t3, t3 - tH, tH ? Math.round((t3 - tH) / tH * 1000) / 10 : '']);
   }
-  const ws = XLSX.utils.aoa_to_sheet(aoa); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, loai === 'LUONG' ? 'Bang luong' : 'Chenh lech');
-  XLSX.writeFile(wb, r.thang + '_' + (loai === 'LUONG' ? 'bang-luong-KPI' : 'chenh-lech-luong-KPI') + '_' + (S.lg.bang.maDA || 'BCH') + '.xlsx');
+  const ws = XLSX.utils.aoa_to_sheet(aoa); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, loai === 'LUONG' ? 'Bang luong 3P' : 'Chenh lech');
+  XLSX.writeFile(wb, r.thang + '_' + (loai === 'LUONG' ? 'bang-luong-3P' : 'chenh-lech-3P-hien-tai') + '_' + (S.lg.bang.maDA || 'BCH') + '.xlsx');
 }
 
 let tt;
