@@ -982,7 +982,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.16.0';
+const APP_VERSION = '3.16.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -5267,7 +5267,7 @@ function lgVeGhep(){
       return `<div class="lg-ghep"><div><b>${escA(x.hoTen)}</b><small>${escA(x.chucDanh || '')}${x.maDA ? ' · ' + escA(x.maDA) : ''} · ${escA(x.thang.slice(0, 6).join(', '))}${x.thang.length > 6 ? '…' : ''}</small>${x.xungDot ? '<small style="color:#C00000">⚠ ' + escA(x.xungDot) + '</small>' : ''}
           <label style="font-size:12px;display:block;margin-top:4px"><input type="checkbox" id="lg-gcd${i}" ${x.xungDot ? 'checked' : ''}> Chỉ áp cho ${escA(x.maDA || '')} + chức danh "${escA(x.chucDanh || '')}"</label>
           <label style="font-size:12px;display:block"><input type="checkbox" id="lg-gkpi${i}"> Không áp KPI (H = 1)</label></div>
-        <select id="lg-g${i}"><option value="">— chọn tài khoản —</option>${goi.length ? '<optgroup label="Gợi ý cùng tên">' + goi.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('') + '</optgroup>' : ''}
+        <select id="lg-g${i}"><option value="">— chọn tài khoản —</option><option value="bo_qua">⊘ Bỏ qua (đã nghỉ / không dùng app)</option>${goi.length ? '<optgroup label="Gợi ý cùng tên">' + goi.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('') + '</optgroup>' : ''}
           <optgroup label="Tất cả">${ns.map(n => `<option value="${escA(n.email)}">${escA(n.hoTen)} · ${escA(n.email)}</option>`).join('')}</optgroup></select>
         <button class="small" data-ten="${escA(x.hoTen)}" data-da="${escA(x.maDA || '')}" data-cd="${escA(x.chucDanh || '')}" data-i="${i}" onclick="lgGhep(this, 'lg-g${i}')">Ghép</button></div>`; }).join('') || '<div class="empty">Đã ghép đủ.</div>'}
     <button class="ghost" style="margin-top:12px" onclick="lgVe()">‹ Quay lại phiếu lương</button>`);
@@ -5277,7 +5277,7 @@ async function lgGhep(nut, idSel){
   if (!email){ toast('Chọn tài khoản'); return; }
   const rieng = $('lg-gcd' + i) && $('lg-gcd' + i).checked, apKpi = !($('lg-gkpi' + i) && $('lg-gkpi' + i).checked);
   nut.disabled = true;
-  try { const r = await api('luongGhep', {hoTen, email, maDA: rieng ? nut.dataset.da : '', chucDanh: rieng ? nut.dataset.cd : '', apKpi}, 40); toast('Đã ghép ' + hoTen + ' · ' + r.n + ' dòng');
+  try { const r = await api('luongGhep', {hoTen, email, maDA: rieng ? nut.dataset.da : '', chucDanh: rieng ? nut.dataset.cd : '', apKpi}, 40); toast((email === 'bo_qua' ? 'Đã bỏ qua ' : 'Đã ghép ') + hoTen + ' · ' + r.n + ' dòng');
     S.lg.chuaGhep = S.lg.chuaGhep.filter(x => !(x.hoTen === hoTen && (!rieng || (x.maDA === nut.dataset.da && x.chucDanh === nut.dataset.cd)))); nut.closest('.lg-ghep').remove(); }
   catch(e){ nut.disabled = false; toast(e.message, 3500); }
 }
