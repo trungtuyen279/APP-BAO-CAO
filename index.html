@@ -247,6 +247,26 @@ nav button.on{color:var(--brand)}
 .lg-bang{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:12.5px;margin-top:8px}
 .lg-bang th{background:var(--ink);color:#fff;padding:7px 5px;font-weight:700;text-align:right}.lg-bang th:first-child,.lg-bang td:first-child{text-align:left}
 .lg-bang td{padding:7px 5px;border-bottom:1px solid #EEF0F2;text-align:right;font-variant-numeric:tabular-nums}.lg-bang tr.tong td{font-weight:800;background:#FFF4D6}
+.ldk-chip{border-color:#B8860B!important;color:#8A6200}.lg-chip button.ldk-chip.on{background:#B8860B;color:#fff}
+.ldk-cb{background:#FFF4D6;border:1.5px solid #E0B341;border-radius:10px;padding:9px 10px;font-size:12.5px;line-height:1.5;color:#5A4300;margin-bottom:10px}
+.ldk-kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.ldk-kh{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px}.ldk-kh b{font-size:22px;color:var(--brand)}
+.ldk-kpi input[type=range]{width:100%;accent-color:#C00000;height:28px;margin:4px 0 0}
+.ldk-moc{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-2)}
+.ldk-hs{font-size:13px;margin:4px 2px 8px}
+.ldk-mt{background:#FFFBEF;border:1px solid #F0D58C;border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.ldk-mtd{font-size:12.5px;font-weight:700;margin-bottom:4px}.ldk-dx{background:#B36B00;color:#fff;border-radius:4px;padding:1px 5px;font-size:10.5px;font-weight:700}
+.ldk-mti{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px dashed #EAD9A6;padding:7px 0}.ldk-mti.on b{color:#1E7B34}
+.ldk-mti b{font-size:13px}.ldk-mti small{display:block;font-size:11px;color:var(--ink-2);line-height:1.4}
+.ldk-mtb{display:flex;gap:4px;flex:0 0 auto}.ldk-mtb button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 7px;font-size:11.5px;font-weight:700}
+.ldk-mtb button.on{background:#1E7B34;color:#fff;border-color:#1E7B34}.ldk-mtb button:disabled{opacity:.35}
+.ldk-tl{background:linear-gradient(135deg,#B8860B,#7A5800)}.ldk-tl small:last-child{margin-top:3px;letter-spacing:0}
+.ldk-yk{margin-top:4px}
+.lg-napdk{flex:1 1 140px;display:block;text-align:center;border:1.5px solid var(--brand);color:var(--brand);background:#fff;border-radius:6px;font-weight:bold;font-size:14px;padding:12px;cursor:pointer}
+.lyk-ds{display:flex;flex-direction:column;gap:6px;margin:8px 0}.lyk-m{align-self:flex-start;max-width:86%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px 10px;font-size:13.5px;line-height:1.45}
+.lyk-m.toi{align-self:flex-end;background:#FDECEC;border-color:#F3C2C2}.lyk-m small{display:block;font-size:10.5px;color:var(--ink-2);margin-bottom:2px}
+.lyk-hop{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin-bottom:7px;cursor:pointer}
+.lyk-hop.cho{border-color:#E8A0A0;background:#FFF7F7}.lyk-hop small{display:block;font-size:11.5px;color:var(--ink-2)}
 .lg-qt{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.lg-qt button{flex:1 1 140px}
 .lg-ghep{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
 .lg-ghep div{grid-column:1/-1}.lg-ghep small{display:block;color:var(--ink-2);font-size:11px}.lg-ghep select{padding:8px;border:1px solid var(--line);border-radius:8px;min-width:0;font-size:13px}
@@ -982,7 +1002,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.16.1';
+const APP_VERSION = '3.17.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1134,7 +1154,7 @@ async function api(action, data = {}, giay = 60) {
   /* 3.8.1: Google Apps Script thỉnh thoảng trả trang HTML 404 "không thể mở tệp" (lỗi tạm thời phía Google,
      máy chủ thực ra đã chạy xong < 1 giây). Tự thử lại tối đa 3 lần với các yêu cầu an toàn (backend chống trùng
      theo id); các yêu cầu tạo bản ghi mới không có id (thông báo, vi phạm, báo cáo, hỏi AI) thì báo rõ để người dùng tự gửi lại. */
-  const KHONG_THU_LAI = ['notify','kpiViPham','taoBaoCao','hoiAI','chatTep'];
+  const KHONG_THU_LAI = ['notify','kpiViPham','taoBaoCao','hoiAI','chatTep','luongYKienGui','luongDuKienNap'];
   const soLan = KHONG_THU_LAI.indexOf(action) > -1 ? 1 : 3;
   let loiCuoi = null;
   for (let lan = 1; lan <= soLan; lan++){
@@ -4166,7 +4186,7 @@ async function guiAI(cauHoi){
 function hienFabAI(){
   $('ai-fab').classList.add('show');
   cxNap(); setTimeout(cxKhoi, 1200); setTimeout(fcmTuNoi, 4000);                          // 3.12.3: hiện tin đã lưu ngay, nối chat sau 1,2 giây
-  const hs = decodeURIComponent(location.hash.replace('#', '')); if (/^(chat|viec)(-|$)/.test(hs)) setTimeout(() => cxMoHash(hs), 300);
+  const hs = decodeURIComponent(location.hash.replace('#', '')); if (/^(chat|viec)(-|$)/.test(hs)) setTimeout(() => cxMoHash(hs), 300); else if (hs === 'luong') setTimeout(moLuong, 300);
   Store.get('ai-tip-da-xem').then(v => { if (!v){ $('ai-tip').classList.add('show');
     setTimeout(() => $('ai-tip').classList.remove('show'), 8000); } }).catch(()=>{});
 }
@@ -4664,7 +4684,7 @@ function cxMoHash(hs){
   if (hs.indexOf('chat-') === 0){ S.cx.maDA = hs.slice(5); S.cx.tin = S.cx.tinDA[S.cx.maDA] || []; }
   moAI(hs.indexOf('chat') === 0 ? 'nhom' : 'viec'); return true;
 }
-window.addEventListener('hashchange', () => { if (S.user) cxMoHash(decodeURIComponent(location.hash.replace('#', ''))); });
+window.addEventListener('hashchange', () => { if (!S.user) return; const h = decodeURIComponent(location.hash.replace('#', '')); if (h === 'luong') moLuong(); else cxMoHash(h); });
 document.querySelectorAll('.sitem').forEach(b => b.onclick = () => {
   document.querySelectorAll('.sitem').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
@@ -4982,7 +5002,8 @@ async function lgTai(them){
   let r;
   try { r = await api('luongXem', d, 40); }
   catch(e){ if (/HET_PHIEN/.test(e.message)){ g.ve = null; moLuong(); toast('Hết phiên xem — nhập lại PIN'); return; } throw e; }
-  Object.assign(g, r); g.thangChon = g.thangChon && r.ds.some(x => x.thang === g.thangChon) ? g.thangChon : (r.ds.length ? r.ds[r.ds.length - 1].thang : '');
+  if (!r.duKien) delete g.duKien; Object.assign(g, r); if (g.dkEmail !== (g.email || '')){ g.dkSt = null; g.dkEmail = g.email || ''; }
+  g.thangChon = g.thangChon === 'DK' && ldkCo(g) ? 'DK' : g.thangChon && r.ds.some(x => x.thang === g.thangChon) ? g.thangChon : (ldkCo(g) ? 'DK' : (r.ds.length ? r.ds[r.ds.length - 1].thang : ''));
   lgVe();
 }
 function lgVe(){
@@ -4994,17 +5015,17 @@ function lgVe(){
     <div class="lg-thanh">${chonNguoi}<select class="lg-sel" onchange="S.lg.nam=this.value;S.lg.thangChon='';lgTai().catch(e=>toast(e.message))">${nams.map(n => `<option ${n === g.nam ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
     <div class="lg-tabs"><button class="${g.tab === 'thang' ? 'on' : ''}" onclick="S.lg.tab='thang';lgVe()">Theo tháng</button><button class="${g.tab === 'nam' ? 'on' : ''}" onclick="S.lg.tab='nam';lgVe()">Tổng thu nhập năm ${g.nam}</button></div>`;
   let than;
-  if (!g.ds.length) than = `<div class="empty" style="padding:18px">Chưa có bảng lương năm ${g.nam}${(g.quyen || {}).bang ? '' : ' của bạn'}.<br><small>Nếu đã nhận lương mà chưa thấy: báo Quản trị kiểm tra tên trong bảng lương có khớp với tài khoản app không.</small></div>`;
+  if (!g.ds.length && !(ldkCo(g) && g.tab !== 'nam')) than = `<div class="empty" style="padding:18px">Chưa có bảng lương năm ${g.nam}${(g.quyen || {}).bang ? '' : ' của bạn'}.<br><small>Nếu đã nhận lương mà chưa thấy: báo Quản trị kiểm tra tên trong bảng lương có khớp với tài khoản app không.</small></div>`;
   else if (g.tab === 'nam') than = lgVeNam(g);
   else {
     const thangs = [...new Set(g.ds.map(x => x.thang))].sort();
-    than = `<div class="lg-chip">${thangs.map(t => `<button class="${t === g.thangChon ? 'on' : ''}" onclick="S.lg.thangChon='${t}';lgVe()">T${+t.slice(5)}</button>`).join('')}</div>`
-      + g.ds.filter(x => x.thang === g.thangChon).map(lgVePhieu).join('');
+    than = `<div class="lg-chip">${thangs.map(t => `<button class="${t === g.thangChon ? 'on' : ''}" onclick="S.lg.thangChon='${t}';lgVe()">T${+t.slice(5)}</button>`).join('')}${ldkCo(g) ? `<button class="ldk-chip ${g.thangChon === 'DK' ? 'on' : ''}" onclick="S.lg.thangChon='DK';lgVe()">T${+g.duKien.thang.slice(5)} dự kiến</button>` : ''}</div>`
+      + (g.thangChon === 'DK' && ldkCo(g) ? `<div id="ldk-wrap">${lgVeDK()}</div>` : g.ds.filter(x => x.thang === g.thangChon).map(lgVePhieu).join(''));
     const ca = g.ds.filter(x => x.thang === g.thangChon);
     if (ca.length > 1) than += `<div class="lg-tongthang">Cộng ${lgThangTen(g.thangChon)} (${ca.length} bảng lương): <b>${lgD(ca.reduce((a, x) => a + (+x.thucLinh || 0), 0))} đ</b></div>`;
   }
   const q = g.quyen || {};
-  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (3P + KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}</div>` : '';
+  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (3P + KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}${q.qt || String(S.user.vaiTro || '').toUpperCase() === 'CHT_DUYET' ? `<button class="ghost" onclick="lgMoHopYK()">💬 Hộp ý kiến lương${g.yKien ? ' (' + g.yKien + ' chờ trả lời)' : ''}</button>` : ''}${q.qt ? '<label class="lg-napdk">⇪ Nạp lương dự kiến (Excel 3P)<input type="file" accept=".xlsx" hidden onchange="lgNapDK(this.files);this.value=\'\'"></label>' : ''}</div>` : '';
   lgKhung(g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (' + (q.qt ? 'QUẢN TRỊ' : 'BCH') + ' XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + qtNut);
 }
 function lgDong1(nhan, gt, phu, cls){ return `<div class="lg-d ${cls || ''}"><span>${nhan}${phu ? '<small>' + phu + '</small>' : ''}</span><b>${gt}</b></div>`; }
@@ -5231,6 +5252,145 @@ function vcTomTat(g){
   if (!ds.length && !p.diemVC) return '';
   return `<div class="vc-tt"><b>⭐ Vượt chuẩn</b>${p.diemChuan != null ? ' · điểm chuẩn ' + kpiSo1(p.diemChuan) : ''}${p.diemVC != null ? ' · cộng <b>+' + kpiSo1(p.diemVC) + '</b>' : ''}
     ${ds.map(x => `<div>${escK(x.ma)} ${escK(x.ten)} — ${x.ketQua ? VC_KQ[x.ketQua] + (x.diem ? ' +' + x.diem : '') : 'chưa chấm'}</div>`).join('')}${p.ghiVC ? `<div class="hint">${escK(p.ghiVC)}</div>` : ''}</div>`;
+}
+
+/* ---------- 3.17.0: LƯƠNG DỰ KIẾN THÁNG MỚI + Ý KIẾN VỀ MỨC LƯƠNG ---------- */
+function ldkHs(k, p){
+  if (k < p.KPI_SAN) return 0;
+  if (k < p.KPI_DAT) return Math.round((p.HS_SAN + (k - p.KPI_SAN) / (p.KPI_DAT - p.KPI_SAN) * (1 - p.HS_SAN)) * 10000) / 10000;
+  if (k <= p.KPI_100) return 1;
+  return Math.round(Math.min(p.HS_TRAN, 1 + (k - p.KPI_100) / (p.KPI_TRAN - p.KPI_100) * (p.HS_TRAN - 1)) * 10000) / 10000;
+}
+function ldkTinh(r, p, kpi){
+  const n = x => +x || 0, R = x => Math.round(+(+x).toPrecision(15));
+  const ntt = n(r.ntt), nqd = n(r.nqd) || n(p.NQD) || 26, co = n(r.mdkCu) > 0;
+  const ap = String(r.apKpi || '').toLowerCase() !== 'không' && String(r.apKpi).toUpperCase() !== 'FALSE';
+  const lp = n(r.lcb) + n(r.pc);
+  const p1 = co ? R(lp * ntt / nqd) : 0, le = co ? R(lp * n(r.le) / nqd) : 0;
+  const p2 = R(Math.max(0, n(r.mdk) * n(p.TL_CD) * ntt / nqd - p1));
+  const tn = R(n(r.mdk) * n(r.ptTN) * ntt / nqd);
+  const hs = ap ? ldkHs(kpi, p) : 1;
+  const p3 = R(n(r.mdk) * n(p.TL_BD) * hs * (n(p.K) || 1) * ntt / nqd);
+  const tong = p1 + le + p2 + tn + p3 + n(r.gb) + n(r.bs);
+  const bh = n(r.hs) > 0 && co ? R((lp + tn * n(p.TN_BH)) * n(p.BH_NLD)) : 0;
+  return {ap, hs, p1, le, p2, tn, p3, gb:n(r.gb), bs:n(r.bs), tong, bh, tl:tong - bh, doanPhi: bh > 0 ? R(lp * n(p.DOAN_PHI) / 1000) * 1000 : 0};
+}
+const ldkCo = g => !!(g.duKien && (g.duKien.dong || []).length && g.duKien.thang.slice(0, 4) === g.nam && !(g.ds || []).some(x => x.thang === g.duKien.thang));
+const ldkSo = x => (Math.round(x * 100) / 100).toFixed(2).replace('.', ',');
+function ldkCong(dk){ const c = dk.vc || {}, st = S.lg.dkSt; if (!c || st.kpi < (c.dieuKien || 90)) return 0;
+  return Math.min(c.tran || 20, Object.values(st.mt).reduce((a, v) => a + (v === 'VUOT' ? (c.vuot || 10) : v === 'DAT' ? (c.dat || 5) : 0), 0)); }
+function lgVeDK(){
+  const g = S.lg, dk = g.duKien, p = dk.p || {};
+  g.dkSt = g.dkSt || {kpi:90, mt:{}};
+  const ap = dk.dong.some(r => ldkTinh(r, p, 0.9).ap), m = +dk.thang.slice(5);
+  let out = `<div class="ldk-cb">⚠ <b>ĐÂY LÀ MỨC LƯƠNG DỰ KIẾN THÁNG ${m}/${dk.thang.slice(0, 4)}</b> — chỉ để tham khảo, còn phụ thuộc <b>số ngày công thực tế</b>, ngày nghỉ lễ/phép, giờ làm thêm, <b>kết quả KPI được duyệt</b> và mức thu nhập (Mdk) được phê duyệt. Số chính thức là phiếu lương tháng ${m} phát hành đầu tháng ${m === 12 ? 1 : m + 1}.${dk.nguon !== dk.thang ? `<br><small>Tạm tính theo bảng ${lgThangTen(dk.nguon)} (chưa có bảng tháng ${m}).</small>` : ''}</div>`;
+  if (ap) out += `<div class="ldk-kpi"><div class="ldk-kh"><span>KPI chuẩn (kéo để thử)</span><b id="ldk-kv">${g.dkSt.kpi}%</b></div>
+      <input type="range" min="0" max="100" step="1" value="${g.dkSt.kpi}" oninput="S.lg.dkSt.kpi=+this.value;$('ldk-kv').textContent=this.value+'%';lgVeDK2()">
+      <div class="ldk-moc"><span>0</span><span>70</span><span>90</span><span>100</span></div></div>`;
+  else out += `<div class="hint" style="margin:6px 2px">Vị trí chưa áp KPI — hệ số thưởng tính bằng 1,00.</div>`;
+  return out + `<div id="ldk-kq">${ldkKQ()}</div>`;
+}
+function ldkKQ(){
+  const g = S.lg, dk = g.duKien, p = dk.p || {}, c = dk.vc || {}, st = g.dkSt;
+  const toi = !g.email || g.email === String(S.user.email).toLowerCase();
+  const ap = dk.dong.some(r => ldkTinh(r, p, 0.9).ap);
+  const cong = ap ? ldkCong(dk) : 0, kpiTong = st.kpi + cong;
+  const ts = dk.dong.map(r => ldkTinh(r, p, kpiTong / 100));
+  const hs = ap ? ldkHs(kpiTong / 100, p) : 1, m = +dk.thang.slice(5);
+  let out = '';
+  if (ap){
+    out += `<div class="ldk-hs">KPI tính lương <b>${kpiTong}%</b>${cong ? ` (chuẩn ${st.kpi} + vượt chuẩn ${cong})` : ''} → hệ số thưởng <b>${ldkSo(hs)}</b>${st.kpi < (p.KPI_SAN || 0.7) * 100 ? ' · <span style="color:#C00000">dưới ngưỡng ' + Math.round((p.KPI_SAN || 0.7) * 100) + '%: P3 = 0</span>' : ''}</div>`;
+    if (dk.danhMuc && dk.danhMuc.length){
+      if (st.kpi >= (c.dieuKien || 90)){
+        const chon = Object.keys(st.mt).filter(k => st.mt[k]).length;
+        out += `<div class="ldk-mt"><div class="ldk-mtd">⭐ Mục tiêu vượt chuẩn của vị trí — chọn tối đa ${c.soMT || 2} (Đạt +${c.dat || 5} · Vượt +${c.vuot || 10} · tối đa +${c.tran || 20})${c.bat ? '' : ' <span class="ldk-dx">ĐỀ XUẤT – chưa áp dụng</span>'}</div>
+          ${dk.danhMuc.map(t => { const v = st.mt[t.ma] || ''; const khoa = !v && chon >= (c.soMT || 2);
+            return `<div class="ldk-mti ${v ? 'on' : ''}"><div><b>${escA(t.ten)}</b><small>Đạt: ${escA(t.dat)}<br>Vượt: ${escA(t.vuot)}</small></div>
+              <div class="ldk-mtb">${['','DAT','VUOT'].map(k => `<button class="${k && v === k ? 'on' : ''}" ${khoa && k ? 'disabled' : ''} onclick="lgDKMT('${escA(t.ma)}','${k}')">${k === 'DAT' ? 'Đạt +' + (c.dat || 5) : k === 'VUOT' ? 'Vượt +' + (c.vuot || 10) : '—'}</button>`).join('')}</div></div>`; }).join('')}
+          <div class="hint">Chỉ cộng khi điểm KPI chuẩn ≥ ${c.dieuKien || 90} và không vi phạm nhóm ≥ ${c.vpNang || 80}% trong tháng; phải đăng ký đầu tháng, được duyệt và có bằng chứng.</div></div>`;
+      } else out += `<div class="hint" style="margin:4px 2px 8px">⭐ Kéo KPI chuẩn lên từ ${c.dieuKien || 90}% để xem các mục tiêu vượt chuẩn của vị trí (KPI tối đa ${100 + (c.tran || 20)}%).</div>`;
+    }
+  }
+  ts.forEach((t, i) => { const r = dk.dong[i], tenDA = (S.duan.find(d => d.maDA === r.maDA) || {}).tenDA || r.maDA;
+    out += `<div class="lg-the ldk-the"><div class="lg-tdau"><b>Tháng ${m}/${dk.thang.slice(0, 4)} · DỰ KIẾN</b><span>${escA(tenDA)}${r.chucDanh ? ' · ' + escA(r.chucDanh) : ''}</span></div>
+      <div class="lg-tl ldk-tl"><small>LƯƠNG THỰC LĨNH DỰ KIẾN</small><b>${lgD(t.tl)} đ</b><small>KPI ${t.ap ? kpiTong + '% · hệ số ' + ldkSo(t.hs) : 'không áp'} · ${lgD(r.ntt)}/${lgD(r.nqd)} công</small></div>
+      <div class="lg-nhom">CÁC KHOẢN THU NHẬP (3P)</div>
+      ${lgDong1('P1 – Lương cơ bản theo ngày công', lgD(t.p1), '(MLcb + phụ cấp) × ' + lgD(r.ntt) + '/' + lgD(r.nqd) + ' công')}
+      ${t.le ? lgDong1('Lương ngày lễ, phép', lgD(t.le), r.le + ' ngày') : ''}
+      ${lgDong1('P2 – Lương năng lực', lgD(t.p2), 'Mdk × ' + Math.round((p.TL_CD || 0.75) * 100) + '% × công − P1')}
+      ${t.tn ? lgDong1('Phụ cấp thâm niên', lgD(t.tn), Math.round(r.ptTN * 100) + '% × Mdk · ' + Math.floor(r.thangTN / 12) + ' năm ' + (r.thangTN % 12) + ' tháng (cần KPI BQ 6 tháng ≥ 80%)') : ''}
+      ${lgDong1('P3 – Lương theo KPI', lgD(t.p3), 'Mdk × ' + Math.round((p.TL_BD || 0.25) * 100) + '% × hệ số ' + ldkSo(t.hs))}
+      ${t.gb ? lgDong1('Thưởng gắn bó', lgD(t.gb)) : ''}${t.bs ? lgDong1('Bổ sung khác', lgD(t.bs)) : ''}
+      ${lgDong1('TỔNG THU NHẬP DỰ KIẾN', lgD(t.tong), '', 'tong')}
+      <div class="lg-nhom">KHẤU TRỪ</div>
+      ${lgDong1('Trích nộp BHXH, BHYT, BHTN', '− ' + lgD(t.bh), r.hs > 0 ? '10,5% × (MLcb + phụ cấp' + (t.tn ? ' + thâm niên' : '') + ')' : 'không đóng BHXH')}
+      ${lgDong1('THỰC LĨNH DỰ KIẾN', lgD(t.tl) + ' đ', '', 'tl')}
+      <div class="lg-nhom">THAM CHIẾU</div>
+      ${lgDong1('Mức thu nhập Mdk (3P)', lgD(r.mdk), r.mdkCu && r.mdkCu !== r.mdk ? 'Mdk hiện tại ' + lgD(r.mdkCu) : '')}
+      ${lgDong1('Mức lương cơ bản (MLcb)', lgD(r.lcb), r.hs ? 'Hệ số BHXH ' + String(r.hs).replace('.', ',') : 'không đóng BHXH')}
+      ${r.pc ? lgDong1('Phụ cấp chức vụ', lgD(r.pc)) : ''}${t.doanPhi ? lgDong1('Đoàn phí công đoàn', lgD(t.doanPhi), '0,5% × (MLcb + phụ cấp)') : ''}</div>`; });
+  if (ts.length > 1) out += `<div class="lg-tongthang">Cộng dự kiến (${ts.length} bảng lương): <b>${lgD(ts.reduce((a, t) => a + t.tl, 0))} đ</b></div>`;
+  if (toi) out += `<button class="ghost ldk-yk" onclick="lgMoYK()">💬 Ý kiến về mức lương</button><div class="hint" style="text-align:center">Gửi riêng cho CHT dự án và Quản trị — không hiện trong chat nhóm.</div>`;
+  return out;
+}
+function lgVeDK2(){ const b = $('ldk-kq'); if (b) b.innerHTML = ldkKQ(); }
+function lgDKMT(ma, k){ const st = S.lg.dkSt; if (k) st.mt[ma] = k; else delete st.mt[ma]; lgVeDK2(); }
+/* ---- Ý kiến về mức lương ---- */
+async function lgMoYK(chu){
+  const g = S.lg; g.yk = {chu:chu || '', ds:null};
+  lgKhung('Ý KIẾN VỀ MỨC LƯƠNG', '<div class="empty">Đang tải…</div>');
+  try { const r = await api('luongYKienXem', {ve:g.ve, chu:chu || String(S.user.email).toLowerCase()}, 40); g.yk = Object.assign(g.yk, r); lgVeYK(); }
+  catch(e){ if (/HET_PHIEN/.test(e.message)){ g.ve = null; moLuong(); return; } toast(e.message, 4000); lgVe(); }
+}
+function lgVeYK(){
+  const y = S.lg.yk, toi = String(S.user.email).toLowerCase(), cuaToi = !y.chu || y.chu === toi;
+  const dsHtml = (y.ds || []).length ? y.ds.map(m => `<div class="lyk-m ${m.tu === toi ? 'toi' : ''}"><small>${escA(m.ten)} · ${escA(m.tg)}</small>${escA(m.nd).replace(/\n/g, '<br>')}</div>`).join('')
+    : `<div class="empty" style="padding:14px">${cuaToi ? 'Chưa có ý kiến. Anh/chị có thắc mắc hay đề xuất về mức lương, ngày công, KPI… hãy gửi tại đây — CHT dự án và Quản trị sẽ đọc và phản hồi.' : 'Chưa có trao đổi.'}</div>`;
+  lgKhung('Ý KIẾN VỀ MỨC LƯƠNG', `<button class="back" onclick="${cuaToi ? 'lgVe()' : 'lgMoHopYK()'}">‹ ${cuaToi ? 'Phiếu lương' : 'Hộp ý kiến'}</button>
+    <div class="lg-ten"><b>${escA(y.hoTen || '')}</b><span>${cuaToi ? 'Gửi riêng tới CHT dự án và Quản trị' : 'Trả lời riêng cho người lao động'}</span></div>
+    <div class="lyk-ds">${dsHtml}</div>
+    <textarea id="lyk-nd" class="lg-sel" rows="4" maxlength="1500" placeholder="${cuaToi ? 'Ý kiến của anh/chị về mức lương…' : 'Phản hồi…'}"></textarea>
+    <button class="primary" style="margin-top:8px" onclick="lgGuiYK(this)">GỬI</button>`);
+  const b = $('lg-body'); if (b) b.scrollTop = b.scrollHeight;
+}
+async function lgGuiYK(nut){
+  const nd = ($('lyk-nd') || {}).value || ''; if (!nd.trim()) return toast('Nhập nội dung');
+  nut.disabled = true;
+  try { const r = await api('luongYKienGui', {ve:S.lg.ve, chu:S.lg.yk.chu || String(S.user.email).toLowerCase(), noiDung:nd.trim()}, 60);
+    S.lg.yk.ds = r.ds; toast(r.nhan ? 'Đã gửi · đã báo ' + r.nhan + ' người' : 'Đã gửi'); lgVeYK(); }
+  catch(e){ nut.disabled = false; toast(e.message, 4000); }
+}
+async function lgMoHopYK(){
+  lgKhung('HỘP Ý KIẾN VỀ LƯƠNG', '<div class="empty">Đang tải…</div>');
+  try { const r = await api('luongYKienXem', {ve:S.lg.ve}, 40);
+    lgKhung('HỘP Ý KIẾN VỀ LƯƠNG', `<button class="back" onclick="lgVe()">‹ Phiếu lương</button>
+      ${r.hop.length ? r.hop.map(h => `<div class="lyk-hop ${h.cuoiTu === 'NV' ? 'cho' : ''}" onclick="lgMoYK('${escA(h.chu)}')"><div><b>${escA(h.hoTen)}</b><small>${escA(h.maDA)} · ${h.n} tin · ${escA(h.tg)}</small><small>${h.cuoiTu === 'NV' ? '🔴 Chờ trả lời: ' : '✓ Đã trả lời: '}${escA(h.cuoi)}</small></div><span>›</span></div>`).join('') : '<div class="empty">Chưa có ý kiến nào.</div>'}`); }
+  catch(e){ if (/HET_PHIEN/.test(e.message)){ S.lg.ve = null; moLuong(); return; } toast(e.message, 4000); lgVe(); }
+}
+/* ---- Quản trị nạp bảng lương dự kiến (file Excel 3P: sheet LUONG_*, tiêu đề dòng 4, dữ liệu từ dòng 6) ---- */
+async function lgNapDK(files){
+  const f = files && files[0]; if (!f) return;
+  try { await napJS(LG_XLSX); } catch(e){ return toast('Cần mạng để đọc Excel'); }
+  try {
+    const wb = XLSX.read(await f.arrayBuffer(), {type:'array', cellDates:true});
+    const DA = {LUONG_KTX_MITAC:'KTX-MITAC', LUONG_KTX_WNC:'KTX-WNC', LUONG_F5_WNC:'F5-WNC'}; const ds = [];
+    let thang = '';
+    const ts = wb.Sheets.THAM_SO; if (ts){ const a = XLSX.utils.sheet_to_json(ts, {header:1}); const ky = a.find(r => r[0] === 'KY'); if (ky && ky[2] instanceof Date) thang = ky[2].getFullYear() + '-' + String(ky[2].getMonth() + 1).padStart(2, '0'); }
+    wb.SheetNames.filter(n => /^LUONG_/.test(n)).forEach(n => {
+      const maDA = DA[n] || n.replace(/^LUONG_/, '').replace(/_/g, '-');
+      XLSX.utils.sheet_to_json(wb.Sheets[n], {header:1, range:5}).forEach(r => {
+        if (typeof r[0] !== 'number' || !r[2]) return;
+        const nv = r[12] instanceof Date ? r[12].toISOString().slice(0, 10) : String(r[12] || '');
+        ds.push({maDA, hoTen:String(r[2]).trim(), chucDanh:r[3] || '', apKpi:r[4] || '', hs:+r[5] || 0, lcb:+r[6] || 0, pc:+r[7] || 0, mdkCu:+r[8] || 0, mdk:+r[9] || 0,
+          ngayVao:nv, thangTN:+r[13] || 0, ptTN:+r[14] || 0, ntt:+r[15] || 0, nqd:+r[16] || 26, le:+r[17] || 0, gb:+r[33] || 0, bs:+r[34] || 0}); }); });
+    if (!ds.length) return toast('Không đọc được dòng nào (cần sheet LUONG_*, dữ liệu từ dòng 6)', 5000);
+    if (ds.some(x => !x.mdk || !x.lcb)) return toast('File chưa có số đã tính (mở bằng Excel, Lưu lại rồi nạp)', 6000);
+    thang = prompt('Tháng áp dụng lương dự kiến (yyyy-MM):', thang || new Date().toISOString().slice(0, 7)); if (!thang) return;
+    if (!confirm('Nạp ' + ds.length + ' người làm lương dự kiến ' + thang + '? (ghi đè dự kiến tháng này)')) return;
+    const r = await api('luongDuKienNap', {ve:S.lg.ve, thang, ds}, 120);
+    toast('Đã nạp ' + r.n + ' người' + (r.chuaGhep.length ? ' · chưa ghép: ' + r.chuaGhep.join(', ') : ''), 8000);
+    lgTai().catch(e => toast(e.message));
+  } catch(e){ toast(e.message, 5000); }
 }
 
 function lgVeNam(g){
