@@ -969,7 +969,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.15.0';
+const APP_VERSION = '3.15.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1262,9 +1262,9 @@ async function refresh(){
   catch(e){ /* mất mạng — giữ dữ liệu trong máy */ }
 }
 const vaiTro = v => ({KT_NHAP:'Kỹ thuật', QS:'QS khối lượng', CHT_DUYET:'Chỉ huy trưởng', BDH_XEM:'Ban điều hành', ADMIN:'Quản trị', QUAN_TRI:'Quản trị', ATLD_CTY:'Phòng ATLĐ công ty',
-  PCH:'Chỉ huy phó', P_CH:'Chỉ huy phó', CHT:'Chỉ huy trưởng', CBAT:'Cán bộ an toàn', SHOP:'Shopdrawing', KE_TOAN:'Kế toán', KE_TOAN_KHO:'Kế toán kho', THO_DIEN:'Thợ điện', THO_CO_KHI:'Thợ cơ khí'}[v] || v);
+  PCH:'Chỉ huy phó', P_CH:'Chỉ huy phó', CHT:'Chỉ huy trưởng', CBAT:'Cán bộ an toàn', SHOP:'Shopdrawing', KE_TOAN:'Kế toán', KE_TOAN_KHO:'Kế toán kho', THO_DIEN:'Thợ điện', THO_CO_KHI:'Thợ cơ khí', BAO_VE:'Bảo vệ', LAI_MAY:'Lái máy', NAU_AN:'Cấp dưỡng', NHAN_VIEN:'Nhân viên'}[v] || v);
 /* 3.8.1: tên chức danh KPI (khớp KPI_VI_TRI) dùng cho lời chào */
-const TEN_VT_KPI = {CBKT:'Cán bộ kỹ thuật', THU_KHO:'Thủ kho', CHP_HT:'Chỉ huy phó hiện trường', CHP_VP:'Chỉ huy phó văn phòng', QS:'Cán bộ QS', SHOP:'Cán bộ Shopdrawing', KE_TOAN:'Kế toán hiện trường', PHIEN_DICH:'Phiên dịch', CBAT:'Cán bộ an toàn', CHT:'Chỉ huy trưởng', THO_DIEN:'Thợ điện công trường', THO_CO_KHI:'Thợ cơ khí công trường'};
+const TEN_VT_KPI = {CBKT:'Cán bộ kỹ thuật', THU_KHO:'Thủ kho', CHP_HT:'Chỉ huy phó hiện trường', CHP_VP:'Chỉ huy phó văn phòng', QS:'Cán bộ QS', SHOP:'Cán bộ Shopdrawing', KE_TOAN:'Kế toán hiện trường', PHIEN_DICH:'Phiên dịch', CBAT:'Cán bộ an toàn', CHT:'Chỉ huy trưởng', THO_DIEN:'Thợ điện công trường', THO_CO_KHI:'Thợ cơ khí công trường', BAO_VE:'Bảo vệ công trường', LAI_MAY:'Lái xe nâng / lái máy', NAU_AN:'Cấp dưỡng BCH'};
 
 
 /* ---------- 5b. THẺ CHÀO MỪNG (3.8.1) ----------
