@@ -267,6 +267,12 @@ nav button.on{color:var(--brand)}
 .lyk-m.toi{align-self:flex-end;background:#FDECEC;border-color:#F3C2C2}.lyk-m small{display:block;font-size:10.5px;color:var(--ink-2);margin-bottom:2px}
 .lyk-hop{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin-bottom:7px;cursor:pointer}
 .lyk-hop.cho{border-color:#E8A0A0;background:#FFF7F7}.lyk-hop small{display:block;font-size:11.5px;color:var(--ink-2)}
+.tu-the{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin:2px 0 10px;font-size:13.5px}
+.tu-the.tu-no{border-color:#7B3FA0;background:#F7F0FB;cursor:pointer}.tu-the.tu-ok{border-color:#1E7B34;background:#EFF8F1;cursor:pointer}.tu-the.tu-xam{color:var(--ink-2);font-size:12.5px}
+.tu-dau{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700}.tu-dau b{white-space:nowrap}.tu-no .tu-dau b{color:#5B2A86;font-size:16px}.tu-ok .tu-dau b{color:#1E7B34}.tu-dau span{color:var(--ink-2)}
+.tu-da{font-size:12.5px;color:#5B2A86;margin-top:2px}.tu-phu{font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.tu-cho{font-size:12px;background:#FFF4D6;color:#7A5800;border-radius:6px;padding:3px 7px;margin-top:5px}.tu-cu{font-size:11.5px;color:#C25A00;margin-top:4px}
+.tu-ctd{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}.tu-ctd span{color:#5B2A86;font-weight:800}.tu-chod{color:#999}.tu-so{color:#5B2A86}
 .lg-qt{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.lg-qt button{flex:1 1 140px}
 .lg-ghep{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
 .lg-ghep div{grid-column:1/-1}.lg-ghep small{display:block;color:var(--ink-2);font-size:11px}.lg-ghep select{padding:8px;border:1px solid var(--line);border-radius:8px;min-width:0;font-size:13px}
@@ -1002,7 +1008,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.17.1';
+const APP_VERSION = '3.18.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -5025,8 +5031,8 @@ function lgVe(){
     if (ca.length > 1) than += `<div class="lg-tongthang">Cộng ${lgThangTen(g.thangChon)} (${ca.length} bảng lương): <b>${lgD(ca.reduce((a, x) => a + (+x.thucLinh || 0), 0))} đ</b></div>`;
   }
   const q = g.quyen || {};
-  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (3P + KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}${q.qt || String(S.user.vaiTro || '').toUpperCase() === 'CHT_DUYET' ? `<button class="ghost" onclick="lgMoHopYK()">💬 Hộp ý kiến lương${g.yKien ? ' (' + g.yKien + ' chờ trả lời)' : ''}</button>` : ''}${q.qt ? '<label class="lg-napdk">⇪ Nạp lương dự kiến (Excel 3P)<input type="file" accept=".xlsx" hidden onchange="lgNapDK(this.files);this.value=\'\'"></label>' : ''}</div>` : '';
-  lgKhung(g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (' + (q.qt ? 'QUẢN TRỊ' : 'BCH') + ' XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + qtNut);
+  const qtNut = q.bang || q.nap ? `<div class="lg-qt">${q.bang ? '<button class="primary" onclick="lgMoBang()">📊 Bảng lương BCH (3P + KPI)</button>' : ''}${q.nap ? '<button class="ghost" onclick="moNapLuong()">⇪ Nạp bảng lương</button>' : ''}${q.qt && (g.chuaGhep || []).length ? `<button class="ghost" onclick="lgVeGhep()">⚠ ${g.chuaGhep.length} tên chưa ghép tài khoản</button>` : ''}${q.qt || String(S.user.vaiTro || '').toUpperCase() === 'CHT_DUYET' ? `<button class="ghost" onclick="lgMoHopYK()">💬 Hộp ý kiến lương${g.yKien ? ' (' + g.yKien + ' chờ trả lời)' : ''}</button><button class="ghost" onclick="lgMoTUDS()">💳 Nợ tạm ứng cán bộ</button>` : ''}${q.qt ? '<label class="lg-napdk">⇪ Nạp lương dự kiến (Excel 3P)<input type="file" accept=".xlsx" hidden onchange="lgNapDK(this.files);this.value=\'\'"></label>' : ''}</div>` : '';
+  lgKhung(g.email && g.email !== String(S.user.email).toLowerCase() ? 'PHIẾU LƯƠNG (' + (q.qt ? 'QUẢN TRỊ' : 'BCH') + ' XEM)' : 'PHIẾU LƯƠNG CỦA TÔI', dau + than + (g.tab !== 'nam' ? tuThe(g) : '') + qtNut);
 }
 function lgDong1(nhan, gt, phu, cls){ return `<div class="lg-d ${cls || ''}"><span>${nhan}${phu ? '<small>' + phu + '</small>' : ''}</span><b>${gt}</b></div>`; }
 function lgVePhieu(x){
@@ -5392,6 +5398,47 @@ async function lgNapDK(files){
     lgTai().catch(e => toast(e.message));
   } catch(e){ toast(e.message, 5000); }
 }
+
+/* ---------- 3.18.0: NỢ TẠM ỨNG LƯƠNG CHƯA HOÀN (số liệu app kho, chỉ xem) ---------- */
+const TU_LOAI = {DK:'Đầu kỳ', UNG:'Ứng', HOAN:'Hoàn ứng', CAN_TRU:'Trừ lương'};
+function tuThe(g){
+  const t = g.tamUng; if (!t) return '';
+  if (t.loi) return `<div class="tu-the tu-xam">💳 Chưa kết nối được số liệu tạm ứng (app kho).</div>`;
+  if (t.mo) return `<div class="tu-the tu-xam">💳 Nợ tạm ứng: chưa xác định được — liên hệ kế toán công trình.</div>`;
+  if (!t.dong.length) return `<div class="tu-the tu-xam">💳 Không có tạm ứng lương chưa hoàn.</div>`;
+  const tong = t.dong.reduce((a, r) => a + r.conNo, 0), cho = t.dong.reduce((a, r) => a + r.choDuyet, 0);
+  const cu = t.dong.filter(r => r.conNo > 0 && r.khoanCu).sort((a, b) => (+b.soNgay || 0) - (+a.soNgay || 0))[0];
+  return `<div class="tu-the ${tong > 0 ? 'tu-no' : 'tu-ok'}" onclick="lgTUChiTiet()">
+    <div class="tu-dau">${tong > 0 ? `💳 Nợ tạm ứng lương chưa hoàn: <b>${lgD(tong)} đ</b>` : tong < 0 ? `✓ Đã hoàn thừa <b>${lgD(-tong)} đ</b> — liên hệ kế toán` : '✓ Không còn nợ tạm ứng'}<span>›</span></div>
+    ${t.dong.length > 1 ? t.dong.map(r => `<div class="tu-da">${escA(r.maDA)}: ${lgD(r.conNo)} đ</div>`).join('') : ''}
+    <div class="tu-phu">${cu ? 'Khoản cũ nhất ' + escA(cu.khoanCu) + (cu.soNgay !== '' ? ' (' + cu.soNgay + ' ngày)' : '') + ' · ' : ''}cập nhật ${escA(t.capNhat || '—')}</div>
+    ${cho ? `<div class="tu-cho">⏳ ${cho > 0 ? '+' : '−'}${lgD(Math.abs(cho))} đ đang chờ duyệt (chưa tính)</div>` : ''}
+    ${t.cu ? '<div class="tu-cu">Số liệu có thể chưa mới — kế toán kiểm tra app kho</div>' : ''}</div>`;
+}
+function tuDongCT(r){
+  return `<div class="tu-ctd"><b>${escA(r.maDA)}${r.hoTen ? ' · ' + escA(r.hoTen) : ''}</b><span>${lgD(r.conNo)} đ</span></div>`
+    + ((r.chiTiet || []).slice().reverse().map(x => { const tru = x.loai === 'HOAN' || x.loai === 'CAN_TRU';
+      return `<div class="lg-d ${x.trangThai === 'CHO_DUYET' ? 'tu-chod' : ''}"><span>${escA(x.ngay)} · ${TU_LOAI[x.loai] || escA(x.loai)}${x.trangThai === 'CHO_DUYET' ? ' (chờ duyệt)' : ''}<small>${escA(x.noiDung)}</small></span><b>${x.loai === 'DK' ? '' : tru ? '− ' : '+ '}${lgD(x.soTien)}</b></div>`; }).join('') || '<div class="hint">Chưa có chi tiết.</div>');
+}
+function lgTUChiTiet(){
+  const t = S.lg.tamUng; if (!t || !t.dong.length) return;
+  lgKhung('NỢ TẠM ỨNG LƯƠNG', `<button class="back" onclick="lgVe()">‹ Phiếu lương</button>
+    <div class="hint" style="margin:6px 2px">Số liệu từ Quỹ công trường (app kho) · cập nhật ${escA(t.capNhat || '—')} · chỉ xem. Tạm ứng / hoàn ứng làm trên app kho.</div>
+    ${t.dong.map(r => `<div class="lg-the">${tuDongCT(r)}</div>`).join('')}`);
+}
+async function lgMoTUDS(){
+  lgKhung('NỢ TẠM ỨNG CÁN BỘ', '<div class="empty">Đang tải…</div>');
+  try { const r = await api('luongTamUngDS', {ve:S.lg.ve}, 60); S.lg.tuds = r;
+    if (r.loi) return lgKhung('NỢ TẠM ỨNG CÁN BỘ', `<button class="back" onclick="lgVe()">‹ Phiếu lương</button><div class="empty">Chưa kết nối được số liệu tạm ứng (app kho).</div>`);
+    const tong = r.ds.reduce((a, x) => a + x.conNo, 0);
+    lgKhung('NỢ TẠM ỨNG CÁN BỘ', `<button class="back" onclick="lgVe()">‹ Phiếu lương</button>
+      <div class="hint" style="margin:6px 2px">Cập nhật ${escA(r.capNhat || '—')}${r.cu ? ' · <span style="color:#C25A00">số liệu có thể chưa mới</span>' : ''} · ${r.ds.length} người</div>
+      ${r.ds.map((x, i) => `<div class="lyk-hop" onclick="lgTUNguoi(${i})"><div><b>${escA(x.hoTen)}</b><small>${escA(x.maDA)}${x.khoanCu ? ' · cũ nhất ' + escA(x.khoanCu) + (x.soNgay !== '' ? ' (' + x.soNgay + ' ngày)' : '') : ''}${x.choDuyet ? ' · ⏳ ' + lgD(x.choDuyet) + ' chờ duyệt' : ''}${x.coEmail ? '' : ' · ⚠ chưa khớp tài khoản'}</small></div><b class="${x.conNo > 0 ? 'tu-so' : ''}">${lgD(x.conNo)}</b></div>`).join('')}
+      <div class="lg-tongthang">Tổng còn nợ: <b>${lgD(tong)} đ</b></div>`); }
+  catch(e){ if (/HET_PHIEN/.test(e.message)){ S.lg.ve = null; moLuong(); return; } toast(e.message, 4000); lgVe(); }
+}
+function lgTUNguoi(i){ const x = S.lg.tuds.ds[i];
+  lgKhung('NỢ TẠM ỨNG CÁN BỘ', `<button class="back" onclick="lgMoTUDS()">‹ Danh sách</button><div class="lg-the">${tuDongCT(x)}</div>`); }
 
 function lgVeNam(g){
   const cong = (k) => g.ds.reduce((a, x) => a + (+x[k] || 0), 0);
