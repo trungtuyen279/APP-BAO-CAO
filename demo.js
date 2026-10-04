@@ -394,6 +394,7 @@ window.demoChat = function(){
            [DA1]:[tin('a1', 3, 'Cốt thép dầm sàn tầng 8 trục 1–4 xong, mời TVGS nghiệm thu 14h.', 180), tin('a2', 1, '@Lê Thị Chi tính lại khối lượng bê tông sàn tầng 8 giúp anh.', 150), tin('a3', 2, 'Em gửi: 286 m³, đã trừ lỗ mở kỹ thuật.', 120), tin('a4', 0, 'OK, đổ 7h sáng mai. Mọi người xác nhận trên app.', 60)],
            [DA2]:[tin('b1', 10, 'Bu lông neo trục 9 lệch 8 mm, đã khoan cấy lại theo chỉ dẫn TK.', 400), tin('b2', 9, 'Chụp ảnh gửi lên nhóm, chiều nay mời TVGS kiểm tra.', 380)]},
     viec:[{id:'v1', da:DA1, tieuDe:'Hoàn thiện hồ sơ nghiệm thu cốt thép tầng 8', moTa:'Gửi TVGS trước 16h', giao:{uid:'xt-u0', ten:'Nguyễn Văn An'}, nhan:{uid:'xt-u3', ten:'Phạm Văn Dũng'}, han:iso(ngay(0)), tt:'DANG_LAM', ts:Date.now() - 86400000},
+          {id:'v3', da:DA1, tieuDe:'Rà soát tiến độ thang máy, báo lại BCH', moTa:'Chốt ngày bàn giao hố pit cho nhà thầu thang máy', giao:{uid:'xt-u0', ten:'Nguyễn Văn An'}, nhan:{uid:UID, ten:'Khách xem thử'}, han:iso(ngay(3)), tt:'MOI', ts:Date.now() - 7200000},
           {id:'v2', da:DA2, tieuDe:'Kiểm tra độ dốc mái trục 1–6', moTa:'', giao:{uid:'xt-u8', ten:'Ngô Văn Khánh'}, nhan:{uid:'xt-u10', ten:'Trịnh Văn Minh'}, han:iso(ngay(2)), tt:'MOI', ts:Date.now() - 3600000}]};
 };
 

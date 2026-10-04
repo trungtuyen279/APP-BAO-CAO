@@ -706,7 +706,7 @@ body.xemthu #app::before{content:'XEM THỬ · SỐ LIỆU MÔ PHỎNG · KHÔNG
 .err.show{display:block}
 .toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(14px);opacity:0;
   background:var(--ink);color:#fff;font-size:13px;padding:11px 16px;border-radius:6px;
-  transition:.2s;pointer-events:none;z-index:70;max-width:92%;text-align:center}
+  transition:.2s;pointer-events:none;z-index:300;max-width:92%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .empty{text-align:center;color:var(--ink-2);font-size:13px;padding:34px 12px;line-height:1.5}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -1009,7 +1009,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.18.2';
+const APP_VERSION = '3.18.3';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
