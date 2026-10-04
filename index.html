@@ -1009,7 +1009,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.18.3';
+const APP_VERSION = '3.18.4';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -4088,12 +4088,12 @@ function kpiSaoChep(){
 /* ---------- TRỢ LÝ AI (bong bóng nổi) ---------- */
 S.aiMsgs = S.aiMsgs || [];
 (function(){
-  const fab = $('ai-fab'); let keo = false, dx = 0, dy = 0, dich = false;
+  const fab = $('ai-fab'); let keo = false, dx = 0, dy = 0, dich = false, x0 = 0, y0 = 0;   // 3.18.4: chạm hơi xê dịch (< 12px) vẫn là BẤM, không phải kéo
   Store.get('ai-fab-pos').then(p => { if (p && p.top != null){ fab.style.top = p.top + 'px'; fab.style.bottom = 'auto';
     fab.style.left = p.left != null ? p.left + 'px' : 'auto'; fab.style.right = p.left != null ? 'auto' : '14px'; } }).catch(()=>{});
-  fab.addEventListener('pointerdown', e => { keo = true; dich = false; fab.setPointerCapture(e.pointerId);
+  fab.addEventListener('pointerdown', e => { keo = true; dich = false; x0 = e.clientX; y0 = e.clientY; try { fab.setPointerCapture(e.pointerId); } catch(x){}
     const r = fab.getBoundingClientRect(); dx = e.clientX - r.left; dy = e.clientY - r.top; $('ai-tip').classList.remove('show'); });
-  fab.addEventListener('pointermove', e => { if (!keo) return; dich = true;
+  fab.addEventListener('pointermove', e => { if (!keo) return; if (!dich && Math.hypot(e.clientX - x0, e.clientY - y0) < 12) return; dich = true;
     const x = Math.max(4, Math.min(innerWidth - 58, e.clientX - dx)), y = Math.max(60, Math.min(innerHeight - 140, e.clientY - dy));
     fab.style.left = x + 'px'; fab.style.top = y + 'px'; fab.style.right = 'auto'; fab.style.bottom = 'auto'; });
   fab.addEventListener('pointerup', e => { keo = false;
@@ -4102,6 +4102,7 @@ S.aiMsgs = S.aiMsgs || [];
       fab.style.left = trai ? '14px' : (innerWidth - 68) + 'px';
       Store.set('ai-fab-pos', {top: r.top, left: trai ? 14 : innerWidth - 68}).catch(()=>{});
     } else moAI(); });
+  fab.addEventListener('pointercancel', () => { keo = false; dich = false; });
 })();
 function goiYAI(){
   const da = S.duan.find(d => d.maDA === daHienTai()) || {};
