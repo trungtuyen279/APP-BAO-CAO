@@ -695,6 +695,7 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
   font-family:var(--font);font-size:15px;font-weight:bold;padding:14px;cursor:pointer}
 
 /* ---------- đăng nhập ---------- */
+body.xemthu #app::before{content:'XEM THỬ · SỐ LIỆU MÔ PHỎNG · KHÔNG LƯU DỮ LIỆU';display:block;background:repeating-linear-gradient(45deg,#FFD54F,#FFD54F 10px,#FFE082 10px,#FFE082 20px);color:#5D4037;font:700 11px/1.9 sans-serif;text-align:center;letter-spacing:.3px;flex:none}
 #login{position:fixed;inset:0;background:var(--surface);z-index:60;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:26px;max-width:480px;margin:0 auto}
 #login img{width:auto;height:150px;max-width:88%;object-fit:contain;margin-bottom:14px}
@@ -1008,7 +1009,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.18.0';
+const APP_VERSION = '3.18.1';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1054,6 +1055,7 @@ const Store = (() => {
       return new Promise(res => { const q = tx('kv','readwrite').delete(k); q.onsuccess=()=>res(); q.onerror=()=>res(); });
     },
     async queue(rec){
+      if (XEMTHU){ xtChan(); throw new Error('Tài khoản xem thử — không lưu dữ liệu'); }
       if (!db) { mem.outbox[rec.id]=rec; return; }
       return new Promise(res => { const q = tx('outbox','readwrite').put(rec); q.onsuccess=()=>res(); q.onerror=()=>res(); });
     },
@@ -1075,6 +1077,17 @@ const S = { user:null, token:null, duan:[], danhmuc:[], luyke:{}, logs:[], notis
 
 /* ---------- 3a. CHẾ ĐỘ CHẠY THỬ (khi chưa dán API_URL) ---------- */
 const DEMO = !CONFIG.API_URL || CONFIG.API_URL.indexOf('DAN_URL') === 0;
+/* 3.18.1: TÀI KHOẢN XEM THỬ — số liệu mô phỏng (demo.js chỉ tải khi đăng nhập tài khoản này), chặn mọi thao tác ghi, không gọi máy chủ */
+const XT_EMAIL = 'xemthu@licogi13fc.vn';
+let XEMTHU = false;
+const laXemThu = e => String(e || '').toLowerCase().trim() === XT_EMAIL;
+async function batXemThu(){
+  if (!window.demoApi) await new Promise((ok, loi) => { const t = document.createElement('script'); t.src = 'demo.js?v=' + APP_VERSION; t.onload = ok;
+    t.onerror = () => loi(new Error('Không tải được dữ liệu xem thử — kiểm tra mạng')); document.head.appendChild(t); });
+  if (!window.demoApi) throw new Error('Không tải được dữ liệu xem thử — kiểm tra mạng');
+  XEMTHU = true; document.body.classList.add('xemthu');
+}
+function xtChan(){ if (!XEMTHU) return false; toast('Tài khoản xem thử — chỉ xem, không lưu dữ liệu.', 3000); return true; }
 const demoData = () => ({
   duan: [{maDA:'KTX-WNC', tenDA:'KTX WNC — Kim Bảng, Hà Nam', ngayBD:'2025-10-01', ngayKT:'2027-03-31'}],
   danhmuc: [
@@ -1145,6 +1158,7 @@ const demoData = () => ({
 
 /* ---------- 3b. GỌI API (tránh preflight CORS của Apps Script) ---------- */
 async function api(action, data = {}, giay = 60) {
+  if (XEMTHU) return window.demoApi(action, data);
   if (DEMO) {
     await new Promise(r => setTimeout(r, 250));
     if (action === 'login' || action === 'bootstrap') return demoData();
@@ -1208,6 +1222,7 @@ async function api(action, data = {}, giay = 60) {
 
 /* ---------- 4. ĐĂNG NHẬP ---------- */
 async function doLogin(email, pin){
+  if (laXemThu(email)) await batXemThu();
   const d = await api('login', {email, pin});
   S.user = d.user; S.token = d.token;
   await Store.set('auth', {user:d.user, token:d.token});
@@ -1219,6 +1234,7 @@ document.getElementById('btnLogin').onclick = async () => {
   const err = document.getElementById('loginErr');
   const nut = document.getElementById('btnLogin');
   if (DEMO) { await doLogin(e || 'demo@licogi13fc.com.vn', p || '000000'); return; }
+  if (laXemThu(e)) { try { await doLogin(e, ''); } catch(ex){ err.textContent = ex.message; err.classList.add('show'); } return; }
   if (!e || !p) { err.textContent='Nhập email và mã PIN.'; err.classList.add('show'); return; }
   err.classList.remove('show');
   nut.disabled = true; nut.textContent = 'Đang đăng nhập…';
@@ -1239,8 +1255,10 @@ document.getElementById('lgPin').addEventListener('keydown', e => { if(e.key==='
 /* ---------- 5. KHỞI ĐỘNG ---------- */
 async function boot(){
   await Store.init();
-  const auth = await Store.get('auth');
+  let auth = await Store.get('auth');
   const cache = await Store.get('cache');
+  if (auth && auth.user && laXemThu(auth.user.email)){ try { await batXemThu(); } catch(e){ auth = null; } }
+  if (!auth && /[?&#]xemthu\b/i.test(location.search + location.hash)){ try { await doLogin(XT_EMAIL, ''); return; } catch(e){} }
   if (auth) {
     S.user = auth.user; S.token = auth.token;
     if (cache) startApp(cache, true);
@@ -1816,6 +1834,7 @@ async function batThongBaoDay(){
    (nếu đã bật): lấy mã thiết bị mới nhất, đăng ký lại lên máy chủ khi mã đổi hoặc quá 1 ngày → không bị 'NGUNG' âm thầm. */
 let fcmDaNghe = false;
 async function fcmNoi(ep){
+  if (xtChan()) return;
   await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
   await napJS('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
   if (!firebase.apps.length) firebase.initializeApp(FCM.config);
@@ -1836,7 +1855,7 @@ async function fcmNoi(ep){
   }
 }
 function fcmTuNoi(){
-  try { if (!('Notification' in window) || Notification.permission !== 'granted' || !localStorage.getItem('fcm_ok') || !navigator.onLine || DEMO) return; } catch(e){ return; }
+  try { if (!('Notification' in window) || Notification.permission !== 'granted' || !localStorage.getItem('fcm_ok') || !navigator.onLine || DEMO || XEMTHU) return; } catch(e){ return; }
   fcmNoi(false).catch(e => console.warn('FCM', e));
 }
 /* bấm thông báo khi app đang mở → sw.js gửi địa chỉ, app mở đúng nhóm / việc */
@@ -1882,6 +1901,7 @@ async function kiemTraNhac(){
 setInterval(kiemTraNhac, 300000);
 
 async function flush(){
+  if (XEMTHU) return;
   if (S.sending || !navigator.onLine || !S.token) return;
   const q = await Store.all();
   if (!q.length) { paintNet(); return; }
@@ -2227,7 +2247,7 @@ async function renderAcct(){
   $('a-db').textContent   = q.length ? q.length + ' bản ghi chờ gửi' : 'Đã đồng bộ';
   const lech = S.svVer && S.svVer.split('.').slice(0,2).join('.') !== APP_VERSION.split('.').slice(0,2).join('.');
   $('a-ver').innerHTML = 'Phiên bản ' + APP_VERSION
-    + (DEMO ? ' · CHƯA NỐI MÁY CHỦ (chạy thử)'
+    + (XEMTHU ? ' · TÀI KHOẢN XEM THỬ (số liệu mô phỏng, không nối máy chủ)' : DEMO ? ' · CHƯA NỐI MÁY CHỦ (chạy thử)'
        : ' · máy chủ ' + (S.svVer || '<b style="color:var(--alert)">chưa rõ — Code.gs cũ</b>'))
     + (lech ? ' <b style="color:var(--alert)">— LỆCH PHIÊN BẢN: Triển khai lại Code.gs!</b>' : '');
 }
@@ -2259,6 +2279,7 @@ $('btnLogout').onclick = async () => {
   if (!confirm('Đăng xuất khỏi thiết bị này?')) return;
   for (const r of q) await Store.drop(r.id);
   await Store.del('auth'); await Store.del('cache');
+  if (XEMTHU){ XEMTHU = false; document.body.classList.remove('xemthu'); await Store.del('cx-bo'); }
   lgDong(); S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = []; S.kpi = null;
   $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show'); cxDangXuat();
   document.getElementById('app').style.display = 'none';
@@ -4253,6 +4274,9 @@ async function cxVaoNen(cho){
   } catch(e){ if (cho) throw e; console.warn('chatVao nền', e); }
 }
 async function cxKhoi(){
+  if (XEMTHU){ if (!S.cx.san){ const b = window.demoChat(); Object.assign(S.cx, {uid:b.uid, gv:b.gv, qt:b.qt, dsDA:b.dsDA, tv:b.tv, tinDA:b.tinDA, coBo:true, san:true, loi:''});
+      S.cx.viecDA = {}; b.viec.forEach(v => (S.cx.viecDA[v.da] = S.cx.viecDA[v.da] || []).push(v)); S.cx.dsViec = b.viec; S.cx.viec = {}; b.viec.forEach(v => S.cx.viec[v.id] = v);
+      if (S.cx.maDA) S.cx.tin = S.cx.tinDA[S.cx.maDA] || []; cxHuyHieu(); cxVeLai(); } return; }
   if (S.cx.san || S.cx.dang || !S.user || !navigator.onLine || (DEMO && !window.__cxThu)) return;
   S.cx.dang = true;
   try {
@@ -4275,6 +4299,7 @@ async function cxKhoi(){
 }
 /* nghe tất cả nhóm cùng lúc (40 tin mới nhất / nhóm) + việc giao của mọi dự án được phân */
 function cxNghe(){
+  if (XEMTHU) return;
   if (!S.cx.san || S.cx.nghe) return; S.cx.nghe = true;
   const db = firebase.firestore();
   cxNhoms().forEach(ma => {
@@ -4450,6 +4475,7 @@ function cxMenu(id){
   try { navigator.vibrate && navigator.vibrate(15); } catch(e){}
 }
 async function cxCam(id, e){
+  if (xtChan()) return;
   const s = document.getElementById('cx-sheet'); if (s) s.remove();
   const t = S.cx.tin.find(x => x.id === id); if (!t) return;
   const FV = firebase.firestore.FieldValue, cu = (t.cam || {})[S.cx.uid];
@@ -4520,6 +4546,7 @@ function cxThem(doc){
   return nhac;
 }
 async function cxGui(){
+  if (xtChan()) return;
   const i = $('cx-in'), text = i.value.trim(); if (!text) return;
   if (!S.cx.san){ toast('Đang kết nối chat, gửi lại sau vài giây'); return; }
   const doc = {uid:S.cx.uid, ten:S.user.hoTen, vt:S.user.vaiTro, text, loai:'text', ts:firebase.firestore.FieldValue.serverTimestamp()};
@@ -4531,6 +4558,7 @@ async function cxGui(){
   } catch(e){ i.value = text; S.cx.tl = tl; cxGo(i); toast('Chưa gửi được: ' + e.message, 4000); }
 }
 async function cxGuiAnh(files){
+  if (xtChan()) return;
   if (!files || !files.length) return;
   for (const f of [...files].slice(0, 6)){
     const d = await nenAnh(f, 1600, .8); if (!d) continue;
@@ -4545,6 +4573,7 @@ async function cxGuiAnh(files){
 }
 /* đính kèm tệp (PDF, Word, Excel, bản vẽ…) → Drive dự án/Chat/<ngày>, tối đa 15 MB/tệp */
 async function cxGuiTep(files){
+  if (xtChan()) return;
   if (!files || !files.length) return;
   if (!S.cx.san){ toast('Đang kết nối chat, gửi lại sau vài giây'); return; }
   for (const f of [...files].slice(0, 5)){
@@ -4561,6 +4590,7 @@ async function cxGuiTep(files){
   }
 }
 async function cxThuHoi(id){
+  if (xtChan()) return;
   const s = document.getElementById('cx-sheet'); if (s) s.remove();
   if (!confirm('Thu hồi tin nhắn này? Mọi người sẽ thấy "đã thu hồi một tin nhắn".')) return;
   try { await firebase.firestore().collection('chat').doc(S.cx.maDA).collection('tin').doc(id).update({xoa:true}); } catch(e){ toast('Không thu hồi được: ' + e.message); }
@@ -4624,6 +4654,7 @@ function cxMoGiao(){
   document.body.appendChild(div);
 }
 async function cxGiao(){
+  if (xtChan()) return;
   const nhan = S.cx.tv.find(x => x.uid === $('gv-nhan').value), td = $('gv-td').value.trim();
   if (!nhan){ toast('Chọn người nhận'); return; } if (!td){ toast('Ghi việc cần làm'); return; }
   const nut = $('gv-gui'); nut.disabled = true; nut.textContent = 'Đang giao…';
@@ -4639,6 +4670,7 @@ async function cxGiao(){
   } catch(e){ nut.disabled = false; nut.textContent = 'GIAO VIỆC'; toast('Chưa giao được: ' + e.message, 4000); }
 }
 async function cxDoiTT(id, tt, them){
+  if (xtChan()) return;
   const v = S.cx.viec[id]; if (!v) return; const ma = v.da;
   const FV = firebase.firestore.FieldValue, goc = firebase.firestore().collection('chat').doc(ma);
   const muc = {tt, ten:S.user.hoTen, luc:Date.now()}; if (them && them.gc) muc.gc = them.gc;
@@ -4670,6 +4702,7 @@ async function cxThemAnhXong(files){
   box.innerHTML = S.cx.anhXong.map(d => '<div class="ph filled"><img src="' + d + '"></div>').join('') + (S.cx.anhXong.length < 4 ? '<div class="ph" onclick="$(\'cx-file-xong\').click()">＋<br>Ảnh</div>' : '');
 }
 async function cxGuiXong(id){
+  if (xtChan()) return;
   const nut = $('xo-gui'); nut.disabled = true; nut.textContent = 'Đang gửi…';
   try {
     const urls = [];
@@ -4986,6 +5019,7 @@ function moLuong(){
   if (!navigator.onLine){ toast('Cần có mạng để xem phiếu lương'); return; }
   if (DEMO){ toast('Chế độ chạy thử không có phiếu lương'); return; }
   S.lg = {nam:String(new Date().getFullYear()), tab:'thang', email:''};
+  if (XEMTHU){ lgKhung('PHIẾU LƯƠNG CỦA TÔI', '<div class="empty">Đang mở phiếu lương mô phỏng…</div>'); lgTai({pin:'0000'}); return; }
   lgKhung('PHIẾU LƯƠNG CỦA TÔI', `<div class="lg-pin">
       <div class="lg-khoa">🔒</div>
       <p>Lương là thông tin riêng. Nhập lại <b>mã PIN đăng nhập</b> để xem.</p>
