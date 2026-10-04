@@ -1009,7 +1009,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.18.1';
+const APP_VERSION = '3.18.2';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1027,6 +1027,7 @@ const FCM = {
 /* ---------- 1. LƯU TRỮ TRÊN MÁY (IndexedDB, có dự phòng bộ nhớ) ---------- */
 const Store = (() => {
   const mem = {kv:{}, outbox:{}};
+  const xt = {};          // 3.18.1: tài khoản xem thử dùng bộ nhớ riêng — KHÔNG đọc/ghi phiên, đệm, hàng đợi của tài khoản thật trên máy
   let db = null;
   const open = () => new Promise(res => {
     if (!('indexedDB' in window)) return res(null);
@@ -1043,14 +1044,17 @@ const Store = (() => {
   return {
     async init(){ try { db = await open(); } catch(e){ db = null; } },
     async get(k){
+      if (XEMTHU) return xt[k];
       if (!db) return mem.kv[k];
       return new Promise(res => { const q = tx('kv','readonly').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(undefined); });
     },
     async set(k,v){
+      if (XEMTHU) { xt[k] = v; return; }
       if (!db) { mem.kv[k]=v; return; }
       return new Promise(res => { const q = tx('kv','readwrite').put(v,k); q.onsuccess=()=>res(); q.onerror=()=>res(); });
     },
     async del(k){
+      if (XEMTHU) { delete xt[k]; return; }
       if (!db) { delete mem.kv[k]; return; }
       return new Promise(res => { const q = tx('kv','readwrite').delete(k); q.onsuccess=()=>res(); q.onerror=()=>res(); });
     },
@@ -1060,10 +1064,12 @@ const Store = (() => {
       return new Promise(res => { const q = tx('outbox','readwrite').put(rec); q.onsuccess=()=>res(); q.onerror=()=>res(); });
     },
     async all(){
+      if (XEMTHU) return [];
       if (!db) return Object.values(mem.outbox);
       return new Promise(res => { const q = tx('outbox','readonly').getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>res([]); });
     },
     async drop(id){
+      if (XEMTHU) return;
       if (!db) { delete mem.outbox[id]; return; }
       return new Promise(res => { const q = tx('outbox','readwrite').delete(id); q.onsuccess=()=>res(); q.onerror=()=>res(); });
     }
@@ -1255,10 +1261,11 @@ document.getElementById('lgPin').addEventListener('keydown', e => { if(e.key==='
 /* ---------- 5. KHỞI ĐỘNG ---------- */
 async function boot(){
   await Store.init();
-  let auth = await Store.get('auth');
+  if (/[?&#]xemthu\b/i.test(location.search + location.hash)){   // 3.18.1: link xem thử luôn mở tài khoản xem thử, kể cả máy đang đăng nhập tài khoản thật (phiên thật giữ nguyên)
+    try { await doLogin(XT_EMAIL, ''); return; } catch(e){ XEMTHU = false; document.body.classList.remove('xemthu'); }
+  }
+  const auth = await Store.get('auth');
   const cache = await Store.get('cache');
-  if (auth && auth.user && laXemThu(auth.user.email)){ try { await batXemThu(); } catch(e){ auth = null; } }
-  if (!auth && /[?&#]xemthu\b/i.test(location.search + location.hash)){ try { await doLogin(XT_EMAIL, ''); return; } catch(e){} }
   if (auth) {
     S.user = auth.user; S.token = auth.token;
     if (cache) startApp(cache, true);
@@ -2272,6 +2279,7 @@ $('btnDoiPin').onclick = async () => {
 };
 
 $('btnLogout').onclick = async () => {
+  if (XEMTHU){ if (confirm('Thoát tài khoản xem thử?')) location.replace(location.pathname); return; }
   const q = await Store.all();
   if (q.length && !confirm('Còn ' + q.length + ' bản ghi CHƯA gửi lên máy chủ.\n\n' +
       'Đăng xuất bây giờ là mất số liệu này. Nên ra chỗ có sóng, bấm Gửi rồi mới đăng xuất.\n\n' +
@@ -2279,7 +2287,6 @@ $('btnLogout').onclick = async () => {
   if (!confirm('Đăng xuất khỏi thiết bị này?')) return;
   for (const r of q) await Store.drop(r.id);
   await Store.del('auth'); await Store.del('cache');
-  if (XEMTHU){ XEMTHU = false; document.body.classList.remove('xemthu'); await Store.del('cx-bo'); }
   lgDong(); S.user = null; S.token = null; S.logs = []; S.notis = []; S.photos = []; S.aiMsgs = []; S.kpi = null;
   $('ai-fab').classList.remove('show'); $('ai-chat').classList.remove('show'); cxDangXuat();
   document.getElementById('app').style.display = 'none';
@@ -4229,7 +4236,7 @@ const cxGio = ms => { if (!ms) return ''; const d = new Date(ms), h = new Date()
   return d.toDateString() === h.toDateString() ? g : d.toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'}) + ' ' + g; };
 const cxMs = t => t && t.toMillis ? t.toMillis() : (typeof t === 'number' ? t : Date.now());
 const cxDocDoc = ma => { try { return +localStorage.getItem('cx-doc-' + ma) || 0; } catch(e){ return 0; } };
-const cxDaDoc = ma => { try { localStorage.setItem('cx-doc-' + ma, String(Date.now())); } catch(e){} };
+const cxDaDoc = ma => { if (XEMTHU) return; try { localStorage.setItem('cx-doc-' + ma, String(Date.now())); } catch(e){} };
 /* 3.12.2: danh sách nhóm kiểu Zalo — nhóm chung BCH (CHUNG, mọi thành viên) + mỗi dự án một nhóm; không phải đổi dự án để chuyển nhóm */
 const CX_CHUNG = 'CHUNG';
 const cxTenNhom = ma => ma === CX_CHUNG ? 'BCH chung LICOGI13FC' : 'Nhóm ' + ma;
