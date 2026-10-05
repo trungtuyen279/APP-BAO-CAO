@@ -406,6 +406,25 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 .kpi-tc .tt{font-size:13.5px;line-height:1.35}.kpi-tc .tt .ma{font-family:var(--mono);font-size:11px;color:var(--ink-2)}.kpi-tc .tt .mx{float:right;font-family:var(--mono);color:var(--ink-2)}
 .kpi-tc .ct{font-size:12px;color:var(--ink-2);margin-top:4px;line-height:1.4}
 .kpi-tc .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.thi-dau-the{border:1.5px solid #F1C6CD;background:#FFF8F8;border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.thi-tieu{font-weight:800;color:#8A0B20;font-size:15px}.thi-mo{font-size:12.5px;color:#4A5560;margin-top:4px;line-height:1.45}
+.thi-tien{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin:4px 0}
+.thi-thanh{height:8px;background:#EEF0F2;border-radius:6px;overflow:hidden;margin-bottom:10px}.thi-thanh i{display:block;height:100%;background:#C8102E;transition:width .3s}
+.thi-cau{border:1px solid #E3E6EA;border-radius:10px;padding:10px;margin:8px 0;background:#fff}.thi-cau.xong{border-color:#B9D0EA}
+.thi-cau.dung{border-color:#B7DFC0}.thi-cau.sai{border-color:#F1C6CD;background:#FFFBFB}
+.thi-dong{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px}
+.thi-hoi{font-size:14.5px;line-height:1.45;margin-bottom:6px;color:#1F2A37}
+.thi-pa{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;background:#F7F8FA;border:1.5px solid #E3E6EA;border-radius:8px;padding:8px 10px;margin:5px 0;font-size:14px;line-height:1.4;color:#1F2A37}
+.thi-pa i{font-style:normal;font-weight:800;min-width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #C9CFD6;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+.thi-pa.on{border-color:#C8102E;background:#FFF1F3}.thi-pa.on i{background:#C8102E;color:#fff;border-color:#C8102E}
+.thi-pa.xem.dung{border-color:#1E7B34;background:#EAF6EC}.thi-pa.xem.dung i{background:#1E7B34;color:#fff;border-color:#1E7B34}
+.thi-pa.xem.sai{border-color:#C00000;background:#FDECEC;text-decoration:line-through}.thi-pa.xem.sai i{background:#C00000;color:#fff;border-color:#C00000}
+.thi-gt{font-size:13px;background:#FFF9E6;border-radius:6px;padding:6px 8px;margin-top:6px}.thi-ng{font-size:11.5px;color:#6B7680;margin-top:4px}
+.thi-kq{display:flex;gap:14px;align-items:center;border-radius:12px;padding:12px 14px;margin:6px 0 10px;color:#fff}
+.thi-kq.dat{background:linear-gradient(135deg,#1E7B34,#0F5C37)}.thi-kq.truot{background:linear-gradient(135deg,#C8102E,#7B0A1E)}
+.thi-kq .so{font-size:36px;font-weight:800;line-height:1}.thi-kq .so small{font-size:16px}.thi-kq small{opacity:.9}
+.thi-xem summary{font-weight:700;color:#8A0B20;padding:8px 0;cursor:pointer}
+.thi-ls{display:flex;justify-content:space-between;border-bottom:1px solid #EEF0F2;padding:6px 2px;font-size:13.5px}
 .kpi-chip{font-size:11px;padding:2px 8px;border-radius:10px;background:#FFF5F6;border:1px solid #F1C6CD;color:#8A0B20}
 .kpi-chip.nv{background:#EEF4FB;border-color:#B9D0EA;color:#1A5C96}.kpi-chip.ok{background:#EAF6EC;border-color:#B7DFC0;color:#1E7B34}
 .kpi-chip.warn{background:#FFF4D6;border-color:#F0C040;color:#7A5200}
@@ -1009,7 +1028,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.18.4';
+const APP_VERSION = '3.19.0';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -3746,7 +3765,7 @@ async function renderKPI(){
     catch(e){ $('kpiBody').innerHTML = kpiThanhThang() + empty('Không tải được KPI: ' + escK(e.message)); return; }
   }
   const q = S.kpi.cuaToi.quyen || {};
-  const tabs = ['Của tôi'].concat(q.cham ? ['Chấm'] : [], q.duyet ? ['Duyệt'] : [], q.viPham ? ['Vi phạm'] : [], ['KPI Ban'], q.tongHop ? ['Tổng hợp'] : [], (q.vuotChuan || q.tongHop) ? ['⭐ Vượt chuẩn'] : []);
+  const tabs = ['Của tôi'].concat(q.cham ? ['Chấm'] : [], q.duyet ? ['Duyệt'] : [], q.viPham ? ['Vi phạm'] : [], ['KPI Ban'], q.tongHop ? ['Tổng hợp'] : [], (q.vuotChuan || q.tongHop) ? ['⭐ Vượt chuẩn'] : [], ['📝 Thi sổ tay']);
   if (!tabs.includes(S.sub.kpi)) S.sub.kpi = tabs[0];
   subTabs('sub-kpi', tabs, 'kpi', renderKPI);
   const tab = S.sub.kpi;
@@ -3757,6 +3776,7 @@ async function renderKPI(){
   if (tab === 'KPI Ban') return renderKpiBan();
   if (tab === 'Tổng hợp') return renderKpiTongHop();
   if (tab === '⭐ Vượt chuẩn') return renderKpiVC();
+  if (tab === '📝 Thi sổ tay') return renderKpiThi();
 }
 
 /* ---- biểu đồ SVG thuần ---- */
@@ -3801,6 +3821,7 @@ function renderKpiCuaToi(){
 
 /* ---- phiếu (dùng chung 4 chế độ) ---- */
 function veKpiPhieu(goi, che){
+  S.kpi.nguongDG = (goi.cauHinh || {}).nguongDG || 80;
   const p = goi.phieu; let out = ''; let nhom = '';
   const d2 = v => kpiSo2(v);
   goi.tieuChi.filter(t => !t.them).forEach(t => {
@@ -3820,7 +3841,7 @@ function veKpiPhieu(goi, che){
       <div class="tt"><span class="ma">${escK(t.maTC)}</span> ${escK(t.tenTC)} <b class="mx">${d2(t.diemMax).replace(',00', '')} đ</b></div>
       <div class="ct">${escK(t.chiTieu)}</div>${khoa ? `<div class="chips">${chipKhoa}</div>` : (chips ? `<div class="chips">${chips}</div>` : '')}
       ${sua ? `<div class="sl"><input type="range" min="0" max="100" step="1" value="${v}" oninput="this.nextElementSibling.textContent=this.value+'% · '+(Math.round(this.value*${t.diemMax})/100).toLocaleString('vi-VN',{minimumFractionDigits:2})+' đ'"><output>${v}% · ${d2(v * t.diemMax / 100)} đ</output></div>
-             <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới 100% hoặc khác số app gợi ý)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
+             <textarea rows="2" placeholder="${che === 'TU_CHAM' ? 'Diễn giải / bằng chứng của tôi' : 'Diễn giải (bắt buộc nếu dưới ' + (S.kpi.nguongDG || 80) + '%)'}">${escK(che === 'TU_CHAM' ? t.dienGiaiNV : t.dienGiai)}</textarea>`
            : `${t.dienGiai ? `<div class="dg"><b>${khoa ? 'Tự động' : 'Người chấm'}:</b> ${escK(t.dienGiai)}</div>` : ''}${t.dienGiaiNV ? `<div class="dg"><b>Tự nhận xét:</b> ${escK(t.dienGiaiNV)}</div>` : ''}`}
       ${t.ghiChu ? `<div class="gc">${escK(t.ghiChu)}</div>` : ''}
     </div>`;
@@ -3866,8 +3887,8 @@ async function kpiGui(che, email, thang){
   { const l = kpiLich(thang); if (!l.cham) return toast('Chưa đến lịch chấm KPI ' + thangNhan(thang) + ' — chấm từ ' + l.moCham + ' đến ' + l.hetCham, 4000); }
   const diem = kpiThuDiem(); const them = $('kpiBody').querySelector('.kpi-dk') ? kpiThuThem() : undefined;
   if (them && them.reduce((a, x) => a + x.diemMax, 0) > 10) return toast('Mục tiêu đăng ký thêm tối đa 10 điểm', 4000);
-  if (che === 'GUI_DUYET'){ const thieu = diem.filter(x => x.pct != null && (x.pct < 100 || (x.goiY != null && x.pct !== x.goiY)) && !x.dienGiai);
-    if (thieu.length) return toast('Phải có diễn giải (dưới 100% hoặc khác số app gợi ý): ' + thieu.map(x => x.maTC).join(', '), 5000);
+  if (che === 'GUI_DUYET'){ const ng = S.kpi.nguongDG || 80; const thieu = diem.filter(x => x.pct != null && x.pct < ng && !x.dienGiai);   // 3.19.0: chỉ bắt buộc dưới ngưỡng (mặc định 80%)
+    if (thieu.length) return toast('Phải có diễn giải cho tiêu chí chấm dưới ' + ng + '%: ' + thieu.map(x => x.maTC).join(', '), 5000);
     if (them && them.some(x => x.pct === '' || !x.dienGiai)) return toast('Mục tiêu đăng ký thêm: nhập % hoàn thành và diễn giải', 4000);
     if (!confirm('Gửi duyệt phiếu KPI ' + thangNhan(thang) + '? Sau khi gửi không sửa được.')) return; }
   S.kpi.dang = true; toast('Đang lưu…');
@@ -5300,6 +5321,99 @@ function vcTomTat(g){
   if (!ds.length && !p.diemVC) return '';
   return `<div class="vc-tt"><b>⭐ Vượt chuẩn</b>${p.diemChuan != null ? ' · điểm chuẩn ' + kpiSo1(p.diemChuan) : ''}${p.diemVC != null ? ' · cộng <b>+' + kpiSo1(p.diemVC) + '</b>' : ''}
     ${ds.map(x => `<div>${escK(x.ma)} ${escK(x.ten)} — ${x.ketQua ? VC_KQ[x.ketQua] + (x.diem ? ' +' + x.diem : '') : 'chưa chấm'}</div>`).join('')}${p.ghiVC ? `<div class="hint">${escK(p.ghiVC)}</div>` : ''}</div>`;
+}
+
+
+/* ---------- 3.19.0: BÀI THI SỔ TAY (QLCL + ATVSLĐ) — đề ngẫu nhiên mỗi người mỗi tháng, tự lưu từng câu, nộp 1 lần ---------- */
+const thiThangNay = () => thangLocal(new Date());
+let thiHen = null;
+async function renderKpiThi(){
+  const thang = thiThangNay();
+  if (!S.kpi.thi || S.kpi.thi.thang !== thang){
+    $('kpiBody').innerHTML = '<div class="empty">Đang mở bài thi…</div>';
+    try { S.kpi.thi = await api('thiXem', {thang}, 60); S.kpi.thiCho = {}; }
+    catch(e){ $('kpiBody').innerHTML = empty('Không mở được bài thi: ' + escK(e.message)); return; }
+  }
+  if (S.kpi.thiTH) return thiVeTH();
+  const t = S.kpi.thi, c = t.cfg, b = t.bai;
+  let out = `<div class="thi-dau-the"><div class="thi-tieu">📝 BÀI THI SỔ TAY · ${thangNhan(thang)}</div>
+    <div class="thi-mo">${c.soCau} câu trắc nghiệm (${c.soQLCL} Quản lý chất lượng + ${c.soATLD} An toàn lao động) · đạt ≥ ${c.dat}% · làm dần trong tháng, <b>tự lưu từng câu</b> · đề mỗi người khác nhau</div>
+    <div class="thi-mo" style="color:#7A5200">Đang chạy thử — kết quả chưa tính vào điểm KPI.</div></div>`;
+  if (!c.bat) out += empty('Bài thi sổ tay chưa mở. Quản trị bật tại KPI_CAU_HINH → THI_BAT = TRUE.');
+  else if (!t.apDung) out += empty('Tài khoản chưa gán vị trí KPI nên không áp dụng bài thi.');
+  else if (!b) out += `<button class="primary" style="margin:12px 0" onclick="thiBatDau()">BẮT ĐẦU LÀM BÀI</button><div class="hint">Bấm bắt đầu để nhận đề riêng của bạn. Làm đến đâu app lưu đến đó — thoát ra vào lại vẫn còn, hạn đến hết ngày cuối tháng.</div>`;
+  else if (b.trangThai !== 'DA_NOP') out += thiVeLam(b);
+  else out += thiVeKQ(b, c);
+  if (t.lichSu && t.lichSu.length) out += `<div class="eyebrow" style="margin:16px 0 6px"><span>Kết quả các tháng</span></div>` +
+    t.lichSu.map(x => `<div class="thi-ls"><span>${thangNhan(x.thang)}</span><b style="color:${x.dat ? '#1E7B34' : '#C00000'}">${kpiSo1(x.pct)}% · ${x.dat ? 'Đạt' : 'Chưa đạt'}</b></div>`).join('');
+  if (t.quyen && t.quyen.tongHop) out += `<button class="ghost" style="margin-top:14px" onclick="thiMoTH()">📊 Kết quả thi của BCH</button>`;
+  $('kpiBody').innerHTML = out;
+}
+async function thiBatDau(){
+  $('kpiBody').innerHTML = '<div class="empty">Đang tạo đề riêng cho bạn…</div>';
+  try { S.kpi.thi = await api('thiXem', {thang:thiThangNay(), taoMoi:true}, 60); S.kpi.thiCho = {}; }
+  catch(e){ toast(e.message, 4000); }
+  renderKPI();
+}
+function thiDem(b){ return Object.keys(b.traLoi || {}).length; }
+function thiVeLam(b){
+  const n = thiDem(b);
+  let out = `<div class="thi-tien" id="thi-tien"><span>Đã làm <b id="thi-n">${n}</b>/${b.soCau} câu</span><span id="thi-luu" class="hint">${Object.keys(S.kpi.thiCho || {}).length ? 'đang lưu…' : '✓ đã lưu'}</span></div>
+    <div class="thi-thanh"><i id="thi-bar" style="width:${Math.round(n / b.soCau * 100)}%"></i></div>`;
+  out += b.cau.map(q => `<div class="thi-cau${b.traLoi[q.i] !== undefined ? ' xong' : ''}" id="thi-c${q.i}"><div class="thi-dong"><b>Câu ${q.i + 1}</b><span class="kpi-chip ${q.nguon === 'QLCL' ? 'nv' : 'warn'}">${q.nguon === 'QLCL' ? 'Chất lượng' : 'An toàn'}</span></div>
+    <div class="thi-hoi">${escK(q.cau)}</div>${q.a.map((x, k) => `<button class="thi-pa${b.traLoi[q.i] === k ? ' on' : ''}" onclick="thiChon(${q.i},${k})"><i>${'ABCD'[k]}</i><span>${escK(x)}</span></button>`).join('')}</div>`).join('');
+  out += `<button class="primary" style="margin:14px 0 4px" onclick="thiNopBai()">NỘP BÀI</button><div class="hint">Nộp xong mới xem được đáp án. Mỗi tháng chỉ nộp 1 lần.</div>`;
+  return out;
+}
+function thiChon(i, k){
+  const b = S.kpi.thi && S.kpi.thi.bai; if (!b || b.trangThai === 'DA_NOP') return;
+  b.traLoi[i] = k; S.kpi.thiCho = S.kpi.thiCho || {}; S.kpi.thiCho[i] = k;
+  const el = $('thi-c' + i); if (el){ el.classList.add('xong'); el.querySelectorAll('.thi-pa').forEach((p, j) => p.classList.toggle('on', j === k)); }
+  const n = thiDem(b); if ($('thi-n')) $('thi-n').textContent = n; if ($('thi-bar')) $('thi-bar').style.width = Math.round(n / b.soCau * 100) + '%';
+  if ($('thi-luu')) $('thi-luu').textContent = 'đang lưu…';
+  clearTimeout(thiHen); thiHen = setTimeout(thiDongBo, 1500);
+}
+async function thiDongBo(){
+  const cho = Object.assign({}, S.kpi.thiCho || {}); if (!Object.keys(cho).length) return;
+  try { await api('thiLuu', {thang:thiThangNay(), traLoi:cho}, 40);
+    Object.keys(cho).forEach(k => { if (S.kpi.thiCho[k] === cho[k]) delete S.kpi.thiCho[k]; });
+    if ($('thi-luu')) $('thi-luu').textContent = '✓ đã lưu'; }
+  catch(e){ if ($('thi-luu')) $('thi-luu').textContent = '⚠ chưa lưu được — sẽ thử lại'; clearTimeout(thiHen); thiHen = setTimeout(thiDongBo, 8000); }
+}
+async function thiNopBai(){
+  const b = S.kpi.thi.bai, thieu = b.soCau - thiDem(b);
+  if (!confirm((thieu ? 'Còn ' + thieu + ' câu chưa trả lời (tính là sai).\n\n' : '') + 'Nộp bài thi sổ tay ' + thangNhan(S.kpi.thi.thang) + '? Sau khi nộp không làm lại được.')) return;
+  clearTimeout(thiHen); toast('Đang nộp bài…');
+  try { S.kpi.thi = await api('thiNop', {thang:thiThangNay(), traLoi:b.traLoi}, 60); S.kpi.thiCho = {};
+    const k = S.kpi.thi.bai; toast('Đã nộp · ' + k.soDung + '/' + k.soCau + ' câu đúng · ' + kpiSo1(k.pct) + '%', 4000); renderKPI(); window.scrollTo(0, 0); }
+  catch(e){ toast('Chưa nộp được: ' + e.message, 4000); }
+}
+function thiVeKQ(b, c){
+  let out = `<div class="thi-kq ${b.dat ? 'dat' : 'truot'}"><div class="so">${kpiSo1(b.pct)}<small>%</small></div><div><b>${b.dat ? 'ĐẠT' : 'CHƯA ĐẠT'}</b> · ${b.soDung}/${b.soCau} câu đúng<br><small>Mức đạt ≥ ${c.dat}% · nộp lúc ${escK(b.nopLuc)}</small></div></div>
+    <details class="thi-xem"${b.dat ? '' : ' open'}><summary>Xem đáp án và giải thích (${b.soCau - b.soDung} câu sai)</summary>`;
+  out += b.cau.map(q => { const chon = b.traLoi[q.i], dung = chon === q.dung;
+    return `<div class="thi-cau ${dung ? 'dung' : 'sai'}"><div class="thi-dong"><b>Câu ${q.i + 1} ${dung ? '✓' : '✗'}</b><span class="kpi-chip ${q.nguon === 'QLCL' ? 'nv' : 'warn'}">${q.nguon === 'QLCL' ? 'Chất lượng' : 'An toàn'}</span></div>
+      <div class="thi-hoi">${escK(q.cau)}</div>${q.a.map((x, k) => `<div class="thi-pa xem${k === q.dung ? ' dung' : k === chon ? ' sai' : ''}"><i>${'ABCD'[k]}</i><span>${escK(x)}</span></div>`).join('')}
+      ${chon === undefined ? '<div class="hint" style="color:#C00000">Bạn chưa trả lời câu này.</div>' : ''}
+      ${q.giaiThich ? `<div class="thi-gt">💡 ${escK(q.giaiThich)}</div>` : ''}<div class="thi-ng">Sổ tay ${q.nguon === 'QLCL' ? 'QLCL' : 'ATVSLĐ'} · ${escK(q.chuong)}${q.muc ? ' · ' + escK(q.muc) : ''}${q.trang ? ' · tr.' + escK(q.trang) : ''}</div></div>`; }).join('');
+  return out + '</details>';
+}
+async function thiMoTH(){
+  $('kpiBody').innerHTML = '<div class="empty">Đang tổng hợp…</div>';
+  try { S.kpi.thiTH = await api('thiTongHop', {thang:thiThangNay()}, 60); } catch(e){ toast(e.message, 4000); S.kpi.thiTH = null; }
+  renderKPI();
+}
+function thiVeTH(){
+  const t = S.kpi.thiTH, g = t.tong;
+  const TT = {CHUA_LAM:['Chưa làm', '#888'], DANG_LAM:['Đang làm', '#B8860B'], DA_NOP:['Đã nộp', '#1E7B34']};
+  let out = `<button class="back" onclick="S.kpi.thiTH=null;renderKPI()">‹ Bài thi của tôi</button><div class="eyebrow" style="margin:6px 0"><span>Kết quả thi sổ tay ${thangNhan(t.thang)}</span></div>
+    <div class="kpi-stats">${[['Áp dụng', g.nguoi], ['Đã nộp', g.nop], ['Đạt ≥ ' + t.dat + '%', g.dat], ['Chưa nộp', g.nguoi - g.nop], ['TB đã nộp', g.tb == null ? '—' : kpiSo1(g.tb) + '%'], ['Đang làm', t.ds.filter(x => x.trangThai === 'DANG_LAM').length]]
+      .map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('')}</div>
+    <table class="kpi-tb"><tr><th>Họ tên</th><th>DA</th><th>Trạng thái</th><th>Kết quả</th></tr>` +
+    t.ds.map(x => `<tr><td>${escK(x.hoTen)}<small style="display:block;color:#5A6875">${escK(x.viTri)}</small></td><td>${escK(x.maDA)}</td>
+      <td><span class="kpi-tag" style="background:${TT[x.trangThai][1]}">${TT[x.trangThai][0]}</span>${x.trangThai === 'DANG_LAM' ? '<small style="display:block">' + x.daLam + '/' + x.soCau + ' câu</small>' : ''}</td>
+      <td style="font-weight:bold;color:${x.pct == null ? '#888' : x.dat ? '#1E7B34' : '#C00000'}">${x.pct == null ? '—' : kpiSo1(x.pct) + '%'}</td></tr>`).join('') + '</table>';
+  $('kpiBody').innerHTML = out;
 }
 
 /* ---------- 3.17.0: LƯƠNG DỰ KIẾN THÁNG MỚI + Ý KIẾN VỀ MỨC LƯƠNG ---------- */
