@@ -85,12 +85,20 @@ main{flex:1;overflow-y:auto;padding:13px 13px 128px}
 .home-tuan li.qtl{background:#FFFBEA;margin:0 -4px;padding-left:4px;padding-right:4px;border-radius:6px}
 .khu.qtk>button{border-left:5px solid #F0C000}
 .qt-pk{margin:10px 0 2px;font-weight:800;font-size:13px;color:var(--ink);border-bottom:2px solid #F0C000;padding-bottom:2px}.qt-pk small{font-weight:500;color:var(--ink-2)}
-.qt-zone{margin:8px 0 4px;font-size:12px;font-weight:700;color:#5A6875;background:#F1F3F5;border-radius:5px;padding:3px 7px}
+.qt-zone{display:flex;justify-content:space-between;align-items:center;gap:6px;margin:6px 0 0;font-size:12.5px;font-weight:700;color:#3A4651;background:#F1F3F5;border-radius:6px;padding:7px 8px;cursor:pointer}
+.qt-zone:active{filter:brightness(.95)}
 .qt-zone.cobt{background:#FDECEC;color:#B00000}
-.qt-btnhan{display:inline-block;background:#C00000;color:#fff;border-radius:4px;font-size:9.5px;font-weight:800;padding:0 5px;margin-left:4px;vertical-align:1px}
-.prow.qt-bt{background:#FFF0F0;border:1.5px solid #E53935;border-radius:8px;padding:5px 7px;margin:0 -4px 9px}
-.prow.qt-bt .lb:first-child span{font-weight:800;color:#C00000}
-.prow.qt-bt .track i{background:#C00000}
+.qt-zone.mo{border-radius:6px 6px 0 0}
+.qz-tt{font-weight:500;font-size:11.5px;color:var(--ink-2);white-space:nowrap}
+.qz-bt{color:#C00000}.qz-tre{color:var(--alert)}
+.qz-body{border:1px solid #E3E6EA;border-top:0;border-radius:0 0 6px 6px;background:#fff;padding:2px 8px}
+.qz-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #E3E6EA;cursor:pointer}
+.qz-row:last-child{border-bottom:0}
+.qz-l{min-width:0}.qz-l b{display:block;font-weight:600;font-size:12.5px;line-height:1.3}.qz-l small,.qz-r small{display:block;font-size:10.5px;color:var(--ink-2)}
+.qz-r{text-align:right;white-space:nowrap}.qz-r b{font-family:var(--mono);font-size:12.5px}
+.qz-row.bt{background:#FFF0F0;margin:2px -6px;padding:6px;border:1.5px solid #E53935;border-radius:6px}
+.qz-row.bt .qz-l b{color:#C00000;font-weight:800}
+.qz-row.tre .qz-r small{color:var(--alert);font-weight:700}
 .home-tuan li.qtbt .tv{color:#C00000;font-weight:800}
 /* 3.9.0: Trợ lý BCH (Claude) — lời khuyên sáng / chiều */
 .home-tl{border:1.5px solid #F3C9C9;border-left:5px solid var(--brand);border-radius:8px;padding:8px 10px;margin-top:6px;background:#FFF9F9}
@@ -1036,7 +1044,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.3';
+const APP_VERSION = '3.19.4';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2160,14 +2168,19 @@ function renderProgress(){
       than = Object.keys(nhomPK).sort(soSanh).map(pk => {
         const zs = nhomPK[pk], soViec = Object.values(zs).reduce((n, a) => n + a.length, 0);
         return `<div class="qt-pk">${escK(pk)} <small>${soViec} việc</small></div>` + Object.keys(zs).sort(soSanh).map(z => {
-          const ds = zs[z], coBT = ds.some(laDoBT);
-          return `<div class="qt-zone${coBT ? ' cobt' : ''}">${escK(z)}${coBT ? ' <span class="qt-btnhan">ĐỔ BÊ TÔNG</span>' : ''}</div>` + ds.map(x => {
-            const {pct} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay, laBT = laDoBT(x);
-            return `<div class="prow tap${laBT ? ' qt-bt' : ''}" data-k="${encodeURIComponent(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))}" onclick="moSuaViec(this.dataset.k)"><div class="lb"><span>${laBT ? '🔴 ' : ''}${escK(x.maViec)} · ${escK(x.tenViec)}</span><b>${Math.round(pct)}%</b></div>
-              <div class="track"><i style="width:${Math.round(pct)}%"></i></div>
-              <div class="lb" style="font-size:11.5px;margin-top:3px">
-                <span>${x.nguoiPT ? escK(x.nguoiPT) : ''}</span>
-                <b style="color:${treV || laBT ? 'var(--alert)' : 'var(--ink-2)'}">${x.ngayKT ? (treV ? 'TRỄ · hạn ' : laBT ? 'NGÀY ĐỔ ' : 'Hạn ') + dmy(x.ngayKT) : ''}</b></div></div>`; }).join(''); }).join('');
+          const ds = zs[z], dsBT = ds.filter(laDoBT), kz = pk + '|' + z, moZ = !!S.sub['qtz_' + kz];
+          const treZ = ds.filter(x => docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay).length;
+          const btZ = dsBT.find(x => x.ngayKT);
+          /* 3.19.4: mỗi zone gập lại, bấm mới sổ — dòng tóm tắt: số việc · ngày đổ BT · số trễ */
+          return `<div class="qt-zone${dsBT.length ? ' cobt' : ''}${moZ ? ' mo' : ''}" data-k="${encodeURIComponent(kz)}" onclick="moQTZ(this.dataset.k)">
+              <span class="qz-ten">${moZ ? '▾' : '▸'} ${escK(z)}</span>
+              <span class="qz-tt">${ds.length} việc${btZ ? ' · <b class="qz-bt">🔴 Đổ ' + dmy(btZ.ngayKT).slice(0, 5) + '</b>' : ''}${treZ ? ' · <b class="qz-tre">' + treZ + ' trễ</b>' : ''}</span></div>`
+            + (moZ ? `<div class="qz-body">` + ds.map(x => {
+              const {pct} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay, laBT = laDoBT(x);
+              return `<div class="qz-row${laBT ? ' bt' : ''}${treV ? ' tre' : ''}" data-k="${encodeURIComponent(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))}" onclick="moSuaViec(this.dataset.k)">
+                <div class="qz-l"><b>${laBT ? '🔴 ' : ''}${escK(x.tenViec)}</b><small>${escK(x.maViec)}${x.nguoiPT ? ' · ' + escK(x.nguoiPT) : ''}</small></div>
+                <div class="qz-r"><b>${Math.round(pct)}%</b><small>${x.ngayKT ? (treV ? 'TRỄ ' : laBT ? 'Đổ ' : 'Hạn ') + dmy(x.ngayKT).slice(0, 5) : ''}</small></div></div>`; }).join('') + `</div>` : '');
+        }).join('');
       }).join('');
     }
     out += `<div class="khu qtk"><button onclick="moKhu('★')">
@@ -2240,6 +2253,7 @@ function chiaSeBC(){
   if (navigator.share) navigator.share({text: t}).catch(() => {});
   else saoChepBC();
 }
+function moQTZ(k){ k = decodeURIComponent(k); S.sub['qtz_' + k] = !S.sub['qtz_' + k]; renderProgress(); }
 function moKhu(k){ S.sub['khu_' + k] = !S.sub['khu_' + k]; renderProgress(); }
 async function moKhuLon(k){
   S.sub['khu_' + k] = !S.sub['khu_' + k];
