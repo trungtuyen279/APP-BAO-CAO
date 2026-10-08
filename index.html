@@ -232,6 +232,8 @@ nav button.on{color:var(--brand)}
 .bcs-to .tt{font-size:14px;font-weight:700}.bcs-to .tt small{display:block;font-weight:400;color:var(--ink-2);font-size:11.5px}
 .bcs-to input{width:100%;box-sizing:border-box;text-align:right;font-size:16px;font-family:var(--mono);border:1px solid #D9DCE2;border-radius:8px;padding:8px}
 .bcs-to input.co{border-color:var(--brand);background:#FFF5F5}
+.bcs-tp{margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#FAFBFC}
+.bcs-tp summary{padding:10px 0;font-weight:700;font-size:13.5px;cursor:pointer;color:var(--brand)}
 .bcs-tong{display:flex;justify-content:space-between;align-items:center;background:var(--brand);color:#fff;border-radius:10px;padding:10px 12px;margin:10px 0 14px;font-weight:700}
 .bcs-tong b{font-size:22px;font-family:var(--mono)}
 .bcs-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
@@ -1044,7 +1046,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.6';
+const APP_VERSION = '3.19.7';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2741,7 +2743,7 @@ function veNhanLuc(maDA){
   box.innerHTML = tab + cu + html;
 }
 /* 3.19.6: quy đổi tổ → CÔNG TÁC theo cột cong_viec sheet TO_DOI (khớp tên tổ trong báo cáo sáng) */
-const NL_CT = ['Cốp pha', 'Cốt thép', 'Cốp pha + Cốt thép', 'Xây – trát', 'Ốp lát', 'Bê tông', 'Khác (công nhật, giáo, cơ khí…)', 'Chưa khai công tác'];
+const NL_CT = ['Cốp pha', 'Cốt thép', 'Cốp pha + Cốt thép', 'Xây – trát', 'Ốp lát', 'Bê tông', 'Khác (công nhật, giáo, cơ khí…)', 'Chưa khai công tác', 'Nhà thầu phụ'];
 function ctPhanLoai(cv){
   const k = khongDau(cv).toUpperCase().replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ');
   if (!k.trim()) return NL_CT[7];
@@ -2753,16 +2755,18 @@ function ctPhanLoai(cv){
 function ctCuaTo(ten, maDA){
   const k = khongDau(ten).toUpperCase().replace(/\s+/g, ' ').trim();
   const t = (S.toDoi || []).find(x => x.maDA === maDA && khongDau(x.tenTo).toUpperCase().replace(/\s+/g, ' ').trim() === k);
-  return ctPhanLoai(t ? t.congViec : '');
+  if (t) return ctPhanLoai(t.congViec);
+  const tp = (S.thauPhu || []).find(x => x.maDA === maDA && khongDau(x.tenTP).toUpperCase().replace(/\s+/g, ' ').trim() === k);   // 3.19.7
+  return tp ? NL_CT[8] : NL_CT[7];
 }
 /* ds: [{ten, v}] theo tổ → hộp quân số theo công tác; 5 công tác chính luôn hiện, nhóm khác chỉ hiện khi có người */
 function veCongTac(ds, maDA, dv, soNgay){
   const g = {}; NL_CT.forEach(n => g[n] = {v:0, to:[]});
   ds.forEach(x => { const n = ctCuaTo(x.ten, maDA); g[n].v += x.v; g[n].to.push(x.ten); });
-  const hien = NL_CT.filter((n, i) => i < 5 || g[n].v > 0);
+  const hien = [0, 1, 2, 3, 4, 5, 8, 6, 7].map(i => NL_CT[i]).filter((n, j) => j < 5 || g[n].v > 0);
   const max = Math.max(1, ...hien.map(n => g[n].v));
   return `<div class="tq-box"><h5>NHÂN LỰC THEO CÔNG TÁC${soNgay ? ' · TỔNG CÔNG TRONG KỲ' : ''}</h5>` + hien.map(n => `<div class="nl-to"><span class="ten"><b>${n}</b></span><span class="so">${g[n].v.toLocaleString('vi-VN')}${soNgay && g[n].v ? '<small style="font-weight:400"> · ~' + Math.round(g[n].v / soNgay) + '/ngày</small>' : ''}</span>
-    <div class="tr"><i style="width:${Math.max(2, g[n].v / max * 100)}%;background:${n.indexOf('Chưa') === 0 ? '#9AA3AD' : ''}"></i></div>${g[n].to.length ? '<small>' + g[n].to.map(escA).join(', ') + '</small>' : ''}</div>`).join('')
+    <div class="tr"><i style="width:${Math.max(2, g[n].v / max * 100)}%;background:${n.indexOf('Chưa') === 0 ? '#9AA3AD' : ''}"></i></div>${g[n].to.length ? '<small>' + g[n].to.map(x => escA(n === NL_CT[8] ? tenTPNgan(x) + String(((S.thauPhu || []).find(p => p.maDA === maDA && khongDau(p.tenTP) === khongDau(x)) || {}).hangMuc || '').replace(/^(.+)$/, ' ($1)') : x)).join(', ') + '</small>' : ''}</div>`).join('')
     + `<div class="tq-sub">Đơn vị: ${dv}. Phân loại theo cột <b>cong_viec</b> của tổ trong sheet TO_DOI; tổ làm cả cốp pha và cốt thép không tách được nên để nhóm riêng.${g[NL_CT[7]].v ? ' Tổ "Chưa khai công tác": bổ sung cột cong_viec hoặc sửa tên tổ cho khớp TO_DOI.' : ''}</div></div>`;
 }
 function veThanhTo(ds, dv){
@@ -4865,9 +4869,15 @@ const homNayISO = () => { const d = new Date(); return d.getFullYear() + '-' + S
 /* 3.12.6: danh sách tổ cho báo cáo sáng — khoá theo TÊN TỔ (không theo ma_to): sheet TO_DOI có thể trùng/đảo mã
    (KTX-WNC 01/10: Thảo & Thi cùng mã 30.TĐ và 31.TĐ → nhập Thi tự nhảy sang Thảo, tổng bị nhân đôi). Trùng tên → chỉ giữ 1 dòng. */
 const tenToK = t => String(t.tenTo || t.maTo || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/\s+/g, ' ').trim();
+/* 3.19.7: tên ngắn nhà thầu phụ để hiển thị (bỏ 'CÔNG TY TNHH / CP / CỔ PHẦN…') */
+const tenTPNgan = t => String(t || '').replace(/^\s*(CÔNG TY|CTY)\s*/i, '').replace(/^(TNHH|CỔ PHẦN|CP)\s+/i, '').replace(/^(MTV|TM|DV|XD|THƯƠNG MẠI|XÂY DỰNG|VÀ|&|\s)+/i, '').trim() || String(t || '');
 function tosSang(){
   const da = {};
-  return cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI').map(t => Object.assign({}, t, {k:tenToK(t)})).filter(t => t.k && !da[t.k] && (da[t.k] = 1));
+  const to = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI').map(t => Object.assign({}, t, {k:tenToK(t)}));
+  /* 3.19.7: thêm NHÀ THẦU PHỤ của dự án (sheet THAU_PHU) để CBKT chọn, không gõ tay */
+  const tp = cuaDA(S.thauPhu || []).filter(x => x.tenTP && !/^\(/.test(String(x.tenTP).trim()))
+    .map(x => ({laTP:true, maTo:x.maTP, tenTo:x.tenTP, congViec:x.hangMuc, doiTruong:x.nguoiLienHe, k:tenToK({tenTo:x.tenTP})}));
+  return to.concat(tp).filter(t => t.k && !da[t.k] && (da[t.k] = 1));
 }
 function renderBaoCaoSang(){
   const g = S.sang, ma = daHienTai();
@@ -4884,10 +4894,12 @@ function renderBaoCaoSang(){
       <datalist id="bcs-dskhu">${khus.map(k => '<option value="' + escA(k) + '">').join('')}</datalist></div>
     <label style="display:block;font-size:13px;font-weight:700;margin-bottom:2px">Quân số tổ đội (người)</label>
     <div class="hint" style="margin:0 0 4px">Chỉ nhập tổ có mặt ở khu của bạn hôm nay — tổ để trống không được tính.</div>
-    ${tos.length ? tos.map(t => `<div class="bcs-to"><div class="tt">${escA(t.tenTo)}<small>${escA([t.doiTruong, t.congViec].filter(Boolean).join(' · '))}</small></div>
-      <input type="number" inputmode="numeric" min="0" class="${+g.qs[t.k] ? 'co' : ''}" value="${g.qs[t.k] || ''}" placeholder="0" oninput="S.sang.qs['${escA(t.k)}']=this.value;veTongSang()"></div>`).join('')
-      : '<div class="empty" style="padding:10px">Dự án chưa khai báo tổ đội (sheet TO_DOI) — dùng "+ Thêm tổ" bên dưới.</div>'}
-    ${g.them.map((t, i) => `<div class="bcs-to"><input style="text-align:left;font-family:inherit;font-size:14px" value="${escA(t.ten)}" placeholder="Tên tổ (VD: Tổ cp tăng cường Mrs. Tiên)" oninput="S.sang.them[${i}].ten=this.value">
+    ${(() => { const dongTo = t => `<div class="bcs-to"><div class="tt">${escA(t.laTP ? tenTPNgan(t.tenTo) : t.tenTo)}<small>${escA([t.doiTruong, t.congViec].filter(Boolean).join(' · '))}</small></div>
+      <input type="number" inputmode="numeric" min="0" class="${+g.qs[t.k] ? 'co' : ''}" value="${g.qs[t.k] || ''}" placeholder="0" oninput="S.sang.qs['${escA(t.k)}']=this.value;veTongSang()"></div>`;
+      const dsTo = tos.filter(t => !t.laTP), dsTP = tos.filter(t => t.laTP), coTP = dsTP.filter(t => +g.qs[t.k] > 0).length;
+      return (dsTo.length ? dsTo.map(dongTo).join('') : '<div class="empty" style="padding:10px">Dự án chưa khai báo tổ đội (sheet TO_DOI) — dùng "+ Thêm tổ" bên dưới.</div>')
+        + (dsTP.length ? `<details class="bcs-tp"${coTP ? ' open' : ''}><summary>🏢 Nhà thầu phụ (${dsTP.length})${coTP ? ' · đã nhập ' + coTP : ''} — bấm để mở</summary>${dsTP.map(dongTo).join('')}</details>` : ''); })()}
+    ${g.them.map((t, i) => `<div class="bcs-to"><input style="text-align:left;font-family:inherit;font-size:14px" value="${escA(t.ten)}" placeholder="Chỉ dùng khi tổ/nhà thầu chưa có trong danh sách" oninput="S.sang.them[${i}].ten=this.value">
       <input type="number" inputmode="numeric" min="0" class="${+t.qs ? 'co' : ''}" value="${t.qs || ''}" placeholder="0" oninput="S.sang.them[${i}].qs=this.value;veTongSang()"></div>`).join('')}
     <button class="ghost" style="margin-top:8px" onclick="S.sang.them.push({ten:'',qs:''});renderBaoCaoSang()">+ Thêm tổ ngoài danh sách</button>
     <div class="bcs-tong"><span>TỔNG QUÂN SỐ</span><b id="bcs-tong">${tong}</b></div>
