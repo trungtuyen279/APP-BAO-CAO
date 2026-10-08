@@ -1044,7 +1044,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.5';
+const APP_VERSION = '3.19.6';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2701,6 +2701,7 @@ function veNhanLuc(maDA){
       <b style="flex:1;text-align:center">${sel === hnN ? 'Hôm nay · ' : ''}${new Date(sel + 'T00:00').toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'})}</b>
       <button class="small" ${sau ? 'onclick="S.sub.nlNgay=\'' + sau.n + '\';veNhanLuc(\'' + maDA + '\')"' : 'disabled'}>›</button></div>
       <div class="nl-tiles"><div><b>${o.t}</b><span>người cả công trường</span></div><div><b>${ds.length}</b><span>tổ có mặt</span></div><div><b>${o.r}</b><span>báo cáo sáng</span></div></div>
+      ${veCongTac(ds.map(x => ({ten:x.ten, v:x.q})), maDA, 'người')}
       <div class="tq-box"><h5>QUÂN SỐ THEO TỔ</h5>${veThanhTo(ds.map(x => ({ten:x.ten, v:x.q})), 'người')}</div>
       <div class="tq-box"><h5>THEO KHU VỰC</h5>${o.k.map(k => '<div class="tq-line"><span>' + escA(k[0]) + '<small style="display:block;color:var(--ink-2)">' + escA(k[2]) + (k[3] ? ' · ' + k[3] : '') + '</small></span><b>' + k[1] + ' người</b></div>').join('')}</div>`;
   } else {
@@ -2732,11 +2733,37 @@ function veNhanLuc(maDA){
       <div class="tq-box"><h5>CẢ CÔNG TRƯỜNG · ${ky === 'Dự án' && ngs.length > 45 ? 'BÌNH QUÂN NGƯỜI/NGÀY THEO TUẦN' : 'QUÂN SỐ THEO NGÀY'}</h5>
         ${veCot(cot, maDA)}<div class="nl-tip" id="nl-tip">Chạm vào cột để xem số.</div>
         <div class="tq-sub">${coBC.length}/${ngs.length} ngày có báo cáo sáng${ngs.length - coBC.length ? ' — cột xám là ngày chưa có báo cáo' : ''}.</div></div>
+      ${veCongTac(dsTo, maDA, 'công', coBC.length)}
       <div class="tq-box"><h5>THEO TỔ · TỔNG CÔNG TRONG KỲ</h5>${veThanhTo(dsTo, 'công')}</div>`;
   }
   const qs = cuaDA(S.toDoi).filter(t => t.trangThai !== 'NGHI');
   html += `<div class="tq-box"><div class="tq-line"><span>Tổ đội khai báo (sheet TO_DOI)</span><b>${qs.length} tổ · ${qs.reduce((s, t) => s + (+t.quanSo || 0), 0)} người</b></div></div>`;
   box.innerHTML = tab + cu + html;
+}
+/* 3.19.6: quy đổi tổ → CÔNG TÁC theo cột cong_viec sheet TO_DOI (khớp tên tổ trong báo cáo sáng) */
+const NL_CT = ['Cốp pha', 'Cốt thép', 'Cốp pha + Cốt thép', 'Xây – trát', 'Ốp lát', 'Bê tông', 'Khác (công nhật, giáo, cơ khí…)', 'Chưa khai công tác'];
+function ctPhanLoai(cv){
+  const k = khongDau(cv).toUpperCase().replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ');
+  if (!k.trim()) return NL_CT[7];
+  const cp = /COP ?PHA|COPPHA|COPPA|COP PA|GANG ?FORM|COFFA/.test(k), ct = /COT THEP/.test(k);
+  if (cp && ct) return NL_CT[2]; if (cp) return NL_CT[0]; if (ct) return NL_CT[1];
+  if (/XAY|TRAT/.test(k)) return NL_CT[3]; if (/OP LAT|LAT GACH|OP GACH/.test(k)) return NL_CT[4];
+  if (/BE TONG/.test(k)) return NL_CT[5]; return NL_CT[6];
+}
+function ctCuaTo(ten, maDA){
+  const k = khongDau(ten).toUpperCase().replace(/\s+/g, ' ').trim();
+  const t = (S.toDoi || []).find(x => x.maDA === maDA && khongDau(x.tenTo).toUpperCase().replace(/\s+/g, ' ').trim() === k);
+  return ctPhanLoai(t ? t.congViec : '');
+}
+/* ds: [{ten, v}] theo tổ → hộp quân số theo công tác; 5 công tác chính luôn hiện, nhóm khác chỉ hiện khi có người */
+function veCongTac(ds, maDA, dv, soNgay){
+  const g = {}; NL_CT.forEach(n => g[n] = {v:0, to:[]});
+  ds.forEach(x => { const n = ctCuaTo(x.ten, maDA); g[n].v += x.v; g[n].to.push(x.ten); });
+  const hien = NL_CT.filter((n, i) => i < 5 || g[n].v > 0);
+  const max = Math.max(1, ...hien.map(n => g[n].v));
+  return `<div class="tq-box"><h5>NHÂN LỰC THEO CÔNG TÁC${soNgay ? ' · TỔNG CÔNG TRONG KỲ' : ''}</h5>` + hien.map(n => `<div class="nl-to"><span class="ten"><b>${n}</b></span><span class="so">${g[n].v.toLocaleString('vi-VN')}${soNgay && g[n].v ? '<small style="font-weight:400"> · ~' + Math.round(g[n].v / soNgay) + '/ngày</small>' : ''}</span>
+    <div class="tr"><i style="width:${Math.max(2, g[n].v / max * 100)}%;background:${n.indexOf('Chưa') === 0 ? '#9AA3AD' : ''}"></i></div>${g[n].to.length ? '<small>' + g[n].to.map(escA).join(', ') + '</small>' : ''}</div>`).join('')
+    + `<div class="tq-sub">Đơn vị: ${dv}. Phân loại theo cột <b>cong_viec</b> của tổ trong sheet TO_DOI; tổ làm cả cốp pha và cốt thép không tách được nên để nhóm riêng.${g[NL_CT[7]].v ? ' Tổ "Chưa khai công tác": bổ sung cột cong_viec hoặc sửa tên tổ cho khớp TO_DOI.' : ''}</div></div>`;
 }
 function veThanhTo(ds, dv){
   if (!ds.length) return '<div class="tq-sub">Không có số liệu.</div>';
