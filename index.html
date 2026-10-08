@@ -1044,7 +1044,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.4';
+const APP_VERSION = '3.19.5';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1350,7 +1350,8 @@ function applyData(d){
   S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
   if (d.quyenTT !== undefined) S.quyenTT = !!d.quyenTT;   // 3.10.0: được xem tab Thanh toán CĐT
   if (d.quyenSuaDM !== undefined) S.quyenSuaDM = !!d.quyenSuaDM;   // 3.10.5: được sửa đầu việc ở màn Tiến độ
-  if (d.chuHeThong !== undefined) S.chuHeThong = !!d.chuHeThong;   // 3.10.7: chỉ chủ hệ thống sửa việc ★
+  if (d.chuHeThong !== undefined) S.chuHeThong = !!d.chuHeThong;
+  if (d.luongKhoa !== undefined) S.luongKhoa = !!d.luongKhoa;   // 3.19.5: Quản trị tạm khoá phiếu lương
   S.nhanSuDA = d.nhanSuDA || S.nhanSuDA || [];
   S.troLy = d.troLy || S.troLy || [];        // 3.9.0
   S.svVer = d.svVer || S.svVer || '';
@@ -2309,6 +2310,7 @@ async function renderAcct(){
                             : (S.duan.find(d => d.maDA === m) || {}).tenDA || m).join(', ') || '—';
   $('a-pv').textContent   = (S.user.phamVi || []).length ? S.user.phamVi.join(' · ') : 'Toàn dự án';
   const nl = $('btnLuong'); if (nl) nl.querySelector('b').innerHTML = lgQT() ? 'Phiếu lương &amp; bảng lương BCH' : 'Phiếu lương &amp; thu nhập năm';
+  if (nl) nl.querySelector('.go').textContent = S.luongKhoa && !lgQT() ? 'Tạm khoá 🔒' : '🔒 ›';
   trangThaiDay();
   const q = await Store.all();
   $('a-db').textContent   = q.length ? q.length + ' bản ghi chờ gửi' : 'Đã đồng bộ';
@@ -5088,6 +5090,7 @@ function lgKhung(tieuDe, than){
 function moLuong(){
   if (!navigator.onLine){ toast('Cần có mạng để xem phiếu lương'); return; }
   if (DEMO){ toast('Chế độ chạy thử không có phiếu lương'); return; }
+  if (S.luongKhoa && !lgQT() && !XEMTHU){ toast('Phiếu lương đang tạm khoá — liên hệ Quản trị hệ thống', 4000); return; }
   S.lg = {nam:String(new Date().getFullYear()), tab:'thang', email:''};
   if (XEMTHU){ lgKhung('PHIẾU LƯƠNG CỦA TÔI', '<div class="empty">Đang mở phiếu lương mô phỏng…</div>'); lgTai({pin:'0000'}); return; }
   lgKhung('PHIẾU LƯƠNG CỦA TÔI', `<div class="lg-pin">
