@@ -1048,7 +1048,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.9';
+const APP_VERSION = '3.19.10';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1331,6 +1331,7 @@ function startApp(d, cached){
   hienFabAI();
   if (['CHT_DUYET','ADMIN'].includes(S.user.vaiTro)) document.getElementById('btnNewNoti').style.display='block';
   renderAll(); flush();
+  qlDay(); if (!S._daMoLai){ S._daMoLai = 1; setTimeout(moLaiBaoCaoDangSoan, 300); }      // 3.19.10
   if (!cached) setTimeout(taiKpiNha, 1500);          // 3.8.1: KPI cho thẻ chào, chạy ngầm sau khi màn đã hiện (bản đệm: boot() gọi sau bootstrap)
   else taiKpiNha();                                  // 3.8.4: có đệm → vẽ KPI từ máy ngay, không gọi mạng khi đệm còn mới
 }
@@ -1773,18 +1774,34 @@ function calc(){
 /* Ảnh chụp: nén 1280px (nhẹ 4G). Ảnh tải từ thư viện: giữ 2000px, nét, dùng cho báo cáo. */
 const MAX_ANH = 6;
 function nenAnh(file, maxPx, chatLuong){
+  /* 3.19.10: ảnh điện thoại 12–108 MP giải nén ra RAM 50–430 MB → máy yếu bị Android đóng app ("văng ra ngoài").
+     Nay đọc kích thước trước, rồi để trình duyệt giải nén THẲNG ở cỡ nhỏ (createImageBitmap + resize),
+     vẽ xong giải phóng ngay bitmap + canvas. Máy cũ không hỗ trợ thì quay về cách cũ. */
   return new Promise(res => {
+    const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => {
-      const s = Math.min(1, maxPx / Math.max(img.width, img.height));
-      const c = document.createElement('canvas');
-      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(img.src);
-      res(c.toDataURL('image/jpeg', chatLuong));
+    const xong = (c, bm) => { let d = null;
+      try { d = c.toDataURL('image/jpeg', chatLuong); } catch(e){}
+      try { if (bm && bm.close) bm.close(); } catch(e){}
+      c.width = c.height = 1; URL.revokeObjectURL(url); img.src = ''; res(d); };
+    img.onload = async () => {
+      const W = img.naturalWidth, H = img.naturalHeight;
+      const k = Math.min(1, maxPx / Math.max(W, H)), w = Math.max(1, Math.round(W * k)), h = Math.max(1, Math.round(H * k));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      if (k < 1 && window.createImageBitmap){
+        try {
+          const bm = await createImageBitmap(file, {resizeWidth:w, resizeHeight:h, resizeQuality:'medium', imageOrientation:'from-image'});
+          if (Math.abs(bm.width / bm.height - W / H) < 0.02){ ctx.drawImage(bm, 0, 0, w, h); return xong(c, bm); }
+          bm.close();                                  // máy hiểu hướng ảnh khác → dùng cách cũ cho chắc
+        } catch(e){}
+      }
+      try { ctx.drawImage(img, 0, 0, w, h); } catch(e){}
+      xong(c);
     };
-    img.onerror = () => res(null);
-    img.src = URL.createObjectURL(file);
+    img.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    img.decoding = 'async';
+    img.src = url;
   });
 }
 async function themAnh(files, maxPx, chatLuong, nhan){
@@ -1792,13 +1809,14 @@ async function themAnh(files, maxPx, chatLuong, nhan){
     if (S.photos.length >= MAX_ANH) { toast('Tối đa ' + MAX_ANH + ' ảnh mỗi bản ghi.'); break; }
     const d = await nenAnh(f, maxPx, chatLuong);
     if (d) S.photos.push({data:d, nhan:nhan});
+    luuNhapCa();
   }
   renderPhotos();
 }
-$('phAdd').onclick = () => $('fileIn').click();
-$('phUp').onclick  = () => $('fileUp').click();
-$('fileIn').onchange = async e => { await themAnh(e.target.files, 1280, .72, 'chup'); e.target.value=''; };
-$('fileUp').onchange = async e => { await themAnh(e.target.files, 2000, .88, 'tai');  e.target.value=''; };
+$('phAdd').onclick = () => { danhDauChup('ca'); $('fileIn').click(); };
+$('phUp').onclick  = () => { danhDauChup('ca'); $('fileUp').click(); };
+$('fileIn').onchange = async e => { boDauChup(); await themAnh(e.target.files, 1280, .72, 'chup'); e.target.value=''; };
+$('fileUp').onchange = async e => { boDauChup(); await themAnh(e.target.files, 2000, .88, 'tai');  e.target.value=''; };
 
 function renderPhotos(){
   const box = $('photos');
@@ -1808,7 +1826,7 @@ function renderPhotos(){
     d.className = 'ph filled';
     d.innerHTML = `<img src="${p.data}"><b>✕</b>`;
     d.title = p.nhan === 'tai' ? 'Ảnh chất lượng cao' : 'Ảnh chụp tại hiện trường';
-    d.onclick = () => { S.photos.splice(i,1); renderPhotos(); };
+    d.onclick = () => { S.photos.splice(i,1); renderPhotos(); luuNhapCa(); };
     box.insertBefore(d, $('phAdd'));
   });
   const het = S.photos.length >= MAX_ANH;
@@ -1836,6 +1854,7 @@ $('btnSave').onclick = async () => {
   await Store.queue(rec);
   S.photos = []; renderPhotos();
   $('f-kl').value=''; $('f-vm').value=''; calc();
+  try { await Store.del('nhap-ca'); } catch(e){}
   renderAll(); toast('Đã lưu vào máy — đang chờ gửi');
   flush();
 };
@@ -4904,7 +4923,11 @@ function tosSang(){
 }
 function renderBaoCaoSang(){
   const g = S.sang, ma = daHienTai();
-  if (g.maDA !== ma){ g.maDA = ma; g.qs = {}; g.them = []; g.ds = null; g.sua = null; try { Store.get('bcs-khu-' + ma).then(v => { if (v && !g.khu){ g.khu = v; const i = $('bcs-khu'); if (i && !i.value) i.value = v; } }); } catch(e){} }
+  if (g.maDA !== ma){ g.maDA = ma; g.qs = {}; g.them = []; g.anh = []; g.cv = ''; g.ds = null; g.sua = null; try { Store.get('bcs-khu-' + ma).then(v => { if (v && !g.khu){ g.khu = v; const i = $('bcs-khu'); if (i && !i.value) i.value = v; } }); } catch(e){}
+    g.dangNap = true; napNhapSang(ma).then(v => { g.dangNap = false; if (v && g.maDA === ma && !g.anh.length && !Object.keys(g.qs).some(k => +g.qs[k])){
+      Object.assign(g, {qs:v.qs || {}, them:v.them || [], khu:v.khu || g.khu, cv:v.cv || '', anh:v.anh || [], sua:v.sua || null});
+      if ($('p-sang').classList.contains('show')) renderBaoCaoSang();
+      toast('Đã khôi phục báo cáo sáng đang soạn' + (g.anh.length ? ' (' + g.anh.length + ' ảnh)' : ''), 3500); } }); }
   const tos = tosSang();
   const khus = [...new Set(S.danhmuc.filter(x => x.maDA === ma).map(x => x.phanKhu).concat((S.tomTatKhu || []).filter(x => x.maDA === ma).map(x => x.khu)).filter(Boolean).filter(k => trongPhamVi(k)))];
   const tong = tos.reduce((a, t) => a + (+g.qs[t.k] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
@@ -4930,21 +4953,24 @@ function renderBaoCaoSang(){
       <textarea id="bcs-cv" rows="3" placeholder="VD: Tổ thép Mr. Lực buộc thép sàn T4 D1; tổ cp Mr. Trụ lắp cốp pha cột T5 WI; chờ vật tư ống nhựa" oninput="S.sang.cv=this.value">${escA(g.cv)}</textarea></div>
     <div class="field"><label>Ảnh hiện trường (tối đa 12)</label>
       <div class="photos" id="bcs-anh">${(g.sua ? g.sua.anhGiu : []).map((u, i) => '<div class="ph filled cu" onclick="S.sang.sua.anhGiu.splice(' + i + ',1);renderBaoCaoSang()">📷<br>Ảnh đã gửi ' + (i + 1) + '<b>✕</b></div>').join('')}${g.anh.map((d, i) => '<div class="ph filled" onclick="S.sang.anh.splice(' + i + ',1);renderBaoCaoSang()"><img src="' + d + '"><b>✕</b></div>').join('')}
-        ${g.anh.length + (g.sua ? g.sua.anhGiu.length : 0) < 12 ? '<div class="ph" onclick="$(\'fileSang\').click()">＋<br>Ảnh</div>' : ''}</div></div>
+        ${g.anh.length + (g.sua ? g.sua.anhGiu.length : 0) < 12 ? '<div class="ph" onclick="danhDauChup(\'sang\');$(\'fileSang\').click()">＋<br>Ảnh</div>' : ''}</div></div>
     <button class="primary" id="bcs-gui" onclick="guiBaoCaoSang()">${g.sua ? 'CẬP NHẬT BÁO CÁO SÁNG' : 'GỬI BÁO CÁO SÁNG'}</button>
     <p class="hint">Gửi xong app soạn sẵn tin nhắn để chia sẻ vào nhóm Zalo công trường. Cần có mạng để tải ảnh.</p>
     <h3 style="margin:18px 0 8px;font-size:15px">Báo cáo sáng hôm nay của dự án</h3>
     <div class="hint" style="margin:-4px 0 8px">Gửi nhầm? Bấm vào thẻ báo cáo của mình để <b>sửa</b> hoặc <b>xoá</b> (trong ngày).</div>
     <div id="bcs-ds">${veDSSang()}</div>`;
+  luuNhapSang();
 }
 function veTongSang(){
   const g = S.sang, tos = tosSang();
   const tong = tos.reduce((a, t) => a + (+g.qs[t.k] || 0), 0) + g.them.reduce((a, t) => a + (+t.qs || 0), 0);
   const e = $('bcs-tong'); if (e) e.textContent = tong;
   document.querySelectorAll('#sangBody .bcs-to input[type=number]').forEach(i => i.classList.toggle('co', +i.value > 0));
+  luuNhapSang();
 }
 document.addEventListener('change', async e => {
   if (e.target.id !== 'fileSang') return;
+  boDauChup();
   for (const f of e.target.files){ if (S.sang.anh.length + (S.sang.sua ? S.sang.sua.anhGiu.length : 0) >= 12){ toast('Tối đa 12 ảnh'); break; } const d = await nenAnh(f, 1280, .72); if (d) S.sang.anh.push(d); }
   e.target.value = ''; renderBaoCaoSang();
 });
@@ -5006,6 +5032,86 @@ function tinBaoCaoSang(khu, dsTo, tong, cv){
     + '\nTổng: ' + tong + ' người' + (cv ? '\nCông việc: ' + cv : '')
     + '\n(' + S.user.hoTen + ' · App BÁO CÁO CÔNG VIỆC BCH)';
 }
+/* ================= 3.19.10: KHÔNG MẤT BÁO CÁO KHI APP BỊ ĐÓNG =================
+   Nguyên nhân 'bấm báo cáo bị văng ra ngoài' (CBKT KTX-WNC 10–12/10): (1) mở máy ảnh / chọn ảnh → Android thiếu RAM đóng app
+   nền, quay lại app khởi động từ đầu, biểu mẫu + ảnh mất; (2) nút Quay lại (◁) của Android trong app cài (APK) không có lịch sử
+   → thoát thẳng ra màn hình điện thoại. Sửa: lưu nháp liên tục vào máy (cả ảnh), mở lại đúng màn đang soạn, chặn nút Quay lại. */
+let _hnS = null, _hnC = null;
+function luuNhapSang(){
+  const g = S.sang; if (!g || !g.maDA || g.dangNap || !S.user || XEMTHU) return;
+  clearTimeout(_hnS); _hnS = setTimeout(() => {
+    const co = g.anh.length || Object.keys(g.qs).some(k => +g.qs[k]) || g.them.some(t => t.ten || +t.qs) || String(g.cv || '').trim() || g.sua;
+    const k = 'nhap-sang-' + g.maDA;
+    try { (co ? Store.set(k, {u:S.user.email, ngay:homNayISO(), qs:g.qs, them:g.them, khu:g.khu, cv:g.cv, anh:g.anh, sua:g.sua, luc:Date.now()}) : Store.del(k)).catch(() => {}); } catch(e){}
+  }, 500);
+}
+async function napNhapSang(ma){
+  try { const v = await Store.get('nhap-sang-' + ma);
+    return v && S.user && v.u === S.user.email && v.ngay === homNayISO() ? v : null; } catch(e){ return null; }
+}
+const NHAP_CA_O = ['f-zone', 'f-kl', 'f-nc', 'f-tb', 'f-vm'];
+function luuNhapCa(){
+  if (!S.user || XEMTHU) return;
+  clearTimeout(_hnC); _hnC = setTimeout(() => {
+    const f = {}; NHAP_CA_O.forEach(id => { const e = $(id); if (e) f[id] = e.value; });
+    const co = S.photos.length || +f['f-kl'] || String(f['f-vm'] || '').trim();
+    const v = {u:S.user.email, ngay:homNayISO(), da:$('f-da').value, pk:$('f-pk').value, zsel:$('f-zsel').value, mv:$('f-mv').value, f:f, anh:S.photos, luc:Date.now()};
+    try { (co ? Store.set('nhap-ca', v) : Store.del('nhap-ca')).catch(() => {}); } catch(e){}
+  }, 500);
+}
+async function napNhapCa(){
+  let v; try { v = await Store.get('nhap-ca'); } catch(e){}
+  if (!v || !S.user || v.u !== S.user.email || v.ngay !== homNayISO()) return false;
+  try {
+    const chon = (id, val) => { const e = $(id); if (e && val && [...e.options].some(o => o.value === val || o.textContent === val)){ e.value = val; return true; } return false; };
+    if (chon('f-da', v.da)) onProject();
+    await new Promise(r => setTimeout(r, 50));
+    if (chon('f-pk', v.pk)) await onZone();
+    if (chon('f-zsel', v.zsel)) await onZone();
+    chon('f-mv', v.mv); calc();
+    NHAP_CA_O.forEach(id => { const e = $(id); if (e && v.f && v.f[id] != null) e.value = v.f[id]; });
+    S.photos = v.anh || []; renderPhotos(); calc();
+  } catch(e){}
+  return true;
+}
+document.addEventListener('input', e => {
+  if (e.target.closest && e.target.closest('#p-nhap')) luuNhapCa();
+  else if (e.target.closest && e.target.closest('#sangBody')) luuNhapSang();
+});
+document.addEventListener('change', e => { if (e.target.closest && e.target.closest('#p-nhap') && /^f-/.test(e.target.id)) luuNhapCa(); });
+/* đánh dấu 'đang mở máy ảnh' — nếu app bị đóng trong lúc chụp, lần mở sau tự quay về đúng màn báo cáo */
+function danhDauChup(loai){ try { Store.set('dang-chup', {loai:loai, luc:Date.now(), u:(S.user || {}).email}).catch(() => {}); } catch(e){} }
+function boDauChup(){ try { Store.del('dang-chup').catch(() => {}); } catch(e){} }
+async function moLaiBaoCaoDangSoan(){
+  if (XEMTHU || !S.user) return;
+  let m; try { m = await Store.get('dang-chup'); } catch(e){}
+  const coCa = await napNhapCa();
+  if (!m || m.u !== S.user.email || Date.now() - m.luc > 20 * 60000) return;
+  boDauChup();
+  chonBaoCao(m.loai === 'ca' ? 'ca' : 'sang');
+  setTimeout(() => toast('Điện thoại đã đóng app khi mở máy ảnh — số liệu và ảnh đã chụp trước đó vẫn được giữ, bấm ＋Ảnh để chụp tiếp', 6000), 600);
+}
+/* nút Quay lại của Android: đóng hộp đang mở → về Trang chủ → bấm 2 lần mới thoát app */
+let _qlLuc = 0;
+function qlDay(){ try { if (!history.state || !history.state.bch) history.pushState({bch:1}, ''); } catch(e){} }
+function qlXuLy(){
+  const bo = id => { const e = document.getElementById(id); if (e){ e.remove(); return true; } return false; };
+  if (bo('cx-sheet')) return true;
+  if ($('lg-modal')){ lgDong(); return true; }
+  if ($('bb-print')){ dongBienBan(); return true; }
+  for (const id of ['camon', 'sv-modal', 'tt-modal', 'bc-modal']) if (bo(id)) return true;
+  if ($('ai-chat').classList.contains('show')){ dongAI(); return true; }
+  const m = $('bc-menu'); if (m && m.classList.contains('show')){ m.classList.remove('show'); return true; }
+  const home = $('p-home'); if (home && !home.classList.contains('show')){ veTrangChu(); return true; }
+  return false;
+}
+window.addEventListener('popstate', () => {
+  if (!S.user || $('app').style.display === 'none') return;
+  if (qlXuLy()){ qlDay(); return; }
+  if (Date.now() - _qlLuc < 2500){ history.back(); return; }      // bấm lần 2 trong 2,5 giây → thoát app
+  _qlLuc = Date.now(); qlDay(); toast('Bấm Quay lại lần nữa để thoát app');
+});
+
 async function guiBaoCaoSang(){
   const g = S.sang, ma = daHienTai();
   const khu = (($('bcs-khu') || {}).value || '').trim(); g.khu = khu;
