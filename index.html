@@ -1048,7 +1048,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.10';
+const APP_VERSION = '3.19.12';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1258,7 +1258,11 @@ async function api(action, data = {}, giay = 60) {
       continue;
     }
     S.apiThuLai = 0;
-    if (!out.ok) throw new Error(out.error || 'Máy chủ từ chối yêu cầu');
+    if (out.tokenMoi && S.user){ S.token = out.tokenMoi; try { Store.set('auth', {user:S.user, token:out.tokenMoi}); } catch(e){} }   // 3.19.12: phiên tự gia hạn
+    if (!out.ok){
+      if (action !== 'login' && /hết hạn|không hợp lệ|Chưa đăng nhập/i.test(out.error || '')) phienHetHan();
+      throw new Error(out.error || 'Máy chủ từ chối yêu cầu');
+    }
     return out.data;
   }
   S.apiThuLai = 0;
@@ -1318,6 +1322,16 @@ async function boot(){
       taiKpiNha();
     }, 1200);
   } else showLogin();
+}
+/* 3.19.12: phiên hết hạn giữa chừng → mở màn đăng nhập, điền sẵn email; báo cáo đang soạn vẫn giữ trong máy (3.19.10) */
+function phienHetHan(){
+  if (S._dangHetHan || XEMTHU) return; S._dangHetHan = 1;
+  setTimeout(() => {
+    const e = $('lgEmail'); if (e && S.user) e.value = S.user.email || '';
+    const err = $('loginErr'); if (err){ err.textContent = 'Phiên đăng nhập đã hết hạn — nhập lại mã PIN. Báo cáo đang soạn vẫn được giữ, đăng nhập xong vào lại Báo cáo để gửi.'; err.classList.add('show'); }
+    showLogin(); const p = $('lgPin'); if (p){ p.value = ''; try { p.focus(); } catch(x){} }
+    S._dangHetHan = 0;
+  }, 1800);
 }
 function showLogin(){ document.getElementById('login').style.display='flex';
   if (window.tatSplash) window.tatSplash(); }
