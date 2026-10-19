@@ -91,8 +91,9 @@ main{flex:1;overflow-y:auto;padding:13px 13px 128px}
 .qt-zone.xong{background:#EAF6EC;color:#1E7B34;cursor:default;border:1px dashed #9BD3A6}
 .qz-ok{color:var(--ok)}
 .qt-zone.mo{border-radius:6px 6px 0 0}
-.qz-tt{font-weight:500;font-size:11.5px;color:var(--ink-2);white-space:nowrap}
-.qz-bt{color:#C00000}.qz-tre{color:var(--alert)}
+.qz-tt{font-weight:500;font-size:11.5px;color:var(--ink-2);white-space:normal;text-align:right;margin-left:auto}
+.qt-zone{flex-wrap:wrap;row-gap:2px}.qz-ten{white-space:nowrap}   /* 3.19.13: dòng zone dài (chậm đổ BT + số ngày thi công) xuống dòng gọn, tên block không bị bẻ */
+.qz-bt{color:#C00000}.qz-tre{color:var(--alert)}.qz-ngay{color:#1F4E79;font-weight:700}
 .qz-body{border:1px solid #E3E6EA;border-top:0;border-radius:0 0 6px 6px;background:#fff;padding:2px 8px}
 .qz-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #E3E6EA;cursor:pointer}
 .qz-row:last-child{border-bottom:0}
@@ -1048,7 +1049,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.12';
+const APP_VERSION = '3.19.13';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2206,6 +2207,28 @@ function renderProgress(){
       if (tt && (nay - tt) > 30 * 86400000) return;                       // xong quá 30 ngày → thôi hiện
       if (!xongZ[blk] || tang > xongZ[blk].tang) xongZ[blk] = {pk, z, tang, kh, tt, cham: kh && tt ? Math.round((tt - kh) / 86400000) : null};
     }); })();
+  /* 3.19.13: ngày ĐỔ BÊ TÔNG thực tế từng tầng (pk|block|tầng) — làm mốc 'bắt đầu thi công' của tầng trên */
+  const h0 = new Date(); h0.setHours(0, 0, 0, 0);
+  const soNgay = (a, b) => Math.round((a - b) / 86400000);
+  const tangCua = z => { const m = khongDau(z || '').match(/TANG\s*0?(\d{1,2})/); return m ? +m[1] : null; };
+  const ngayDoBT = {};
+  S.danhmuc.filter(x => x.maDA === ma && laDoBT(x) && pctViec(x).pct >= 99.5).forEach(x => {
+    const tg = tangCua(x.zone); if (tg === null) return;
+    const k = (x.phanKhu || '(Chưa ghi phân khu)') + '|' + String(x.zone || '').split('_')[0] + '|' + tg;
+    const d = docNgay(x.ngayXong) || docNgay((S.nkCuoi || {})[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)]);
+    if (d && (!ngayDoBT[k] || d > ngayDoBT[k])) ngayDoBT[k] = d;
+  });
+  /* chậm đổ BT + số ngày đã thi công tầng (từ ngày đổ BT tầng dưới; chưa có thì từ ngày BĐ kế hoạch sớm nhất) */
+  const tienDoTang = (pk, z, ds, btZ) => {
+    let s = '';
+    const kh = btZ && docNgay(btZ.ngayKT);
+    if (kh){ const c = soNgay(h0, kh); s += c > 0 ? ' · <b class="qz-tre">CHẬM ' + c + ' ngày</b>' : c === 0 ? ' · <b class="qz-tre">ĐỔ HÔM NAY</b>' : ' · còn ' + (-c) + ' ngày'; }
+    const tg = tangCua(z); let bd = null, ng = '';
+    if (tg !== null){ bd = ngayDoBT[pk + '|' + String(z).split('_')[0] + '|' + (tg - 1)]; if (bd) ng = 'từ đổ BT tầng ' + (tg - 1) + ' ' + dmy(isoN(bd)).slice(0, 5); }
+    if (!bd){ bd = ds.map(x => docNgay(x.ngayBD)).filter(Boolean).sort((a, b) => a - b)[0] || null; if (bd) ng = 'từ ngày BĐ kế hoạch ' + dmy(isoN(bd)).slice(0, 5); }
+    if (bd){ const n = soNgay(h0, bd); s += n >= 0 ? ' · <span class="qz-ngay" title="' + ng + '">thi công ' + n + ' ngày</span>' : ' · chưa tới ngày BĐ'; }
+    return s;
+  };
   const xongTheoPK = {}; Object.values(xongZ).forEach(o => (xongTheoPK[o.pk] = xongTheoPK[o.pk] || {})[o.z] = o);
   if (qtItems.length || Object.keys(xongZ).length){
     const moQT = !!S.sub['khu_★'];
@@ -2233,7 +2256,7 @@ function renderProgress(){
           /* 3.19.4: mỗi zone gập lại, bấm mới sổ — dòng tóm tắt: số việc · ngày đổ BT · số trễ */
           return `<div class="qt-zone${dsBT.length ? ' cobt' : ''}${moZ ? ' mo' : ''}" data-k="${encodeURIComponent(kz)}" onclick="moQTZ(this.dataset.k)">
               <span class="qz-ten">${moZ ? '▾' : '▸'} ${escK(z)}</span>
-              <span class="qz-tt">${ds.length} việc${btZ ? ' · <b class="qz-bt">🔴 Đổ ' + dmy(btZ.ngayKT).slice(0, 5) + '</b>' : ''}${treZ ? ' · <b class="qz-tre">' + treZ + ' trễ</b>' : ''}</span></div>`
+              <span class="qz-tt">${ds.length} việc${btZ ? ' · <b class="qz-bt">🔴 Đổ ' + dmy(btZ.ngayKT).slice(0, 5) + '</b>' + tienDoTang(pk, z, ds, btZ) : (treZ ? ' · <b class="qz-tre">' + treZ + ' trễ</b>' : '') + tienDoTang(pk, z, ds, null)}</span></div>`
             + (moZ ? `<div class="qz-body">` + ds.map(x => {
               const {pct} = pctViec(x); const treV = docNgay(x.ngayKT) && docNgay(x.ngayKT) < nay, laBT = laDoBT(x);
               return `<div class="qz-row${laBT ? ' bt' : ''}${treV ? ' tre' : ''}" data-k="${encodeURIComponent(kViec(x.maDA, x.phanKhu, x.zone, x.maViec))}" onclick="moSuaViec(this.dataset.k)">
