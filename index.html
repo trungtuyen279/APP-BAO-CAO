@@ -94,6 +94,7 @@ main{flex:1;overflow-y:auto;padding:13px 13px 128px}
 .qz-tt{font-weight:500;font-size:11.5px;color:var(--ink-2);white-space:normal;text-align:right;margin-left:auto}
 .qt-zone{flex-wrap:wrap;row-gap:2px}.qz-ten{white-space:nowrap}   /* 3.19.13: dòng zone dài (chậm đổ BT + số ngày thi công) xuống dòng gọn, tên block không bị bẻ */
 .qz-bt{color:#C00000}.qz-tre{color:var(--alert)}
+.qb-cn{display:block;font-size:11px;font-weight:600;margin-top:1px}.qb-cn.ok{color:var(--ok)}.qb-cn.tre{color:var(--alert)}
 .qt-blk{margin:8px 0 2px 2px;font-size:12.5px;font-weight:800;color:#1F4E79;border-left:3px solid #1F4E79;padding-left:6px}   /* 3.19.14: tiêu đề block trong tòa */.qz-ngay{color:#1F4E79;font-weight:700}
 .qz-body{border:1px solid #E3E6EA;border-top:0;border-radius:0 0 6px 6px;background:#fff;padding:2px 8px}
 .qz-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed #E3E6EA;cursor:pointer}
@@ -1050,7 +1051,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.15';
+const APP_VERSION = '3.19.16';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1371,7 +1372,8 @@ function applyData(d){
   S.tomTatKhu = d.tomTatKhu || S.tomTatKhu; S.dmLon = !!d.dmLon;
   if (d.quyenTT !== undefined) S.quyenTT = !!d.quyenTT;   // 3.10.0: được xem tab Thanh toán CĐT
   if (d.quyenSuaDM !== undefined) S.quyenSuaDM = !!d.quyenSuaDM;
-  if (d.chuKySan) S.chuKySan = d.chuKySan;                          // 3.19.14: ngày/sàn theo phân khu   // 3.10.5: được sửa đầu việc ở màn Tiến độ
+  if (d.chuKySan) S.chuKySan = d.chuKySan;
+  if (d.tangBlock) S.tangBlock = d.tangBlock; if (d.catNoc) S.catNoc = d.catNoc;   // 3.19.16: số sàn còn lại từng block + mốc cất nóc                          // 3.19.14: ngày/sàn theo phân khu   // 3.10.5: được sửa đầu việc ở màn Tiến độ
   if (d.chuHeThong !== undefined) S.chuHeThong = !!d.chuHeThong;
   if (d.luongKhoa !== undefined) S.luongKhoa = !!d.luongKhoa;   // 3.19.5: Quản trị tạm khoá phiếu lương
   S.nhanSuDA = d.nhanSuDA || S.nhanSuDA || [];
@@ -2227,6 +2229,18 @@ function renderProgress(){
   const doDuoi = (pk, z) => { const tg = tangCua(z); return tg === null ? null : ngayDoBT[pk + '|' + String(z).split('_')[0] + '|' + (tg - 1)] || null; };
   /* ngày đổ BT kế hoạch: theo danh mục; trống thì = ngày đổ tầng dưới + chu kỳ sàn */
   const khDo = (pk, z, btZ) => (btZ && docNgay(btZ.ngayKT)) || (doDuoi(pk, z) ? new Date(doDuoi(pk, z).getTime() + chuKy(pk) * 86400000) : null);
+  /* 3.19.16: dưới tên block — còn bao nhiêu ngày đến CẤT NÓC, còn mấy sàn, phải đạt bao nhiêu ngày/sàn */
+  const catNocCua = pk => { const b = S.catNoc || {'TOA WI':'2026-12-30', 'TOA D1':'2026-12-30', 'TOA D2':'2027-01-15'}, k = khongDau(pk);
+    const t = b[k] || b[Object.keys(b).find(x => k.indexOf(x) > -1 || x.indexOf(k) > -1)]; return t ? docNgay(t) : null; };
+  const dongCatNoc = (pk, b) => {
+    const tb = (S.tangBlock || {})[ma + '|' + pk + '|' + b], cn = catNocCua(pk); if (!tb || !cn) return '';
+    const con = tb.tong - tb.xong, ngay = soNgay(cn, h0), ck = chuKy(pk), mc = dmy(isoN(cn)).slice(0, 5);
+    if (con <= 0) return '<small class="qb-cn ok">Đã cất nóc</small>';
+    if (ngay <= 0) return '<small class="qb-cn tre">Quá mốc cất nóc ' + mc + ' ' + (-ngay) + ' ngày · còn ' + con + ' sàn</small>';
+    const can = ngay / con, dat = can >= ck;
+    return '<small class="qb-cn ' + (dat ? 'ok' : 'tre') + '">Cất nóc ' + mc + ' · còn ' + ngay + ' ngày / ' + con + ' sàn → cần ≤ '
+      + (Math.floor(can * 10) / 10).toLocaleString('vi-VN') + ' ngày/sàn' + (dat ? '' : ' (đang ' + ck + ')') + '</small>';
+  };
   const nhanZ = z => z.indexOf('_') > 0 ? z.split('_').slice(1).join('_') : z;
   /* chậm đổ BT + số ngày đã thi công tầng (từ ngày đổ BT tầng dưới; chưa có thì từ ngày BĐ kế hoạch sớm nhất) */
   const tienDoTang = (pk, z, ds, btZ) => {
@@ -2261,7 +2275,7 @@ function renderProgress(){
         const zs = nhomPK[pk], soViec = Object.values(zs).reduce((n, a) => n + (a ? a.length : 0), 0);
         /* 3.19.14: tách riêng từng BLOCK trong tòa (zone 'Block D1.1_Tầng 4' → nhóm Block D1.1, dòng 'Tầng 4') */
         const blks = {}; Object.keys(zs).sort(soSanh).forEach(z => { const b = z.indexOf('_') > 0 ? z.split('_')[0] : ''; (blks[b] = blks[b] || []).push(z); });
-        return `<div class="qt-pk">${escK(pk)} <small>${soViec} việc · ${chuKy(pk)} ngày/sàn</small></div>` + Object.keys(blks).sort(theoThu(thuB, b => pk + '|' + b)).map(b => (b ? `<div class="qt-blk">${escK(b)}</div>` : '') + blks[b].map(z => {
+        return `<div class="qt-pk">${escK(pk)} <small>${soViec} việc · ${chuKy(pk)} ngày/sàn</small></div>` + Object.keys(blks).sort(theoThu(thuB, b => pk + '|' + b)).map(b => (b ? `<div class="qt-blk">${escK(b)}${dongCatNoc(pk, b)}</div>` : '') + blks[b].map(z => {
           const xz = (xongTheoPK[pk] || {})[z];
           if (xz && !zs[z]){                                                                  /* 3.19.9: tầng vừa xong */
             const dg = xz.cham === null ? (xz.tt ? '' : ' · chưa có ngày xong thực tế') : xz.cham > 0 ? ' · <b class="qz-tre">CHẬM ' + xz.cham + ' ngày</b> so KH ' + dmy(isoN(xz.kh)).slice(0, 5) : xz.cham < 0 ? ' · <b class="qz-ok">SỚM ' + (-xz.cham) + ' ngày</b>' : ' · <b class="qz-ok">ĐÚNG KH</b>';
