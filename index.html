@@ -1050,7 +1050,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.14';
+const APP_VERSION = '3.19.15';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2198,14 +2198,15 @@ function renderProgress(){
   /* 3.19.9: tầng ★ VỪA XONG của từng block (mọi việc ★ của zone đã xong) — xong ngày nào, chậm bao nhiêu ngày so kế hoạch */
   const xongZ = {};
   (() => { const zAll = {};
-    S.danhmuc.filter(x => x.maDA === ma && x.quanTrong).forEach(x => { const k = (x.phanKhu || '(Chưa ghi phân khu)') + '|' + (x.zone || '(Chung)'); (zAll[k] = zAll[k] || []).push(x); });
+    S.danhmuc.filter(x => x.maDA === ma && (x.quanTrong || (laDoBT(x) && pctViec(x).pct >= 99.5))).forEach(x => { const k = (x.phanKhu || '(Chưa ghi phân khu)') + '|' + (x.zone || '(Chung)'); (zAll[k] = zAll[k] || []).push(x); });   // 3.19.15: tầng đã đổ BT nhưng không đánh ★ vẫn tính là 'vừa xong'
     Object.keys(zAll).forEach(k => {
       const ds = zAll[k]; if (ds.some(x => pctViec(x).pct < 99.5)) return;
       const [pk, z] = k.split('|'), mt = khongDau(z).match(/TANG\s*0?(\d{1,2})/); if (!mt) return;
       const tang = +mt[1], blk = pk + '|' + z.split('_')[0];
       const bt = ds.find(laDoBT), maxD = a => a.filter(Boolean).sort((p, q) => q - p)[0] || null;
       const kh = bt && docNgay(bt.ngayKT) || maxD(ds.map(x => docNgay(x.ngayKT)));
-      const tt = (bt && docNgay(bt.ngayXong)) || maxD(ds.map(x => docNgay(x.ngayXong))) || maxD((bt ? [bt] : ds).map(x => docNgay((S.nkCuoi || {})[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)])));
+      const tt = (bt && docNgay(bt.ngayXong)) || maxD(ds.map(x => docNgay(x.ngayXong))) || maxD((bt ? [bt] : ds).map(x => docNgay((S.nkCuoi || {})[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)])))
+        || (bt && docNgay(bt.ngayKT));                                    // 3.19.15: chưa ghi ngay_xong_tt → tạm lấy ngày KT của việc đổ BT
       if (tt && (nay - tt) > 30 * 86400000) return;                       // xong quá 30 ngày → thôi hiện
       if (!xongZ[blk] || tang > xongZ[blk].tang) xongZ[blk] = {pk, z, tang, kh, tt, cham: kh && tt ? Math.round((tt - kh) / 86400000) : null};
     }); })();
@@ -2217,7 +2218,7 @@ function renderProgress(){
   S.danhmuc.filter(x => x.maDA === ma && laDoBT(x) && pctViec(x).pct >= 99.5).forEach(x => {
     const tg = tangCua(x.zone); if (tg === null) return;
     const k = (x.phanKhu || '(Chưa ghi phân khu)') + '|' + String(x.zone || '').split('_')[0] + '|' + tg;
-    const d = docNgay(x.ngayXong) || docNgay((S.nkCuoi || {})[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)]);
+    const d = docNgay(x.ngayXong) || docNgay((S.nkCuoi || {})[kViec(x.maDA, x.phanKhu, x.zone, x.maViec)]) || docNgay(x.ngayKT);   // 3.19.15: thiếu ngày xong thực tế → ngày KT
     if (d && (!ngayDoBT[k] || d > ngayDoBT[k])) ngayDoBT[k] = d;
   });
   /* 3.19.14: chu kỳ sàn theo phân khu (KPI_CAU_HINH!CHU_KY_SAN; WI, D1 = 6 · D2 = 7) */
@@ -2251,11 +2252,16 @@ function renderProgress(){
       qtItems.forEach(x => { const pk = x.phanKhu || '(Chưa ghi phân khu)', z = x.zone || '(Chung)';
         (nhomPK[pk] = nhomPK[pk] || {}); (nhomPK[pk][z] = nhomPK[pk][z] || []).push(x); });
       Object.keys(xongTheoPK).forEach(pk => { nhomPK[pk] = nhomPK[pk] || {}; Object.keys(xongTheoPK[pk]).forEach(z => { if (!nhomPK[pk][z]) nhomPK[pk][z] = null; }); });
-      than = Object.keys(nhomPK).sort(soSanh).map(pk => {
+      /* 3.19.15: thứ tự phân khu / block theo trình tự trong sheet DANH_MUC (WI → D1 → D2 …), không xếp chữ cái */
+      const thuPK = {}, thuB = {};
+      S.danhmuc.forEach((x, i) => { if (x.maDA !== ma) return; const p = x.phanKhu || '(Chưa ghi phân khu)', z = x.zone || '';
+        if (!(p in thuPK)) thuPK[p] = i; const b = p + '|' + (z.indexOf('_') > 0 ? z.split('_')[0] : ''); if (!(b in thuB)) thuB[b] = i; });
+      const theoThu = (m, f) => (a, b) => ((f(a) in m ? m[f(a)] : 1e9) - (f(b) in m ? m[f(b)] : 1e9)) || soSanh(a, b);
+      than = Object.keys(nhomPK).sort(theoThu(thuPK, x => x)).map(pk => {
         const zs = nhomPK[pk], soViec = Object.values(zs).reduce((n, a) => n + (a ? a.length : 0), 0);
         /* 3.19.14: tách riêng từng BLOCK trong tòa (zone 'Block D1.1_Tầng 4' → nhóm Block D1.1, dòng 'Tầng 4') */
         const blks = {}; Object.keys(zs).sort(soSanh).forEach(z => { const b = z.indexOf('_') > 0 ? z.split('_')[0] : ''; (blks[b] = blks[b] || []).push(z); });
-        return `<div class="qt-pk">${escK(pk)} <small>${soViec} việc · ${chuKy(pk)} ngày/sàn</small></div>` + Object.keys(blks).sort(soSanh).map(b => (b ? `<div class="qt-blk">${escK(b)}</div>` : '') + blks[b].map(z => {
+        return `<div class="qt-pk">${escK(pk)} <small>${soViec} việc · ${chuKy(pk)} ngày/sàn</small></div>` + Object.keys(blks).sort(theoThu(thuB, b => pk + '|' + b)).map(b => (b ? `<div class="qt-blk">${escK(b)}</div>` : '') + blks[b].map(z => {
           const xz = (xongTheoPK[pk] || {})[z];
           if (xz && !zs[z]){                                                                  /* 3.19.9: tầng vừa xong */
             const dg = xz.cham === null ? (xz.tt ? '' : ' · chưa có ngày xong thực tế') : xz.cham > 0 ? ' · <b class="qz-tre">CHẬM ' + xz.cham + ' ngày</b> so KH ' + dmy(isoN(xz.kh)).slice(0, 5) : xz.cham < 0 ? ' · <b class="qz-ok">SỚM ' + (-xz.cham) + ' ngày</b>' : ' · <b class="qz-ok">ĐÚNG KH</b>';
