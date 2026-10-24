@@ -1055,7 +1055,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.17';
+const APP_VERSION = '3.19.18';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2645,17 +2645,21 @@ function hopKLNhom(maDA){
   }
 
   /* --- Hoàn thiện: nhóm việc chung --- */
-  (S.klNhom || []).filter(g => g.maDA === maDA && g.da > 0).forEach(g => {
-    const pc = p1(g.da, g.hd);
-    const bl = g.blocks.filter(x => x.da > 0).sort((a, b) => theoPK(a.pk, b.pk));
-    const chua = g.blocks.length - bl.length;
+  /* 3.19.18: block giữ đơn vị riêng (phòng mẫu tính %, tầng tính m3); block đang thi công chưa có KL duyệt vẫn hiện */
+  (S.klNhom || []).filter(g => g.maDA === maDA).forEach(g => {
+    const bl = (g.blocks || []).filter(x => x.da > 0 || x.dang > 0)
+      .sort((a, b) => theoPK(a.pk, b.pk) || (b.da > 0) - (a.da > 0));
+    if (!bl.length && !(g.da > 0)) return;
+    const tenB = x => x.dv === '%' ? x.pk : x.b, kB = x => x.b + '|' + x.dv;
+    const pc = p1(g.da, g.hd), chua = new Set((g.blocks || []).map(kB)).size - new Set(bl.map(kB)).size;
+    const khac = bl.filter(x => x.dv !== g.dv && x.da > 0).map(x => `${tenB(x)} ${p1(x.da, x.hd).toFixed(0)}%`);
     h += `<details class="kn-g"><summary><div class="lb"><span><b class="kn-t">${g.ten}</b></span>
         <b>${pc.toFixed(1)}%</b></div>${thanh(pc, mauPc(pc))}
-        <div class="kn-s">${so(g.da)} / ${so(g.hd)} ${g.dv} · ${bl.length} block đang làm</div></summary>` +
+        <div class="kn-s">${g.da > 0 ? so(g.da) + ' / ' + so(g.hd) + ' ' + g.dv : 'Chưa có KL duyệt (' + g.dv + ')'}${khac.length ? ' · ' + khac.join(', ') : ''} · ${bl.length} mục đang làm</div></summary>` +
       bl.map(x => { const q = p1(x.da, x.hd);
-        return `<div class="prow kn-b"><div class="lb"><span>${x.b}</span><b>${q.toFixed(1)}%</b></div>${thanh(q, mauPc(q))}
-          <div class="kn-s">${so(x.da)} / ${so(x.hd)} ${g.dv}</div></div>`; }).join('') +
-      (chua ? `<div class="kn-s" style="margin-top:2px">${chua} block chưa bắt đầu — không hiện</div>` : '') + `</details>`;
+        return `<div class="prow kn-b"><div class="lb"><span>${tenB(x)}</span><b>${q.toFixed(1)}%</b></div>${thanh(q, mauPc(q))}
+          <div class="kn-s">${x.dv === '%' ? '' : so(x.da) + ' / ' + so(x.hd) + ' ' + x.dv}${x.dang ? (x.dv === '%' ? '' : ' · ') + x.dang + ' việc đang thi công' + (x.da > 0 ? '' : ' — chưa nhập KL') : ''}</div></div>`; }).join('') +
+      (chua > 0 ? `<div class="kn-s" style="margin-top:2px">${chua} block chưa bắt đầu — không hiện</div>` : '') + `</details>`;
   });
 
   return `<div class="tq-box"><h5>Khối lượng thực hiện theo đầu việc</h5>` +
