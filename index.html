@@ -1055,7 +1055,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.18';
+const APP_VERSION = '3.19.19';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -2646,7 +2646,7 @@ function hopKLNhom(maDA){
 
   /* --- Hoàn thiện: nhóm việc chung --- */
   /* 3.19.18: block giữ đơn vị riêng (phòng mẫu tính %, tầng tính m3); block đang thi công chưa có KL duyệt vẫn hiện */
-  (S.klNhom || []).filter(g => g.maDA === maDA).forEach(g => {
+  (S.klNhom || []).filter(g => g.maDA === maDA).sort((a, b) => (a.thu ?? 99) - (b.thu ?? 99)).forEach(g => {   // 3.19.19: trình tự thi công
     const bl = (g.blocks || []).filter(x => x.da > 0 || x.dang > 0)
       .sort((a, b) => theoPK(a.pk, b.pk) || (b.da > 0) - (a.da > 0));
     if (!bl.length && !(g.da > 0)) return;
