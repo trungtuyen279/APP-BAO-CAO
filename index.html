@@ -666,6 +666,10 @@ nav button .n{position:absolute;top:5px;right:18%;background:var(--alert);color:
 
 /* ---------- tổng quan ---------- */
 .tq-box{border:1.5px solid var(--line);border-radius:7px;padding:12px;margin-bottom:11px}
+.kn-g{border-top:1px solid var(--line);padding:8px 0 2px}.kn-g summary{list-style:none;cursor:pointer}.kn-g summary::-webkit-details-marker{display:none}
+.kn-g summary .lb{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}.kn-g summary .lb b{font-family:var(--mono)}
+.kn-t{font-family:inherit!important;color:var(--brand)}.kn-t::before{content:'▸ ';color:#9AA0A8}.kn-g[open] .kn-t::before{content:'▾ '}
+.kn-tr{height:12px}.kn-s{font-size:11px;color:var(--ink-2);margin-top:2px}.kn-b{margin:8px 0 6px 14px}
 .tq-box h5{font-size:12px;color:var(--ink-2);margin-bottom:7px}
 .tq-big{font-family:var(--mono);font-size:30px;font-weight:bold}
 .tq-sub{font-size:12px;color:var(--ink-2);margin-top:3px}
@@ -1051,7 +1055,7 @@ setTimeout(window.tatSplash, 5000);            /* lưới an toàn: tối đa 5 
 </script>
 <script src="config.js"></script>
 <script>
-const APP_VERSION = '3.19.16';
+const APP_VERSION = '3.19.17';
 const FCM = {
   config: {apiKey:"AIzaSyATbcr8HtYCUciYrMs-5LfHPd334kEdL0g",
     authDomain:"app-bao-cao-bch.firebaseapp.com", projectId:"app-bao-cao-bch",
@@ -1373,6 +1377,7 @@ function applyData(d){
   if (d.quyenTT !== undefined) S.quyenTT = !!d.quyenTT;   // 3.10.0: được xem tab Thanh toán CĐT
   if (d.quyenSuaDM !== undefined) S.quyenSuaDM = !!d.quyenSuaDM;
   if (d.chuKySan) S.chuKySan = d.chuKySan;
+  if (d.klNhom) S.klNhom = d.klNhom;   // 3.19.17: % KL theo nhóm việc từng block (Tổng quan)
   if (d.tangBlock) S.tangBlock = d.tangBlock; if (d.catNoc) S.catNoc = d.catNoc;   // 3.19.16: số sàn còn lại từng block + mốc cất nóc                          // 3.19.14: ngày/sàn theo phân khu   // 3.10.5: được sửa đầu việc ở màn Tiến độ
   if (d.chuHeThong !== undefined) S.chuHeThong = !!d.chuHeThong;
   if (d.luongKhoa !== undefined) S.luongKhoa = !!d.luongKhoa;   // 3.19.5: Quản trị tạm khoá phiếu lương
@@ -2610,6 +2615,54 @@ function chamViecCS(v, t){
   return {nhan:'Đúng kế hoạch', mau:'var(--warn)', ngay:ngay, kh:kh, ht:ht};
 }
 
+/* ---------- 3.19.17: biểu đồ % khối lượng theo nhóm việc + phần thô theo tầng ----------
+   Nguồn: máy chủ cộng trên TOÀN danh mục (S.klNhom, S.tangBlock). Nhóm/block chưa làm (0%) không hiện.
+   Bấm dòng tổng của nhóm → mở % từng block.                                                         */
+function hopKLNhom(maDA){
+  const so = v => (+v || 0).toLocaleString('vi-VN', {maximumFractionDigits: v >= 100 ? 0 : 1});
+  const p1 = (a, b) => b ? Math.min(100, a / b * 100) : 0;
+  const thanh = (pc, mau) => `<div class="track kn-tr"><i style="width:${pc.toFixed(1)}%;background:${mau}"></i></div>`;
+  const mauPc = pc => pc >= 99.5 ? 'var(--ok)' : 'var(--brand)';
+  const thuPK = {}; S.danhmuc.forEach((x, i) => { const k = khongDau(x.phanKhu); if (!(k in thuPK)) thuPK[k] = i; });
+  const theoPK = (a, b) => (thuPK[khongDau(a)] ?? 1e9) - (thuPK[khongDau(b)] ?? 1e9);
+  let h = '';
+
+  /* --- Phần thô: số sàn đã đổ / tổng sàn từng block --- */
+  const tb = S.tangBlock || {}, tho = [], T = [0, 0];      // tổng tính cả block chưa đổ sàn nào; danh sách chỉ hiện block đã đổ
+  Object.keys(tb).forEach(k => { const [ma, pk, b] = k.split('|'); const o = tb[k];
+    if (ma !== maDA || !o.tong) return; T[0] += o.xong; T[1] += o.tong; if (o.xong > 0) tho.push({pk, b, o}); });
+  tho.sort((a, b) => theoPK(a.pk, b.pk));
+  if (tho.length){
+    const pc = p1(T[0], T[1]);
+    const cao = o => { const ds = (o.ds || []).slice(); if (!ds.length) return '';
+      const r = t => { const k = khongDau(t), m = k.match(/(\d{1,2})/); return /TUM/.test(k) ? 900 : /MAI/.test(k) ? 901 : m ? +m[1] : 0; };
+      ds.sort((a, b) => r(a) - r(b)); return ds[ds.length - 1].replace(/^Tầng\s*/i, 'T'); };
+    h += `<details class="kn-g"><summary><div class="lb"><span><b class="kn-t">Phần thô · đổ BT sàn</b></span>
+        <b>${T[0]}/${T[1]} sàn · ${pc.toFixed(0)}%</b></div>${thanh(pc, mauPc(pc))}</summary>` +
+      tho.map(x => { const q = p1(x.o.xong, x.o.tong), c = cao(x.o);
+        return `<div class="prow kn-b"><div class="lb"><span>${x.b}${c ? ' · đã đổ đến ' + c : ''}</span>
+          <b>${x.o.xong}/${x.o.tong} sàn · ${q.toFixed(0)}%</b></div>${thanh(q, mauPc(q))}</div>`; }).join('') + `</details>`;
+  }
+
+  /* --- Hoàn thiện: nhóm việc chung --- */
+  (S.klNhom || []).filter(g => g.maDA === maDA && g.da > 0).forEach(g => {
+    const pc = p1(g.da, g.hd);
+    const bl = g.blocks.filter(x => x.da > 0).sort((a, b) => theoPK(a.pk, b.pk));
+    const chua = g.blocks.length - bl.length;
+    h += `<details class="kn-g"><summary><div class="lb"><span><b class="kn-t">${g.ten}</b></span>
+        <b>${pc.toFixed(1)}%</b></div>${thanh(pc, mauPc(pc))}
+        <div class="kn-s">${so(g.da)} / ${so(g.hd)} ${g.dv} · ${bl.length} block đang làm</div></summary>` +
+      bl.map(x => { const q = p1(x.da, x.hd);
+        return `<div class="prow kn-b"><div class="lb"><span>${x.b}</span><b>${q.toFixed(1)}%</b></div>${thanh(q, mauPc(q))}
+          <div class="kn-s">${so(x.da)} / ${so(x.hd)} ${g.dv}</div></div>`; }).join('') +
+      (chua ? `<div class="kn-s" style="margin-top:2px">${chua} block chưa bắt đầu — không hiện</div>` : '') + `</details>`;
+  });
+
+  return `<div class="tq-box"><h5>Khối lượng thực hiện theo đầu việc</h5>` +
+    (h ? `<div class="tq-sub" style="margin-bottom:8px">Bấm từng mục để xem % theo block. Đầu việc chưa làm không hiện.</div>` + h
+       : `<div class="tq-sub">Chưa có đầu việc nào có khối lượng thực hiện${S.klNhom ? '' : ' (máy chủ chưa cập nhật bản 3.19.17)'}.</div>`) + `</div>`;
+}
+
 /* ---------- B. TỔNG QUAN DỰ ÁN ---------- */
 const MUC_TQ_CO_BAN = ['Tiến độ','Khối lượng','Nhân lực'];
 const mucTQ = () => S.quyenTT ? MUC_TQ_CO_BAN.concat(['Thanh toán CĐT']) : MUC_TQ_CO_BAN;   // 3.10.0: tab riêng cho CHT/CHP/Quản trị
@@ -2647,22 +2700,13 @@ function renderTongQuan(){
     if (!cs){
       out1 += `<div class="tq-box"><h5>Chưa có tiến độ cơ sở</h5><div class="tq-sub">
         Dán bảng tiến độ đã ký với Chủ đầu tư vào sheet <b>TIEN_DO_CS</b> để chấm nhanh/chậm
-        theo đúng hợp đồng.</div></div>`;
+        theo đúng hợp đồng.</div></div>` + hopKLNhom(maDA);
     } else {
       const mau = cs.ngayLech < -7 ? 'var(--alert)' : cs.ngayLech > 7 ? 'var(--ok)' : 'var(--warn)';
       const nhan = cs.ngayLech < 0 ? 'CHẬM ' + (-cs.ngayLech) + ' NGÀY'
                  : cs.ngayLech > 0 ? 'SỚM ' + cs.ngayLech + ' NGÀY' : 'ĐÚNG TIẾN ĐỘ';
       const cham = cuaDA(S.tienDoCS).map(v => ({v, c: chamViecCS(v, homNay)})).filter(x => x.c.ngay > 0);
       const xau = cham.slice().sort((a,b) => b.c.ngay * b.v.trongSo - a.c.ngay * a.v.trongSo).slice(0, 8);
-
-      /* gom số việc chậm theo khối/toà để BCH biết chỗ nào đang tắc */
-      const theoKhoi = {};
-      cham.forEach(({v,c}) => {
-        const k = v.khoi || '—';
-        theoKhoi[k] = theoKhoi[k] || {n:0, max:0};
-        theoKhoi[k].n++; theoKhoi[k].max = Math.max(theoKhoi[k].max, c.ngay);
-      });
-      const dsKhoi = Object.keys(theoKhoi).sort((a,b) => theoKhoi[b].max - theoKhoi[a].max);
 
       out1 += `<div class="tq-box" style="border-color:${mau};border-width:2px">
           <h5>So với tiến độ cơ sở ký với Chủ đầu tư</h5>
@@ -2681,10 +2725,7 @@ function renderTongQuan(){
             <b style="color:var(--alert)">${cham.length}/${cs.soViec}</b></div>
         </div>`;
 
-      if (dsKhoi.length) out1 += `<div class="tq-box"><h5>Chậm theo khối / toà</h5>` +
-        dsKhoi.map(k => `<div class="tq-line"><span>${k}</span>
-          <b style="color:var(--alert)">${theoKhoi[k].n} việc · tối đa ${theoKhoi[k].max} ngày</b></div>`).join('') +
-        `</div>`;
+      out1 += hopKLNhom(maDA);   // 3.19.17: thay "Chậm theo khối / toà"
 
       out1 += `<div class="tq-box"><h5>8 đầu việc kéo lùi tiến độ nhiều nhất</h5>` +
         (xau.length ? xau.map(({v,c}) => `<div class="prow" style="padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:9px">
